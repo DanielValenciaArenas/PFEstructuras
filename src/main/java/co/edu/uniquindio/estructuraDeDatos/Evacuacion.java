@@ -1,6 +1,6 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
-public class Evacuacion {
+public class Evacuacion implements Comparable<Evacuacion>{
     private String idEvacuacion;
     private int prioridad;
     private int cantidadPersonas;
@@ -30,4 +30,11 @@ public class Evacuacion {
     public void iniciarEvacuacion() {}
     public void completarEvacuacion() {}
     public void actualizarPrioridad(int nuevaPrioridad) {}
+
+    // Comparable: por mayor prioridad
+    @Override
+    public int compareTo(Evacuacion otra) {
+        return Integer.compare(otra.getPrioridad(), this.prioridad);
+    }
+
 }
