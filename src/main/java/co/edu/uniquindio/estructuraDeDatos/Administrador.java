@@ -12,12 +12,12 @@ public class Administrador extends Usuario {
     public void asignarEquipo(Ubicacion u, EquipoRescate e) {}
 
     @Override
-    public boolean autenticar(String user, String pass) {
-        return false;
+    public boolean autenticar(String usuario, String contrasena) {
+        return this.getUsuario().equals(usuario) && this.getContrasena().equals(contrasena);
     }
 
     @Override
     public void cerrarSesion() {
-
+        System.out.println(getNombre() + " (administrador/a) ha cerrado sesión.");
     }
 }
