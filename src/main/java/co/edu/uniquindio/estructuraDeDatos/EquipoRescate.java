@@ -13,7 +13,7 @@ public class EquipoRescate {
         this.ubicacion = ubicacion;
     }
 
-    //Getters y Setters
+    // Getters y Setters
     public String getIdEquipo() { return idEquipo; }
     public void setIdEquipo(String idEquipo) { this.idEquipo = idEquipo; }
     public String getTipo() { return tipo; }
@@ -21,11 +21,12 @@ public class EquipoRescate {
     public int getMiembros() { return miembros; }
     public void setMiembros(int miembros) { this.miembros = miembros; }
     public Ubicacion getUbicacion() { return ubicacion; }
+    public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
 
-    public void setUbicacion(Ubicacion ubicacion) {
-        this.ubicacion = ubicacion;
+    public void asignarUbicacion(Ubicacion u) { this.ubicacion = u; }
+
+    public void atenderEmergencia(Ubicacion u) {
+        // Aquí puedes loggear o modificar estado; la orquestación la hará el Sistema
+        System.out.println("Equipo " + idEquipo + " atiende emergencia en " + (u!=null?u.getNombre():"?"));
     }
-
-    public void asignarUbicacion(Ubicacion u) {}
-    public void atenderEmergencia(Ubicacion u) {}
 }

@@ -15,7 +15,7 @@ public class Evacuacion implements Comparable<Evacuacion>{
         this.ubicacion = ubicacion;
     }
 
-    //Getters y Setters
+    // Getters y Setters
     public String getIdEvacuacion() { return idEvacuacion; }
     public void setIdEvacuacion(String idEvacuacion) { this.idEvacuacion = idEvacuacion; }
     public int getPrioridad() { return prioridad; }
@@ -27,14 +27,24 @@ public class Evacuacion implements Comparable<Evacuacion>{
     public Ubicacion getUbicacion() { return ubicacion; }
     public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
 
-    public void iniciarEvacuacion() {}
-    public void completarEvacuacion() {}
-    public void actualizarPrioridad(int nuevaPrioridad) {}
+    public void iniciarEvacuacion() {
+        if (estado == EstadoEvacuacion.PENDIENTE) estado = EstadoEvacuacion.EN_PROCESO;
+    }
+    public void completarEvacuacion() {
+        if (estado == EstadoEvacuacion.EN_PROCESO) estado = EstadoEvacuacion.COMPLETADA;
+    }
+    public void actualizarPrioridad(int nuevaPrioridad) {
+        if (nuevaPrioridad >= 0) this.prioridad = nuevaPrioridad;
+    }
 
-    // Comparable: por mayor prioridad
+    // Comparable: mayor prioridad primero
     @Override
     public int compareTo(Evacuacion otra) {
         return Integer.compare(otra.getPrioridad(), this.prioridad);
     }
 
+    @Override
+    public String toString() {
+        return "Evacuacion{" + idEvacuacion + ", prioridad=" + prioridad + ", personas=" + cantidadPersonas + "}";
+    }
 }

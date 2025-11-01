@@ -13,7 +13,7 @@ public abstract class Recurso {
         this.ubicacion = ubicacion;
     }
 
-    //Getters y Setters
+    // Getters y Setters
     public String getIdRecurso() { return idRecurso; }
     public void setIdRecurso(String idRecurso) { this.idRecurso = idRecurso; }
     public String getNombre() { return nombre; }
@@ -23,6 +23,13 @@ public abstract class Recurso {
     public Ubicacion getUbicacion() { return ubicacion; }
     public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
 
-    public void asignarUbicacion(Ubicacion u) {}
-    public void consumir(int cantidad) {}
+    public void asignarUbicacion(Ubicacion u) {
+        if (u != null) this.ubicacion = u;
+    }
+
+    public void consumir(int c) {
+        if (c <= 0) throw new IllegalArgumentException("Cantidad a consumir debe ser > 0");
+        if (cantidad < c) throw new IllegalStateException("Stock insuficiente");
+        this.cantidad -= c;
+    }
 }
