@@ -41,51 +41,64 @@ public class Ubicacion {
     public void setPersonas(List<Persona> personas) { this.personas = personas; }
     public List<Recurso> getRecursos() { return recursos; }
     public void setRecursos(List<Recurso> recursos) { this.recursos = recursos; }
-    public List<EquipoRescate> getEquiposDeRescate() { return equiposDeRescate; }
-    public void setEquiposDeRescate(List<EquipoRescate> equiposDeRescate) { this.equiposDeRescate = equiposDeRescate; }
+    public List<EquipoRescate> getEquiposDeRecaste() { return equiposDeRecaste; }
+    public void setEquiposDeRecaste(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRecaste = equiposDeRecaste; }
 
+    //Agregar una persona a la ubicación
     public void agregarPersona(Persona p) {
         if (p != null) {
             personas.add(p);
-            p.setUbicacion(this);
+            System.out.println("Persona agregada en " + nombre + ": " + p.getNombre());
         }
     }
 
-    // Evacúa 'cantidad' personas (si hay menos, evacúa todas) hacia 'destino'
+    // Evacuar personas desde esta ubicación hacia otra
     public void evacuarPersona(Ubicacion destino, int cantidad) {
-        if (destino == null || cantidad <= 0) return;
-        int mover = Math.min(cantidad, personas.size());
-        for (int i = 0; i < mover; i++) {
-            Persona p = personas.remove(0);
-            destino.agregarPersona(p); // agrega y actualiza su ubicación
-            p.setEstado(EstadoPersona.EVACUADO);
+        if (personas.isEmpty()) {
+            System.out.println("No hay personas para evacuar en " + nombre);
+            return;
         }
+
+        if (cantidad > personas.size()) {
+            cantidad = personas.size();
+        }
+
+        int contador = 0;
+        while (contador < cantidad && !personas.isEmpty()) {
+            Persona persona = personas.remove(0);
+            destino.agregarPersona(persona);
+            contador++;
+        }
+
+        System.out.println("Se ha evacuado " + contador + " personas desde " + nombre + " hacia " + destino.getNombre());
     }
+
 
     public void agregarRecurso(Recurso r) {
         if (r != null) {
             recursos.add(r);
-            r.asignarUbicacion(this);
+            r.setUbicacion(this);
+            System.out.println("Recurso agregado a " + nombre + ": " + r.getNombre());
         }
     }
 
+    // Asignar equipo de rescate
     public void asignarEquipo(EquipoRescate e) {
         if (e != null) {
-            equiposDeRescate.add(e);
-            e.asignarUbicacion(this);
+            equiposDeRecaste.add(e);
+            System.out.println("Equipo asignado a " + nombre + ": " + e.getNombre());
         }
     }
 
+    // Actualizar nivel de afectación
     public void actualizarNivelAfectacion(NivelDeAfectacion n) {
-        if (n != null) this.nivelAfectacion = n;
+        this.nivelAfectacion = n;
+        System.out.println("Nivel de afectación de " + nombre + " actualizado a " + n);
     }
 
-    // Igualdad por id para usar como clave en mapas
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Ubicacion)) return false;
-        Ubicacion that = (Ubicacion) o;
-        return Objects.equals(idUbicacion, that.idUbicacion);
+    @Override
+    public String toString() {
+        return "Ubicación: " + nombre + " (" + tipoZona + ", " + nivelAfectacion + ")";
     }
-    @Override public int hashCode() { return Objects.hash(idUbicacion); }
+
 }
