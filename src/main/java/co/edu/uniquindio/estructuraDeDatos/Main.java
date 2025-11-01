@@ -12,7 +12,7 @@ public class Main {
         GrafoTransporte grafo = new GrafoTransporte();
         ColaPrioridadEvacuacion cola = new ColaPrioridadEvacuacion();
         MapaRecursos mapa = new MapaRecursos();
-        ArbolDistribuido arbol = new ArbolDistribuido(null);
+        ArbolDistribuido arbol = new ArbolDistribuido();
         List<Usuario> usuarios = new ArrayList<>();
 
         SistemaGestionDesastres sistema = new SistemaGestionDesastres(grafo, cola, mapa, arbol, usuarios);

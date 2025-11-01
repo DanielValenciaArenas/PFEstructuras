@@ -21,9 +21,9 @@ public class Ubicacion {
         this.tipoZona = tipoZona;
         this.nivelAfectacion = nivelAfectacion;
         this.evacuacion = evacuacion;
-        this.personas = (personas != null) ? personas : new ArrayList<>();
-        this.recursos = (recursos != null) ? recursos : new ArrayList<>();
-        this.equiposDeRescate = (equiposDeRescate != null) ? equiposDeRescate : new ArrayList<>();
+        this.personas = new ArrayList<>();
+        this.recursos = new ArrayList<>();
+        this.equiposDeRescate = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -41,8 +41,8 @@ public class Ubicacion {
     public void setPersonas(List<Persona> personas) { this.personas = personas; }
     public List<Recurso> getRecursos() { return recursos; }
     public void setRecursos(List<Recurso> recursos) { this.recursos = recursos; }
-    public List<EquipoRescate> getEquiposDeRecaste() { return equiposDeRecaste; }
-    public void setEquiposDeRecaste(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRecaste = equiposDeRecaste; }
+    public List<EquipoRescate> getEquiposDeRescate() { return equiposDeRescate; }
+    public void setEquiposDeRescate(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRescate = equiposDeRecaste; }
 
     //Agregar una persona a la ubicación
     public void agregarPersona(Persona p) {
@@ -85,7 +85,7 @@ public class Ubicacion {
     // Asignar equipo de rescate
     public void asignarEquipo(EquipoRescate e) {
         if (e != null) {
-            equiposDeRecaste.add(e);
+            equiposDeRescate.add(e);
             System.out.println("Equipo asignado a " + nombre + ": " + e.getNombre());
         }
     }
