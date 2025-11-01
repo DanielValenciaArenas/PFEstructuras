@@ -25,7 +25,7 @@ public class ArbolDistribuido {
         } else if (comparacion > 0) {
             nodo.setDerecho(insertarRecursivo(nodo.getDerecho(), ubicacion, recurso));
         } else {
-            System.out.println("⚠️ El recurso con ID " + recurso.getIdRecurso() + " ya está asignado.");
+            System.out.println("El recurso con ID " + recurso.getIdRecurso() + " ya está asignado.");
         }
 
         return nodo;
