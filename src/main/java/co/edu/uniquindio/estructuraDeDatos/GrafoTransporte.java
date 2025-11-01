@@ -3,81 +3,70 @@ package co.edu.uniquindio.estructuraDeDatos;
 import java.util.*;
 
 public class GrafoTransporte {
-    private Map<Ubicacion, List<Ruta>> adyacencia;
+    private final Map<Ubicacion, List<Ruta>> adyacencia;
 
     public GrafoTransporte() {
         adyacencia = new HashMap<>();
     }
 
-    // Agregar una ubicación (nodo)
+    // Agregar ubicación (nodo) si no existe
     public void agregarUbicacion(Ubicacion ubicacion) {
-        if (!adyacencia.containsKey(ubicacion)) {
-            adyacencia.put(ubicacion, new ArrayList<>());
-        }
+        if (ubicacion == null) return;
+        adyacencia.computeIfAbsent(ubicacion, k -> new ArrayList<>());
     }
 
-    // Agregar ruta (arista dirigida)
+    // Agregar ruta (asegura presencia de origen y destino)
     public void agregarRuta(Ruta ruta) {
+        if (ruta == null) return;
+        agregarUbicacion(ruta.getOrigen());
+        agregarUbicacion(ruta.getDestino());
         adyacencia.get(ruta.getOrigen()).add(ruta);
     }
 
-    // Buscar camino más corto (DIJKSTRA)
+    // Dijkstra (usa "distancia" como peso). Devuelve lista de ubicaciones o null si no hay camino.
     public List<Ubicacion> buscarCaminoDijkstra(Ubicacion origen, Ubicacion destino) {
+        if (origen == null || destino == null) return null;
+        if (!adyacencia.containsKey(origen) || !adyacencia.containsKey(destino)) return null;
 
-        Map<Ubicacion, Double> distancias = new HashMap<>();
-        Map<Ubicacion, Ubicacion> nodosCamino = new HashMap<>();
-        Set<Ubicacion> noVisitados = new HashSet<>(adyacencia.keySet());
+        Map<Ubicacion, Double> dist = new HashMap<>();
+        Map<Ubicacion, Ubicacion> prev = new HashMap<>();
+        Set<Ubicacion> Q = new HashSet<>(adyacencia.keySet());
 
-        for (Ubicacion ubicacion : adyacencia.keySet()) {
-            distancias.put(ubicacion, Double.MAX_VALUE);
-        }
-        distancias.put(origen, 0.0);
+        for (Ubicacion u : Q) dist.put(u, Double.MAX_VALUE);
+        dist.put(origen, 0.0);
 
-        while (!noVisitados.isEmpty()) {
-
-            Ubicacion actual = null;
-
-            double minDistancia = Double.MAX_VALUE;
-            for (Ubicacion ubicacion : noVisitados) {
-                if (distancias.get(ubicacion) < minDistancia) {
-                    minDistancia = distancias.get(ubicacion);
-                    actual = ubicacion;
-                }
+        while (!Q.isEmpty()) {
+            Ubicacion u = null; double best = Double.MAX_VALUE;
+            for (Ubicacion x : Q) {
+                double dx = dist.getOrDefault(x, Double.MAX_VALUE);
+                if (dx < best) { best = dx; u = x; }
             }
+            if (u == null) break;          // nodos no alcanzables restantes
+            Q.remove(u);
+            if (u.equals(destino)) break;  // ya tenemos el mejor costo a destino
 
-            if (actual == null) break;
-            noVisitados.remove(actual);
-
-            for (Ruta ruta : adyacencia.get(actual)) {
-                Ubicacion vecino = ruta.getDestino();
-                double nuevaDistancia = distancias.get(actual) + ruta.getDistancia();
-                if (nuevaDistancia < distancias.get(vecino)) {
-                    distancias.put(vecino, nuevaDistancia);
-                    nodosCamino.put(vecino, actual);
+            for (Ruta r : adyacencia.getOrDefault(u, Collections.emptyList())) {
+                Ubicacion v = r.getDestino();
+                double nd = dist.get(u) + r.getDistancia();
+                if (nd < dist.getOrDefault(v, Double.MAX_VALUE)) {
+                    dist.put(v, nd);
+                    prev.put(v, u);
                 }
             }
         }
 
+        // Reconstrucción
+        if (!origen.equals(destino) && !prev.containsKey(destino)) return null;
         List<Ubicacion> camino = new ArrayList<>();
-        Ubicacion paso = destino;
-        while (paso != null) {
-            camino.add(0, paso);
-            paso = nodosCamino.get(paso);
-        }
-
-        if (camino.get(0).equals(origen)) return camino;
-        else return null;
+        for (Ubicacion at = destino; at != null; at = prev.get(at)) camino.add(0, at);
+        return camino;
     }
 
-    // Obtener vecinos de una ubicación
+    // Vecinos de una ubicación
     public List<Ubicacion> obtenerVecinos(Ubicacion ubicacion) {
         List<Ubicacion> vecinos = new ArrayList<>();
-        if (adyacencia.containsKey(ubicacion)) {
-            for (Ruta ruta : adyacencia.get(ubicacion)) {
-                vecinos.add(ruta.getDestino());
-            }
-        }
+        for (Ruta r : adyacencia.getOrDefault(ubicacion, Collections.emptyList()))
+            vecinos.add(r.getDestino());
         return vecinos;
     }
-
 }

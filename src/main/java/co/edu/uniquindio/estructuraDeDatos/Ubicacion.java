@@ -1,6 +1,8 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Ubicacion {
     private String idUbicacion;
@@ -10,19 +12,18 @@ public class Ubicacion {
     private Evacuacion evacuacion;
     private List<Persona> personas;
     private List<Recurso> recursos;
-    private List<EquipoRescate> equiposDeRecaste;
-
+    private List<EquipoRescate> equiposDeRescate;
 
     public Ubicacion(String idUbicacion, String nombre, TipoZona tipoZona, NivelDeAfectacion nivelAfectacion,
-                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRecaste) {
+                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRescate) {
         this.idUbicacion = idUbicacion;
         this.nombre = nombre;
         this.tipoZona = tipoZona;
         this.nivelAfectacion = nivelAfectacion;
         this.evacuacion = evacuacion;
-        this.personas = personas;
-        this.recursos = recursos;
-        this.equiposDeRecaste = equiposDeRecaste;
+        this.personas = (personas != null) ? personas : new ArrayList<>();
+        this.recursos = (recursos != null) ? recursos : new ArrayList<>();
+        this.equiposDeRescate = (equiposDeRescate != null) ? equiposDeRescate : new ArrayList<>();
     }
 
     // Getters y Setters
@@ -40,12 +41,51 @@ public class Ubicacion {
     public void setPersonas(List<Persona> personas) { this.personas = personas; }
     public List<Recurso> getRecursos() { return recursos; }
     public void setRecursos(List<Recurso> recursos) { this.recursos = recursos; }
-    public List<EquipoRescate> getEquiposDeRecaste() { return equiposDeRecaste; }
-    public void setEquiposDeRecaste(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRecaste = equiposDeRecaste; }
+    public List<EquipoRescate> getEquiposDeRescate() { return equiposDeRescate; }
+    public void setEquiposDeRescate(List<EquipoRescate> equiposDeRescate) { this.equiposDeRescate = equiposDeRescate; }
 
-    public void agregarPersona(Persona p) {}
-    public void evacuarPersona(Ubicacion destino, int cantidad) {}
-    public void agregarRecurso(Recurso r) {}
-    public void asignarEquipo(EquipoRescate e) {}
-    public void actualizarNivelAfectacion(NivelDeAfectacion n) {}
+    public void agregarPersona(Persona p) {
+        if (p != null) {
+            personas.add(p);
+            p.setUbicacion(this);
+        }
+    }
+
+    // Evacúa 'cantidad' personas (si hay menos, evacúa todas) hacia 'destino'
+    public void evacuarPersona(Ubicacion destino, int cantidad) {
+        if (destino == null || cantidad <= 0) return;
+        int mover = Math.min(cantidad, personas.size());
+        for (int i = 0; i < mover; i++) {
+            Persona p = personas.remove(0);
+            destino.agregarPersona(p); // agrega y actualiza su ubicación
+            p.setEstado(EstadoPersona.EVACUADO);
+        }
+    }
+
+    public void agregarRecurso(Recurso r) {
+        if (r != null) {
+            recursos.add(r);
+            r.asignarUbicacion(this);
+        }
+    }
+
+    public void asignarEquipo(EquipoRescate e) {
+        if (e != null) {
+            equiposDeRescate.add(e);
+            e.asignarUbicacion(this);
+        }
+    }
+
+    public void actualizarNivelAfectacion(NivelDeAfectacion n) {
+        if (n != null) this.nivelAfectacion = n;
+    }
+
+    // Igualdad por id para usar como clave en mapas
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ubicacion)) return false;
+        Ubicacion that = (Ubicacion) o;
+        return Objects.equals(idUbicacion, that.idUbicacion);
+    }
+    @Override public int hashCode() { return Objects.hash(idUbicacion); }
 }

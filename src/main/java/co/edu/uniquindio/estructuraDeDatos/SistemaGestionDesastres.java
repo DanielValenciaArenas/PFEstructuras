@@ -18,7 +18,7 @@ public class SistemaGestionDesastres {
         this.usuarios = usuarios;
     }
 
-    // Metodo para registrar usuarios en el sistema sin duplicar
+    // Registrar usuario si no existe username
     public void registrarUsuario(Usuario nuevoUsuario) {
         for (Usuario usuario : usuarios) {
             if (usuario.getUsuario().equals(nuevoUsuario.getUsuario())) {
@@ -30,7 +30,7 @@ public class SistemaGestionDesastres {
         System.out.println("Usuario registrado exitosamente: " + nuevoUsuario.getNombre());
     }
 
-    // Metodo para autenticar credenciales de usuario
+    // Autenticación básica delegada a cada usuario
     public Usuario autenticar(String NombreUsuario, String contrasena) {
         for (Usuario usuario : usuarios) {
             if (usuario.autenticar(NombreUsuario, contrasena)) {
@@ -42,10 +42,16 @@ public class SistemaGestionDesastres {
         return null;
     }
 
+    // Facade simple para grafo/cola
+    public void agregarUbicacion(Ubicacion u) { if (u != null) grafo.agregarUbicacion(u); }
 
-    public void agregarUbicacion(Ubicacion u) {}
-    public void agregarRuta(Ruta r) {}
-    public void registrarEvacuacion(Evacuacion e) {}
-    public SimulacionRuta simularRuta(Ubicacion origen, Ubicacion destino) { return null; }
+    public void agregarRuta(Ruta r) { if (r != null) grafo.agregarRuta(r); }
 
+    public void registrarEvacuacion(Evacuacion e) { if (e != null) colaEvacuaciones.insertar(e); }
+
+    public SimulacionRuta simularRuta(Ubicacion origen, Ubicacion destino) {
+        var nodos = grafo.buscarCaminoDijkstra(origen, destino);
+        if (nodos == null) return null;
+        return new SimulacionRuta("SIM-"+System.nanoTime(), /*tiempoTotal*/0, java.util.List.of(), nodos);
+    }
 }

@@ -13,7 +13,7 @@ public class Persona {
         this.ubicacion = ubicacion;
     }
 
-    //Getters y Setters
+    // Getters y Setters
     public String getIdPersona() { return idPersona; }
     public void setIdPersona(String idPersona) { this.idPersona = idPersona; }
     public String getNombre() { return nombre; }
@@ -23,6 +23,7 @@ public class Persona {
     public Ubicacion getUbicacion() { return ubicacion; }
     public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
 
-
-    public void cambiarEstado(EstadoPersona nuevo) {}
+    public void cambiarEstado(EstadoPersona nuevo) {
+        if (nuevo != null) this.estado = nuevo;
+    }
 }
