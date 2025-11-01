@@ -1,6 +1,8 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Ubicacion {
     private String idUbicacion;
@@ -10,19 +12,18 @@ public class Ubicacion {
     private Evacuacion evacuacion;
     private List<Persona> personas;
     private List<Recurso> recursos;
-    private List<EquipoRescate> equiposDeRecaste;
-
+    private List<EquipoRescate> equiposDeRescate;
 
     public Ubicacion(String idUbicacion, String nombre, TipoZona tipoZona, NivelDeAfectacion nivelAfectacion,
-                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRecaste) {
+                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRescate) {
         this.idUbicacion = idUbicacion;
         this.nombre = nombre;
         this.tipoZona = tipoZona;
         this.nivelAfectacion = nivelAfectacion;
         this.evacuacion = evacuacion;
-        this.personas = personas;
-        this.recursos = recursos;
-        this.equiposDeRecaste = equiposDeRecaste;
+        this.personas = (personas != null) ? personas : new ArrayList<>();
+        this.recursos = (recursos != null) ? recursos : new ArrayList<>();
+        this.equiposDeRescate = (equiposDeRescate != null) ? equiposDeRescate : new ArrayList<>();
     }
 
     // Getters y Setters
