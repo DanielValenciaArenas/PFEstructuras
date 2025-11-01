@@ -43,9 +43,61 @@ public class Ubicacion {
     public List<EquipoRescate> getEquiposDeRecaste() { return equiposDeRecaste; }
     public void setEquiposDeRecaste(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRecaste = equiposDeRecaste; }
 
-    public void agregarPersona(Persona p) {}
-    public void evacuarPersona(Ubicacion destino, int cantidad) {}
-    public void agregarRecurso(Recurso r) {}
-    public void asignarEquipo(EquipoRescate e) {}
-    public void actualizarNivelAfectacion(NivelDeAfectacion n) {}
+    //Agregar una persona a la ubicación
+    public void agregarPersona(Persona p) {
+        if (p != null) {
+            personas.add(p);
+            System.out.println("Persona agregada en " + nombre + ": " + p.getNombre());
+        }
+    }
+
+    // Evacuar personas desde esta ubicación hacia otra
+    public void evacuarPersona(Ubicacion destino, int cantidad) {
+        if (personas.isEmpty()) {
+            System.out.println("No hay personas para evacuar en " + nombre);
+            return;
+        }
+
+        if (cantidad > personas.size()) {
+            cantidad = personas.size();
+        }
+
+        int contador = 0;
+        while (contador < cantidad && !personas.isEmpty()) {
+            Persona persona = personas.remove(0);
+            destino.agregarPersona(persona);
+            contador++;
+        }
+
+        System.out.println("Se ha evacuado " + contador + " personas desde " + nombre + " hacia " + destino.getNombre());
+    }
+
+
+    public void agregarRecurso(Recurso r) {
+        if (r != null) {
+            recursos.add(r);
+            r.setUbicacion(this);
+            System.out.println("Recurso agregado a " + nombre + ": " + r.getNombre());
+        }
+    }
+
+    // Asignar equipo de rescate
+    public void asignarEquipo(EquipoRescate e) {
+        if (e != null) {
+            equiposDeRecaste.add(e);
+            System.out.println("Equipo asignado a " + nombre + ": " + e.getNombre());
+        }
+    }
+
+    // Actualizar nivel de afectación
+    public void actualizarNivelAfectacion(NivelDeAfectacion n) {
+        this.nivelAfectacion = n;
+        System.out.println("Nivel de afectación de " + nombre + " actualizado a " + n);
+    }
+
+    @Override
+    public String toString() {
+        return "Ubicación: " + nombre + " (" + tipoZona + ", " + nivelAfectacion + ")";
+    }
+
 }

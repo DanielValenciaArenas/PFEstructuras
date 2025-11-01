@@ -2,6 +2,7 @@ package co.edu.uniquindio.estructuraDeDatos;
 
 public class EquipoRescate {
     private String idEquipo;
+    private String nombre;
     private String tipo;
     private int miembros;
     private Ubicacion ubicacion;
@@ -14,6 +15,8 @@ public class EquipoRescate {
     }
 
     //Getters y Setters
+    public String getNombre() {return nombre;}
+    public void setNombre(String nombre) {this.nombre = nombre;}
     public String getIdEquipo() { return idEquipo; }
     public void setIdEquipo(String idEquipo) { this.idEquipo = idEquipo; }
     public String getTipo() { return tipo; }
