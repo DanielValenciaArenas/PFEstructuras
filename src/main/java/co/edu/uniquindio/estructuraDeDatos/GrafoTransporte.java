@@ -70,6 +70,7 @@ public class GrafoTransporte {
         return vecinos;
     }
 
+    //Obtencion de RUTAS desde la ubicacion especifica
     public List<Ruta> obtenerRutasDesde(Ubicacion ubicacion) {
         List<Ruta> rutas = new ArrayList<>();
         for (Ubicacion u : adyacencia.keySet()) {

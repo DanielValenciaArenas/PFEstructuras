@@ -85,6 +85,7 @@ public class Administrador extends Usuario {
                 + " vía la ruta más corta desde " + origen.getNombre());
     }
 
+    // Eliminar un grupo de rescate
     public void eliminarEquipo(Ubicacion u, String idEquipo) {
         if (u == null || idEquipo == null || idEquipo.isEmpty()) {
             System.out.println("Error: datos inválidos, no se ha podido eliminar el equipo");
@@ -100,6 +101,7 @@ public class Administrador extends Usuario {
         }
     }
 
+    // Agendar una evacuación en la cola de prioridad
     public void planificarEvacuacion(ColaPrioridadEvacuacion cola, Evacuacion e) {
         if (cola == null || e == null) {
             System.out.println("Error: cola o evacuación nulas");
@@ -109,6 +111,7 @@ public class Administrador extends Usuario {
         System.out.println("Evacuación registrada: " + e);
     }
 
+    // Ejecutar una evacuacion de la cola de prioridad
     public void ejecutarEvacuacion(ColaPrioridadEvacuacion cola) {
         if (cola == null || cola.estaVacia()) {
             System.out.println("No hay evacuaciones pendientes");
