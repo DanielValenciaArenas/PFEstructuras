@@ -29,7 +29,6 @@ public class EquipoRescate {
     public void asignarUbicacion(Ubicacion u) { this.ubicacion = u; }
 
     public void atenderEmergencia(Ubicacion u) {
-        // Aquí puedes loggear o modificar estado; la orquestación la hará el Sistema
         System.out.println("Equipo " + idEquipo + " atiende emergencia en " + (u!=null?u.getNombre():"?"));
     }
 }

@@ -73,7 +73,7 @@ public class Ubicacion {
         System.out.println("Se ha evacuado " + contador + " personas desde " + nombre + " hacia " + destino.getNombre());
     }
 
-
+    // Agregar un recurso en la ubicación
     public void agregarRecurso(Recurso r) {
         if (r != null) {
             recursos.add(r);
@@ -90,10 +90,15 @@ public class Ubicacion {
         }
     }
 
-    // Actualizar nivel de afectación
+    // Actualizar nivel de afectación de la zona
     public void actualizarNivelAfectacion(NivelDeAfectacion n) {
         this.nivelAfectacion = n;
         System.out.println("Nivel de afectación de " + nombre + " actualizado a " + n);
+    }
+
+    public boolean eliminarEquipo(String idEquipo) {
+        if (equiposDeRescate == null) return false;
+        return equiposDeRescate.removeIf(e -> e.getIdEquipo().equals(idEquipo));
     }
 
     @Override

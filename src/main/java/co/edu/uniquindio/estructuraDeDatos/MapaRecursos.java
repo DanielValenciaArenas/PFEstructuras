@@ -22,4 +22,10 @@ public class MapaRecursos {
         if (u == null || r == null || nuevaCantidad < 0) return;
         r.setCantidad(nuevaCantidad);
     }
+
+    public boolean tieneRecursos(Ubicacion u) {
+        if (u == null) return false;
+        List<Recurso> recursos = obtenerRecursos(u);
+        return recursos != null && !recursos.isEmpty();
+    }
 }

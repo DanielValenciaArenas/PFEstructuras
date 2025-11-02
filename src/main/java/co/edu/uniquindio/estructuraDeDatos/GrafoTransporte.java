@@ -69,4 +69,17 @@ public class GrafoTransporte {
             vecinos.add(r.getDestino());
         return vecinos;
     }
+
+    public List<Ruta> obtenerRutasDesde(Ubicacion ubicacion) {
+        List<Ruta> rutas = new ArrayList<>();
+        for (Ubicacion u : adyacencia.keySet()) {
+            if (u.equals(ubicacion)) {
+                for (Ruta r : adyacencia.get(u)) {
+                    rutas.add(r);
+                }
+            }
+        }
+        return rutas;
+    }
+
 }
