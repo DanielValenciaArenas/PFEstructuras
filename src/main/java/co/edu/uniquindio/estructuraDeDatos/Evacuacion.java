@@ -10,7 +10,7 @@ public class Evacuacion implements Comparable<Evacuacion>{
     public Evacuacion(String idEvacuacion, int prioridad, int cantidadPersonas, EstadoEvacuacion estado, Ubicacion ubicacion) {
         this.idEvacuacion = idEvacuacion;
         this.prioridad = prioridad;
-        this.cantidadPersonas = cantidadPersonas;
+        this.cantidadPersonas =  cantidadPersonas;
         this.estado = estado;
         this.ubicacion = ubicacion;
     }
