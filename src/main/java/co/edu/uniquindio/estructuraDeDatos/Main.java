@@ -17,6 +17,12 @@ public class Main {
 
         SistemaGestionDesastres sistema = new SistemaGestionDesastres(grafo, cola, mapa, arbol, usuarios);
 
+        // ===== Usuarios (para probar Operador también) =====
+        OperadorEmergencia op = new OperadorEmergencia("O1","Oscar","oscar","123", RolUsuario.OPERADOR);
+        Administrador admin = new Administrador("A1","Ana","ana","123", RolUsuario.ADMINISTRADOR);
+        usuarios.add(op);
+        usuarios.add(admin);
+
         // ----- Crear ubicaciones -----
         Ubicacion ciudad = new Ubicacion("U1", "Ciudad Central", TipoZona.CIUDAD,
                 NivelDeAfectacion.GRAVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -58,15 +64,24 @@ public class Main {
         System.out.println("\n===> Personas en Ciudad:");
         ciudad.getPersonas().forEach(p -> System.out.println(" - " + p.getNombre()));
 
-        // ----- Crear y asignar recurso -----
+        // ----- Crear y asignar recursos (MAPA + ÁRBOL) -----
         Recurso alimento = new RecursoAlimento("R01", "Agua Potable", 100, ciudad, LocalDate.of(2025, 12, 31));
         mapa.agregarRecurso(ciudad, alimento);
+        arbol.insertar(ciudad, alimento);
+
+        Recurso medicina = new RecursoMedicina("M01", "Botiquín", 50, centroAyuda, "Primeros auxilios");
+        mapa.agregarRecurso(centroAyuda, medicina);
+        arbol.insertar(centroAyuda, medicina);
 
         System.out.println("\n===> Recursos en Ciudad:");
         mapa.obtenerRecursos(ciudad).forEach(r -> System.out.println(" - " + r.getNombre() + " (" + r.getCantidad() + ")"));
 
+        System.out.println("\n===> Distribución inicial (Árbol):");
+        arbol.mostrarDistribucion();
+
         // ----- Crear y asignar equipo de rescate -----
         EquipoRescate equipo1 = new EquipoRescate("E1", "Bomberos", 5, null);
+        equipo1.setNombre("Bomberos U1"); // opcional, ya que tu clase tiene 'nombre' aparte del 'tipo'
         ciudad.asignarEquipo(equipo1);
 
         System.out.println("\n===> Equipos asignados a Ciudad:");
@@ -97,6 +112,58 @@ public class Main {
             sim.getUbicaciones().forEach(u -> System.out.println(" - " + u.getNombre()));
         }
 
+        // ======== BLOQUE EXTRA: PRUEBAS DEL OPERADOR ========
+
+        // 1) Monitorear/actualizar estado de ubicaciones
+        System.out.println("\n===> [Operador] Monitoreo / Actualización de estado");
+        op.actualizarEstadoUbicacion(ciudad, NivelDeAfectacion.GRAVE);
+        op.actualizarEstadoUbicacion(refugio, NivelDeAfectacion.MODERADO);
+
+        // 2) Priorizar y coordinar evacuaciones (usando Operador)
+        System.out.println("\n===> [Operador] Priorizar y coordinar evacuaciones");
+        Evacuacion e4 = new Evacuacion("EV4", 9, 20, EstadoEvacuacion.PENDIENTE, ciudad);
+        Evacuacion e5 = new Evacuacion("EV5", 6, 15, EstadoEvacuacion.PENDIENTE, centroAyuda);
+        op.priorizarEvacuacion(cola, e4);
+        op.priorizarEvacuacion(cola, e5);
+
+        System.out.println("Cola actual:");
+        cola.mostrarCola();
+        op.coordinarEvacuacion(cola); // atiende EV4
+        op.coordinarEvacuacion(cola); // atiende EV5
+
+        // 3) Coordinar distribución de recursos (parcial y total)
+        System.out.println("\n===> [Operador] Distribución de recursos");
+        System.out.println("Antes:");
+        imprimirRecursosPorUbicacion(mapa, ciudad);
+        imprimirRecursosPorUbicacion(mapa, centroAyuda);
+        imprimirRecursosPorUbicacion(mapa, refugio);
+
+        // Transferencia PARCIAL: mover 30 de R01 (Agua Potable) de Ciudad -> Refugio
+        op.coordinarDistribucionRecursos(mapa, arbol, ciudad, refugio, "R01", 30);
+
+        // Transferencia TOTAL: mover 50 de M01 (Botiquín) de Centro de Ayuda -> Refugio
+        op.coordinarDistribucionRecursos(mapa, arbol, centroAyuda, refugio, "M01", 50);
+
+        System.out.println("\nDespués:");
+        imprimirRecursosPorUbicacion(mapa, ciudad);
+        imprimirRecursosPorUbicacion(mapa, centroAyuda);
+        imprimirRecursosPorUbicacion(mapa, refugio);
+
+        System.out.println("\n===> Distribución actualizada (Árbol):");
+        arbol.mostrarDistribucion();
+
         System.out.println("\n=====> FIN DE PRUEBAS <=====");
+    }
+
+    private static void imprimirRecursosPorUbicacion(MapaRecursos mapa, Ubicacion u) {
+        System.out.println(u.getNombre() + ":");
+        var recursos = mapa.obtenerRecursos(u);
+        if (recursos.isEmpty()) {
+            System.out.println("  (sin recursos)");
+        } else {
+            for (Recurso r : recursos) {
+                System.out.println("  - " + r.getNombre() + " [" + r.getIdRecurso() + "] x" + r.getCantidad());
+            }
+        }
     }
 }
