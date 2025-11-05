@@ -2,9 +2,8 @@ package co.edu.uniquindio.estructuraDeDatos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class Ubicacion {
+public class Ubicacion implements Comparable<Ubicacion>{
     private String idUbicacion;
     private String nombre;
     private TipoZona tipoZona;
@@ -82,6 +81,28 @@ public class Ubicacion {
         }
     }
 
+    public void eliminarRecurso(String idRecurso) {
+        if (recursos == null || recursos.isEmpty()) {
+            System.out.println("No hay recursos en " + nombre);
+            return;
+        }
+
+        Recurso eliminado = null;
+        for (Recurso r : recursos) {
+            if (r.getIdRecurso().equals(idRecurso)) {
+                eliminado = r;
+                break;
+            }
+        }
+
+        if (eliminado != null) {
+            recursos.remove(eliminado);
+            System.out.println("Recurso eliminado de " + nombre + ": " + eliminado.getNombre());
+        } else {
+            System.out.println("No se encontró el recurso con ID " + idRecurso + " en " + nombre);
+        }
+    }
+
     // Asignar equipo de rescate
     public void asignarEquipo(EquipoRescate e) {
         if (e != null) {
@@ -105,5 +126,11 @@ public class Ubicacion {
     public String toString() {
         return "Ubicación: " + nombre + " (" + tipoZona + ", " + nivelAfectacion + ")";
     }
+
+    @Override
+    public int compareTo(Ubicacion otra) {
+        return this.nivelAfectacion.compareTo(otra.nivelAfectacion);
+    }
+
 
 }
