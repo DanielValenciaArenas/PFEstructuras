@@ -76,7 +76,7 @@ public class PruebaSistemaTest {
     void testInsertarEnArbolDistribuido() {
         RecursoAlimento agua = new RecursoAlimento("R01", "Agua", 100, ciudad, LocalDate.of(2026,12,31));
         arbol.insertar(ciudad, agua);
-        var nodo = arbol.buscar("R01");
+        var nodo = arbol.buscarRecurso("R01");
         assertNotNull(nodo);
         assertEquals("R01", nodo.getRecurso().getIdRecurso());
         assertEquals(ciudad, nodo.getUbicacion());
