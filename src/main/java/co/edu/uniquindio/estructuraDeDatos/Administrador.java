@@ -47,8 +47,8 @@ public class Administrador extends Usuario {
 
     // Asignar recurso a una ubicación
     public void asignarRecurso(Ubicacion u, Recurso r, MapaRecursos mapa, ArbolDistribuido arbol) {
-        if (u == null || r == null) {
-            System.out.println("Error: ubicación o recurso nulos");
+        if (u == null || r == null || arbol == null) {
+            System.out.println("Error: ubicación, recurso o árbol nulos");
             return;
         }
         mapa.agregarRecurso(u, r);
@@ -58,8 +58,21 @@ public class Administrador extends Usuario {
 
     // Eliminar un recurso según su ID
     public void eliminarRecurso(String idRecurso, ArbolDistribuido arbol) {
-        arbol.eliminar(idRecurso);
+        if (idRecurso == null || idRecurso.isEmpty() || arbol == null) {
+            System.out.println("Error: datos inválidos para eliminar el recurso.");
+            return;
+        }
+        arbol.eliminarZona(idRecurso);
         System.out.println("Recurso con ID " + idRecurso + " eliminado del árbol de distribución");
+    }
+
+    // Mover recurso entre zonas
+    public void moverRecurso(String idRecurso, Ubicacion nuevaUbicacion, ArbolDistribuido arbol) {
+        if (arbol == null) {
+            System.out.println("Error: árbol de distribución no inicializado");
+            return;
+        }
+        arbol.moverRecurso(idRecurso, nuevaUbicacion);
     }
 
     //Asignar un equipo de rescate en función de la ruta más corta
