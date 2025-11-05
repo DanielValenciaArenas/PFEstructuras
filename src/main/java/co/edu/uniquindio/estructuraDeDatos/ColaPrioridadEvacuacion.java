@@ -20,6 +20,7 @@ public class ColaPrioridadEvacuacion {
         if (evac == null) return;
 
         Nodo<Evacuacion> nuevo = new Nodo<>(evac);
+        int p = evac.getPrioridad();
 
         // 1) cola vacía
         if (estaVacia()) {
@@ -28,28 +29,31 @@ public class ColaPrioridadEvacuacion {
             return;
         }
 
-        // 2) va al frente (si su prioridad es estrictamente mayor que la del primero)
-        if (evac.compareTo(primero.getDato()) > 0) {
+        // 2) va al frente si su prioridad es estrictamente MAYOR que la del primero
+        if (p > primero.getDato().getPrioridad()) {
             nuevo.setSiguiente(primero);
             primero = nuevo;
             size++;
             return;
         }
 
-        // 3) buscar posición intermedia o final (<= siguiente)
+        // 3) buscar posición intermedia o final para mantener ORDEN DESCENDENTE
+        // avanzamos mientras el siguiente tenga prioridad >= p
         Nodo<Evacuacion> actual = primero;
         while (actual.getSiguiente() != null &&
-                evac.compareTo(actual.getSiguiente().getDato()) <= 0) {
+                actual.getSiguiente().getDato().getPrioridad() >= p) {
             actual = actual.getSiguiente();
         }
 
         // insertar después de 'actual'
         nuevo.setSiguiente(actual.getSiguiente());
         actual.setSiguiente(nuevo);
+
+        // si quedó al final, actualizamos 'ultimo'
         if (nuevo.getSiguiente() == null) {
-            // se insertó al final
             ultimo = nuevo;
         }
+
         size++;
     }
 
