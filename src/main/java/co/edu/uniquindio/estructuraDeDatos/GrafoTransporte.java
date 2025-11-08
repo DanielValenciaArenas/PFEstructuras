@@ -82,5 +82,15 @@ public class GrafoTransporte {
         }
         return rutas;
     }
+    //Metodo para acceder a rutas guardadas
+
+    public List<Ruta> obtenerTodasLasRutas() {
+        List<Ruta> todas = new ArrayList<>();
+        for (List<Ruta> lista : adyacencia.values()) {
+            todas.addAll(lista);
+        }
+        return todas;
+    }
+
 
 }

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Ubicaciones</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+</head>
+<body>
+
+<header class="top">
+    <a href="/">← Volver</a>
+    <h1>Gestión de Ubicaciones</h1>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h2>Registrar nueva ubicación</h2>
+        <form id="form-ubicacion" class="row">
+            <input id="nombre" placeholder="Nombre de la ubicación">
+            <select id="tipo">
+                <option value="CIUDAD">CIUDAD</option>
+                <option value="REFUGIO">REFUGIO</option>
+                <option value="CENTRO_AYUDA">CENTRO_AYUDA</option>
+            </select>
+            <select id="nivel">
+                <option value="LEVE">LEVE</option>
+                <option value="MODERADO">MODERADO</option>
+                <option value="GRAVE">GRAVE</option>
+            </select>
+            <button type="submit">Agregar</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Ubicaciones registradas</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Nivel de Afectación</th>
+            </tr>
+            </thead>
+            <tbody id="tabla-ubicaciones"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+    // === Cargar ubicaciones ===
+    async function cargarUbicaciones() {
+      const res = await fetch('/api/ubicaciones');
+      const data = await res.json();
+      const tbody = document.getElementById('tabla-ubicaciones');
+      tbody.innerHTML = data.map(u => `
+        <tr>
+          <td>${u.nombre}</td>
+          <td>${u.tipo}</td>
+          <td>${u.afectacion}</td>
+        </tr>
+      `).join('');
+    }
+
+    // === Agregar nueva ubicación ===
+    document.getElementById('form-ubicacion').addEventListener('submit', async e => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombre').value.trim();
+      const tipo = document.getElementById('tipo').value;
+      const nivel = document.getElementById('nivel').value;
+
+      if (!nombre) {
+        alert('Por favor ingresa un nombre');
+        return;
+      }
+
+      const body = { nombre, tipo, nivel };
+      const res = await fetch('/api/ubicaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        alert('Ubicación registrada correctamente');
+        e.target.reset();
+        cargarUbicaciones();
+      } else {
+        alert('Error al registrar la ubicación');
+      }
+    });
+
+    // Carga inicial
+    cargarUbicaciones();
+</script>
+
+</body>
+</html>
