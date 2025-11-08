@@ -33,52 +33,46 @@ public class MapaRecursos {
     // === NUEVO: Transferir recurso por id desde 'origen' a 'destino' (total o parcial) ===
     // Devuelve el recurso que queda en destino (puede ser el mismo objeto si movimos todo,
     // o una copia si fue transferencia parcial).
+    // En MapaRecursos
     public Recurso transferirRecurso(Ubicacion origen, Ubicacion destino, String idRecurso, int cantidad) {
-        if (origen == null || destino == null || idRecurso == null || idRecurso.isEmpty() || cantidad <= 0) return null;
+        if (origen == null || destino == null || idRecurso == null || cantidad <= 0) return null;
+        var lista = mapa.get(origen);
+        if (lista == null) return null;
 
-        List<Recurso> listaOrigen = mapa.get(origen);
-        if (listaOrigen == null) return null;
-
-        Recurso r = null;
-        for (Recurso x : listaOrigen) {
-            if (idRecurso.equals(x.getIdRecurso())) { r = x; break; }
+        for (int i = 0; i < lista.size(); i++) {
+            Recurso r = lista.get(i);
+            if (idRecurso.equals(r.getIdRecurso())) {
+                if (cantidad >= r.getCantidad()) {
+                    // movimiento TOTAL
+                    lista.remove(i);
+                    r.setUbicacion(destino);
+                    mapa.computeIfAbsent(destino, k -> new java.util.ArrayList<>()).add(r);
+                    return r; // mismo id
+                } else {
+                    // movimiento PARCIAL: clonar con nuevo id
+                    r.setCantidad(r.getCantidad() - cantidad);
+                    Recurso clon = clonarRecursoConCantidadNueva(r, cantidad, destino);
+                    mapa.computeIfAbsent(destino, k -> new java.util.ArrayList<>()).add(clon);
+                    return clon; // id diferente
+                }
+            }
         }
-        if (r == null) return null;
-        if (cantidad > r.getCantidad()) return null;
-
-        // Transferencia total -> mover el mismo objeto
-        if (cantidad == r.getCantidad()) {
-            listaOrigen.remove(r);
-            agregarRecurso(destino, r); // setea ubicacion
-            return r;
-        }
-
-        // Transferencia parcial -> disminuir en origen y crear copia en destino
-        r.setCantidad(r.getCantidad() - cantidad);
-
-        Recurso copia = clonarParcial(r, destino, cantidad);
-        if (copia == null) return null;
-
-        agregarRecurso(destino, copia);
-        return copia;
+        return null;
     }
 
-    // Clona parcialmente el recurso respetando su subtipo y atributos relevantes.
-    private Recurso clonarParcial(Recurso original, Ubicacion destino, int cantidad) {
-        String nuevoId = original.getIdRecurso() + "-MOV" + System.nanoTime();
-        if (original instanceof RecursoAlimento) {
-            RecursoAlimento ra = (RecursoAlimento) original;
-            LocalDate fv = ra.getFechaVencimiento();
-            return new RecursoAlimento(nuevoId, original.getNombre(), cantidad, destino, fv);
-        } else if (original instanceof RecursoMedicina) {
-            RecursoMedicina rm = (RecursoMedicina) original;
-            String tipo = rm.getTipoMedicamento();
-            return new RecursoMedicina(nuevoId, original.getNombre(), cantidad, destino, tipo);
+    private Recurso clonarRecursoConCantidadNueva(Recurso original, int cantidad, Ubicacion destino) {
+        String nuevoId = original.getIdRecurso() + "-P" + System.nanoTime();
+        if (original instanceof RecursoAlimento ra) {
+            return new RecursoAlimento(nuevoId, ra.getNombre(), cantidad, destino, ra.getFechaVencimiento());
+        } else if (original instanceof RecursoMedicina rm) {
+            return new RecursoMedicina(nuevoId, rm.getNombre(), cantidad, destino, rm.getTipoMedicamento());
         } else {
-            // Si en el futuro hay más subtipos, agregarlos aquí:
-            return null;
+            // Si aparece otro tipo de recurso en el futuro
+            Recurso gen = new Recurso(nuevoId, original.getNombre(), cantidad, destino) {};
+            return gen;
         }
     }
+
 
     //Metodo para listar todos los recursos existentes
 
