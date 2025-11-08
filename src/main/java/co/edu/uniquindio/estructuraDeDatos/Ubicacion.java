@@ -47,12 +47,18 @@ public class Ubicacion implements Comparable<Ubicacion>{
     public void agregarPersona(Persona p) {
         if (p != null) {
             personas.add(p);
+            p.setUbicacion(this);
             System.out.println("Persona agregada en " + nombre + ": " + p.getNombre());
         }
     }
 
     // Evacuar personas desde esta ubicación hacia otra
     public void evacuarPersona(Ubicacion destino, int cantidad) {
+        if (destino == null) {
+            System.out.println("No hay destino para evacuar desde " + nombre);
+            return;
+        }
+
         if (personas.isEmpty()) {
             System.out.println("No hay personas para evacuar en " + nombre);
             return;
@@ -65,6 +71,8 @@ public class Ubicacion implements Comparable<Ubicacion>{
         int contador = 0;
         while (contador < cantidad && !personas.isEmpty()) {
             Persona persona = personas.remove(0);
+            persona.setUbicacion(destino);
+            persona.setEstado(EstadoPersona.EVACUADO);
             destino.agregarPersona(persona);
             contador++;
         }
@@ -130,6 +138,19 @@ public class Ubicacion implements Comparable<Ubicacion>{
     @Override
     public int compareTo(Ubicacion otra) {
         return this.nivelAfectacion.compareTo(otra.nivelAfectacion);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ubicacion that = (Ubicacion) o;
+        return idUbicacion != null && idUbicacion.equals(that.idUbicacion);
+    }
+
+    @Override
+    public int hashCode() {
+        return idUbicacion != null ? idUbicacion.hashCode() : 0;
     }
 
 
