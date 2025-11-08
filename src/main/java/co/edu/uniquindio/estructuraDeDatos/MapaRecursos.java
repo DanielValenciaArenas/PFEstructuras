@@ -79,4 +79,15 @@ public class MapaRecursos {
             return null;
         }
     }
+
+    //Metodo para listar todos los recursos existentes
+
+    public List<Recurso> obtenerTodosLosRecursos() {
+        List<Recurso> todos = new ArrayList<>();
+        for (List<Recurso> lista : mapa.values()) {
+            todos.addAll(lista);
+        }
+        return todos;
+    }
+
 }

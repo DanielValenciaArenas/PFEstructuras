@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Recursos y Equipos</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+</head>
+<body>
+
+<header class="top">
+    <a href="/">← Volver</a>
+    <h1>Gestión de Recursos y Equipos de Rescate</h1>
+</header>
+
+<main class="container">
+
+    <!-- Formulario de Recursos -->
+    <section class="card">
+        <h2>Agregar Recurso</h2>
+        <form id="form-recurso" class="row">
+            <select id="tipoRecurso">
+                <option value="ALIMENTO">ALIMENTO</option>
+                <option value="MEDICINA">MEDICINA</option>
+            </select>
+            <input id="cantidadRecurso" type="number" placeholder="Cantidad" min="1">
+            <input id="ubicacionRecurso" placeholder="Ubicación (nombre exacto)">
+            <button type="submit">Agregar</button>
+        </form>
+    </section>
+
+    <!-- Formulario de Equipos -->
+    <section class="card">
+        <h2>Asignar Equipo de Rescate</h2>
+        <form id="form-equipo" class="row">
+            <input id="nombreEquipo" placeholder="Nombre del equipo">
+            <input id="tipoEquipo" placeholder="Tipo (por ejemplo: Bomberos)">
+            <input id="miembrosEquipo" type="number" placeholder="Cantidad de miembros" min="1">
+            <input id="ubicacionEquipo" placeholder="Ubicación (nombre exacto)">
+            <button type="submit">Asignar</button>
+        </form>
+    </section>
+
+    <!-- Listado de Recursos -->
+    <section class="card">
+        <h2>Recursos Registrados</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Ubicación</th>
+            </tr>
+            </thead>
+            <tbody id="tabla-recursos"></tbody>
+        </table>
+    </section>
+
+    <!-- Listado de Equipos -->
+    <section class="card">
+        <h2>Equipos de Rescate</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Miembros</th>
+                <th>Ubicación</th>
+            </tr>
+            </thead>
+            <tbody id="tabla-equipos"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+    // === Cargar recursos ===
+    async function cargarRecursos() {
+      const res = await fetch('/api/recursos');
+      if (!res.ok) return;
+      const data = await res.json();
+      const tbody = document.getElementById('tabla-recursos');
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay recursos registrados</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(r => `
+        <tr>
+          <td>${r.tipo || '-'}</td>
+          <td>${r.cantidad}</td>
+          <td>${r.ubicacion}</td>
+        </tr>
+      `).join('');
+    }
+
+    // === Agregar recurso ===
+    document.getElementById('form-recurso').addEventListener('submit', async e => {
+      e.preventDefault();
+      const tipo = document.getElementById('tipoRecurso').value;
+      const cantidad = parseInt(document.getElementById('cantidadRecurso').value);
+      const ubicacion = document.getElementById('ubicacionRecurso').value.trim();
+
+      if (!ubicacion) {
+        alert('Debes ingresar la ubicación.');
+        return;
+      }
+      if (isNaN(cantidad) || cantidad <= 0) {
+        alert('La cantidad debe ser mayor que 0.');
+        return;
+      }
+
+      const body = { tipo, cantidad, ubicacion, nombre: tipo };
+      const res = await fetch('/api/recursos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        alert('Recurso agregado correctamente');
+        e.target.reset();
+        cargarRecursos();
+      } else {
+        alert('Error al agregar recurso');
+      }
+    });
+
+    // === Agregar equipo ===
+    document.getElementById('form-equipo').addEventListener('submit', async e => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombreEquipo').value.trim();
+      const tipo = document.getElementById('tipoEquipo').value.trim();
+      const miembros = parseInt(document.getElementById('miembrosEquipo').value);
+      const ubicacion = document.getElementById('ubicacionEquipo').value.trim();
+
+      if (!nombre || !tipo || !ubicacion) {
+        alert('Debes llenar todos los campos.');
+        return;
+      }
+      if (isNaN(miembros) || miembros <= 0) {
+        alert('La cantidad de miembros debe ser mayor que 0.');
+        return;
+      }
+
+      const body = { nombre, tipo, miembros, ubicacion };
+      const res = await fetch('/api/equipos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        alert('Equipo asignado correctamente');
+        e.target.reset();
+        cargarEquipos();
+      } else {
+        alert('Error al asignar equipo');
+      }
+    });
+
+    async function cargarEquipos() {
+      const res = await fetch('/api/ubicaciones');
+      if (!res.ok) return;
+      const data = await res.json();
+      const tbody = document.getElementById('tabla-equipos');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#888;">Equipos registrados localmente</td></tr>';
+    }
+
+    cargarRecursos();
+    cargarEquipos();
+</script>
+
+</body>
+</html>

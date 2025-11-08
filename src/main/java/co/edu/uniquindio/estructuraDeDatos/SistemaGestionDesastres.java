@@ -54,4 +54,11 @@ public class SistemaGestionDesastres {
         if (nodos == null) return null;
         return new SimulacionRuta("SIM-"+System.nanoTime(), /*tiempoTotal*/0, java.util.List.of(), nodos);
     }
+    public GrafoTransporte getGrafo() { return grafo; }
+
+    public MapaRecursos getMapaRecursos() {
+        return mapaRecursos;
+    }
+
+
 }
