@@ -3,14 +3,18 @@ package co.edu.uniquindio.estructuraDeDatos;
 import java.util.List;
 
 public class SistemaGestionDesastres {
+
     private GrafoTransporte grafo;
     private ColaPrioridadEvacuacion colaEvacuaciones;
     private MapaRecursos mapaRecursos;
     private ArbolDistribuido arbolDistribucion;
     private List<Usuario> usuarios;
 
-    public SistemaGestionDesastres(GrafoTransporte grafo, ColaPrioridadEvacuacion colaEvacuaciones, MapaRecursos mapaRecursos,
-                                   ArbolDistribuido arbolDistribucion, List<Usuario> usuarios) {
+    public SistemaGestionDesastres(GrafoTransporte grafo,
+                                   ColaPrioridadEvacuacion colaEvacuaciones,
+                                   MapaRecursos mapaRecursos,
+                                   ArbolDistribuido arbolDistribucion,
+                                   List<Usuario> usuarios) {
         this.grafo = grafo;
         this.colaEvacuaciones = colaEvacuaciones;
         this.mapaRecursos = mapaRecursos;
@@ -18,7 +22,7 @@ public class SistemaGestionDesastres {
         this.usuarios = usuarios;
     }
 
-    // Registrar usuario si no existe username
+
     public void registrarUsuario(Usuario nuevoUsuario) {
         for (Usuario usuario : usuarios) {
             if (usuario.getUsuario().equals(nuevoUsuario.getUsuario())) {
@@ -30,10 +34,9 @@ public class SistemaGestionDesastres {
         System.out.println("Usuario registrado exitosamente: " + nuevoUsuario.getNombre());
     }
 
-    // Autenticación básica delegada a cada usuario
-    public Usuario autenticar(String NombreUsuario, String contrasena) {
+    public Usuario autenticar(String nombreUsuario, String contrasena) {
         for (Usuario usuario : usuarios) {
-            if (usuario.autenticar(NombreUsuario, contrasena)) {
+            if (usuario.autenticar(nombreUsuario, contrasena)) {
                 System.out.println(usuario.getNombre() + " iniciaste sesión!, Bienvenid@");
                 return usuario;
             }
@@ -42,12 +45,17 @@ public class SistemaGestionDesastres {
         return null;
     }
 
-    // Facade simple para grafo/cola
-    public void agregarUbicacion(Ubicacion u) { if (u != null) grafo.agregarUbicacion(u); }
+    public void agregarUbicacion(Ubicacion u) {
+        if (u != null) grafo.agregarUbicacion(u);
+    }
 
-    public void agregarRuta(Ruta r) { if (r != null) grafo.agregarRuta(r); }
+    public void agregarRuta(Ruta r) {
+        if (r != null) grafo.agregarRuta(r);
+    }
 
-    public void registrarEvacuacion(Evacuacion e) { if (e != null) colaEvacuaciones.insertar(e); }
+    public void registrarEvacuacion(Evacuacion e) {
+        if (e != null) colaEvacuaciones.insertar(e);
+    }
 
     public SimulacionRuta simularRuta(Ubicacion origen, Ubicacion destino) {
         var camino = grafo.buscarCaminoDijkstra(origen, destino);
@@ -63,5 +71,42 @@ public class SistemaGestionDesastres {
         return mapaRecursos;
     }
 
+    public List<Usuario> getUsuarios() {
+        return usuarios;
+    }
 
+    public List<Ubicacion> getUbicaciones() {
+        return grafo.obtenerTodasLasUbicaciones();
+    }
+
+    public ColaPrioridadEvacuacion getColaEvacuaciones() {
+        return colaEvacuaciones;
+    }
+
+    public ArbolDistribuido getArbolDistribucion() {
+        return arbolDistribucion;
+    }
+
+    public long contarUbicacionesPorNivel(NivelDeAfectacion nivel) {
+        return grafo.obtenerTodasLasUbicaciones().stream()
+                .filter(u -> u.getNivelAfectacion() == nivel)
+                .count();
+    }
+
+    public int contarEquipos() {
+        return (int) grafo.obtenerTodasLasUbicaciones().stream()
+                .flatMap(u -> u.getEquiposDeRescate().stream())
+                .count();
+    }
+
+    public int contarRecursos() {
+        // Si tienes MapaRecursos.obtenerTodosLosRecursos(), úsalo aquí; si no, cuenta por ubicación desde WebServer.
+        return mapaRecursos.obtenerTodosLosRecursos().size();
+    }
+
+    public int contarEvacuacionesPendientes() {
+        return (int) colaEvacuaciones.listarTodas().stream()
+                .filter(e -> e.getEstado() == EstadoEvacuacion.PENDIENTE)
+                .count();
+    }
 }

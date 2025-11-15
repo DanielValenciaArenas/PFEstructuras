@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Iniciar sesión — PFEstructuras</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="shell">
+<header class="top">
+    <div class="brand">PFEstructuras</div>
+</header>
+
+<main class="container">
+    <div class="card card-center" style="max-width:420px">
+        <h2>Iniciar sesión</h2>
+        <p class="muted">Usa las credenciales proporcionadas por el admin.</p>
+        <form id="frmLogin" class="mt">
+            <div class="row">
+                <input id="txtUsuario" placeholder="Usuario" required>
+            </div>
+            <div class="row">
+                <input id="txtClave" type="password" placeholder="Contraseña" required>
+            </div>
+            <div class="row">
+                <button class="btn" type="submit">Entrar</button>
+            </div>
+        </form>
+        <div id="msg" class="pill mt" style="display:none"></div>
+
+        <details class="mt">
+            <summary>¿Necesitas datos de prueba?</summary>
+            <div class="mt-8">
+                <ul>
+                    <li>Administrador: <b>admin</b> / <b>admin123</b></li>
+                    <li>Operador: <b>oper</b> / <b>oper123</b></li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</main>
+
+<script src="/public/js/auth.js"></script>
+<script>
+    // Si ya hay sesión, vete directo al portal
+    if (Auth.isLogged()) location.replace("/");
+
+    document.getElementById("frmLogin").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const usuario = document.getElementById("txtUsuario").value.trim();
+      const contrasena = document.getElementById("txtClave").value.trim();
+      const ok = await Auth.login(usuario, contrasena);
+      const box = document.getElementById("msg");
+      if (!ok) {
+        box.textContent = "Usuario o contraseña inválidos";
+        box.style.display = "inline-block";
+      } else {
+        location.replace("/");
+      }
+    });
+</script>
+</body>
+</html>

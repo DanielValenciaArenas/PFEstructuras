@@ -1,5 +1,9 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class ColaPrioridadEvacuacion {
 
     private Nodo<Evacuacion> primero;
@@ -75,5 +79,33 @@ public class ColaPrioridadEvacuacion {
             System.out.println(" - " + aux.getDato());
             aux = aux.getSiguiente();
         }
+    }
+    public List<Evacuacion> listarTodas() {
+        List<Evacuacion> lista = new ArrayList<>();
+        Nodo<Evacuacion> aux = primero;
+        while (aux != null) {
+            lista.add(aux.getDato());
+            aux = aux.getSiguiente();
+        }
+        return lista;
+    }
+
+
+    public Evacuacion buscarPorId(String id) {
+        if (id == null) return null;
+        Nodo<Evacuacion> aux = primero;
+        while (aux != null) {
+            Evacuacion e = aux.getDato();
+            if (id.equals(e.getIdEvacuacion())) return e;
+            aux = aux.getSiguiente();
+        }
+        return null;
+    }
+
+
+    public void actualizarEstado(String id, EstadoEvacuacion nuevoEstado) {
+        if (nuevoEstado == null) return;
+        Evacuacion e = buscarPorId(id);
+        if (e != null) e.setEstado(nuevoEstado);
     }
 }

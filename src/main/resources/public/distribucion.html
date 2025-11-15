@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"><title>Distribución</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+</head>
+<body>
+<header class="top"><a href="/">← Volver</a><h1>Árbol de Distribución</h1></header>
+
+<main class="container">
+    <section class="card">
+        <form id="f" class="row">
+            <select id="orden"><option value="BFS">BFS</option><option value="DFS">DFS</option></select>
+            <button>Recorrer</button>
+        </form>
+        <pre id="out" style="margin-top:10px;"></pre>
+    </section>
+</main>
+
+<script>
+    document.getElementById('f').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const r = await fetch('/api/distribucion?orden='+orden.value);
+      const data = await r.json();
+      out.textContent = data.length ? data.join(' -> ') : 'Árbol vacío';
+    });
+</script>
+</body>
+</html>
