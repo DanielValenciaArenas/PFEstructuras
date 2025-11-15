@@ -168,5 +168,17 @@ public class GrafoTransporte {
         return rutas;
     }
 
+    public List<Ubicacion> obtenerTodasLasUbicaciones() {
+        List<Ubicacion> lista = new ArrayList<>();
+
+        NodoUbicacion actual = primero;
+        while (actual != null) {
+            lista.add(actual.ubicacion);
+            actual = actual.siguiente;
+        }
+
+        return lista;
+    }
+
 
 }
