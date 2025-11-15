@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"><title>Transferir Recursos</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+</head>
+<body>
+<header class="top"><a href="/">← Volver</a><h1>Transferencias de Recursos</h1></header>
+
+<main class="container">
+    <section class="card">
+        <h2>Mover recurso</h2>
+        <form id="f" class="row">
+            <input id="origen" placeholder="Origen (nombre exacto)">
+            <input id="destino" placeholder="Destino (nombre exacto)">
+            <input id="idRecurso" placeholder="ID de recurso">
+            <input id="cantidad" type="number" min="1" placeholder="Cantidad a transferir">
+            <button>Transferir</button>
+        </form>
+        <pre id="out" style="margin-top:10px;"></pre>
+    </section>
+
+    <section class="card">
+        <h2>Recursos por ubicación (consulta rápida)</h2>
+        <form id="q" class="row">
+            <input id="u" placeholder="Ubicación (nombre exacto)"><button>Listar</button>
+        </form>
+        <ul id="lista"></ul>
+    </section>
+</main>
+
+<script>
+    document.getElementById('f').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const body = { origen: origen.value.trim(), destino: destino.value.trim(),
+                     idRecurso: idRecurso.value.trim(), cantidad: parseInt(cantidad.value) };
+      const r = await fetch('/api/recursos/transferir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const t = await r.text(); out.textContent = t;
+    });
+
+    document.getElementById('q').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const r = await fetch('/api/recursos?ubicacion='+encodeURIComponent(u.value.trim()));
+      const data = await r.json();
+      lista.innerHTML = data.length? data.map(x=>`<li>${x.tipo} — ${x.cantidad}</li>`).join('') : '<li>Sin datos</li>';
+    });
+</script>
+</body>
+</html>

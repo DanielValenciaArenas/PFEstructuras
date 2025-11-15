@@ -1,25 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>SGDN – Inicio</title>
+    <meta charset="utf-8"/>
+    <title>PFEstructuras — Portal</title>
     <link rel="stylesheet" href="/public/css/estilos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body class="shell">
 <header class="top">
-    <h1>Sistema de Gestión de Desastres</h1>
-    <nav>
-        <a href="/public/ubicaciones.html">Ubicaciones</a>
-        <a href="/public/rutas.html">Rutas</a>
-        <a href="/public/recursos.html">Recursos</a>
-    </nav>
+    <div class="brand">PFEstructuras — Portal</div>
+    <div class="user">
+        <span id="who"></span>
+        <button id="btnLogout" class="btn outline">Salir</button>
+    </div>
 </header>
 
 <main class="container">
-    <section class="card">
-        <h2>Bienvenida</h2>
-        <p>Desde este panel podrás gestionar ubicaciones, rutas y recursos usando tus estructuras de datos.</p>
-    </section>
+    <div class="grid">
+
+        <!-- ADMIN + OPERADOR -->
+        <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
+            <h2>Ubicaciones</h2>
+            <p>Registrar zonas y su nivel de afectación.</p>
+            <a class="btn" href="/public/ubicaciones.html">Abrir</a>
+        </section>
+
+        <!-- ADMIN + OPERADOR -->
+        <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
+            <h2>Rutas</h2>
+            <p>Registrar rutas y calcular la ruta más corta.</p>
+            <a class="btn" href="/public/rutas.html">Abrir</a>
+        </section>
+
+        <!-- ADMIN + OPERADOR -->
+        <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
+            <h2>Recursos</h2>
+            <p>Gestionar recursos y asignar equipos de rescate.</p>
+            <a class="btn" href="/public/recursos.html">Abrir</a>
+        </section>
+
+        <!-- ADMIN + OPERADOR -->
+        <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
+            <h2>Evacuaciones</h2>
+            <p>Crear y actualizar estado de evacuaciones.</p>
+            <a class="btn" href="/public/evacuaciones.html">Abrir</a>
+        </section>
+
+        <!-- ADMIN + OPERADOR -->
+        <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
+            <h2>Dashboard</h2>
+            <p>Resumen del sistema.</p>
+            <a class="btn" href="/public/dashboard.html">Abrir</a>
+        </section>
+
+        <!-- SOLO ADMIN -->
+        <section class="card" data-roles="ADMINISTRADOR">
+            <h2>Usuarios</h2>
+            <p>Listado de usuarios del sistema (solo Administrador).</p>
+            <a class="btn" href="/public/usuarios.html">Abrir</a>
+        </section>
+
+    </div>
 </main>
+
+<footer class="foot">
+    © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/portal.js"></script>
 </body>
 </html>

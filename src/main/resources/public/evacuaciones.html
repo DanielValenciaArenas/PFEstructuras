@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"><title>Evacuaciones</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <script src="/public/js/auth.js"></script>
+</head>
+<body>
+<script>renderHeader('Evacuaciones'); requireRole(['ADMIN','OPERADOR']);</script>
+
+<main class="container">
+    <section class="card">
+        <h2>Crear evacuación</h2>
+        <form id="crear" class="row">
+            <input id="ubic" placeholder="Ubicación (nombre exacto)" required>
+            <input id="prio" type="number" min="0" placeholder="Prioridad" required>
+            <input id="pers" type="number" min="1" placeholder="Personas" required>
+            <button class="btn">Crear</button>
+        </form>
+    </section>
+
+    <section class="card mt">
+        <h2>Listado por prioridad</h2>
+        <table><thead><tr>
+            <th>ID</th><th>Ubicación</th><th>Prioridad</th><th>Personas</th><th>Estado</th><th>Acción</th>
+        </tr></thead><tbody id="tabla"></tbody></table>
+    </section>
+</main>
+
+<script>
+    async function listar(){
+      const r = await fetch('/api/evacuaciones'); const data = await r.json();
+      const tb = document.getElementById('tabla');
+      tb.innerHTML = data.length ? data.map(e=>`
+        <tr>
+          <td>${e.id}</td><td>${e.ubicacion}</td><td>${e.prioridad}</td><td>${e.personas}</td>
+          <td>${e.estado}</td>
+          <td>
+            <select id="s-${e.id}">
+              <option ${e.estado==='PENDIENTE'?'selected':''}>PENDIENTE</option>
+              <option ${e.estado==='EN_PROCESO'?'selected':''}>EN_PROCESO</option>
+              <option ${e.estado==='COMPLETADA'?'selected':''}>COMPLETADA</option>
+            </select>
+            <button class="btn" onclick="cambiar('${e.id}')">Actualizar</button>
+          </td>
+        </tr>`).join('') :
+        `<tr><td colspan="6" class="muted center">Sin registros</td></tr>`;
+    }
+    async function cambiar(id){
+      const estado = document.getElementById('s-'+id).value;
+      await fetch('/api/evacuaciones',{method:'PUT',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id,estado})});
+      listar();
+    }
+    document.getElementById('crear').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const body={ubicacion:ubic.value.trim(), prioridad:+prio.value, personas:+pers.value};
+      const res=await fetch('/api/evacuaciones',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(res.ok){ e.target.reset(); listar(); } else alert('Datos inválidos');
+    });
+    listar();
+</script>
+</body>
+</html>
