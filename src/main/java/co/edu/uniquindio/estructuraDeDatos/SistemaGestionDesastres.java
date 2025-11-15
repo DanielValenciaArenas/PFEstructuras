@@ -58,14 +58,14 @@ public class SistemaGestionDesastres {
     }
 
     public SimulacionRuta simularRuta(Ubicacion origen, Ubicacion destino) {
-        var nodos = grafo.buscarCaminoDijkstra(origen, destino);
-        if (nodos == null) return null;
-        return new SimulacionRuta("SIM-" + System.nanoTime(), 0, java.util.List.of(), nodos);
+        var camino = grafo.buscarCaminoDijkstra(origen, destino);
+        if (camino == null) return null;
+        SimulacionRuta sim = new SimulacionRuta("SIM-"+System.nanoTime(), 0, java.util.List.of(), camino);
+        sim.ejecutarSimulacion(grafo, origen, destino);
+        return sim;
     }
 
-    public GrafoTransporte getGrafo() {
-        return grafo;
-    }
+    public GrafoTransporte getGrafo() { return grafo; }
 
     public MapaRecursos getMapaRecursos() {
         return mapaRecursos;

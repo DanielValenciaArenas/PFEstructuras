@@ -97,7 +97,7 @@ public class ArbolDistribuido {
     // === MOVER RECURSO ===
     public void moverRecurso(String idRecurso, Ubicacion nuevaUbicacion) {
         if (idRecurso == null || idRecurso.isEmpty() || nuevaUbicacion == null) {
-            System.out.println("Datos inválidos para mover recurso.");
+            System.out.println("Datos inválidos para mover el recurso");
             return;
         }
 
@@ -136,7 +136,6 @@ public class ArbolDistribuido {
 
         return buscarRecursoRecursivo(nodo.getDerecho(), idRecurso);
     }
-
 
     // === VISUALIZACIÓN ===
     public void mostrarDistribucion() {
