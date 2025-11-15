@@ -140,18 +140,5 @@ public class Ubicacion implements Comparable<Ubicacion>{
         return this.nivelAfectacion.compareTo(otra.nivelAfectacion);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Ubicacion that = (Ubicacion) o;
-        return idUbicacion != null && idUbicacion.equals(that.idUbicacion);
-    }
-
-    @Override
-    public int hashCode() {
-        return idUbicacion != null ? idUbicacion.hashCode() : 0;
-    }
-
 
 }
