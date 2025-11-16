@@ -58,12 +58,14 @@ public class WebServer {
             if ("POST".equals(method)) {
                 Map<String,String> m = tinyJson(cuerpo(ex));
                 String nombre = trimOrNull(m.get("nombre"));
-                String tipo   = m.getOrDefault("tipo","CIUDAD").trim();
-                String nivel  = m.getOrDefault("nivel","LEVE").trim();
+                String tipo   = m.getOrDefault("tipoZona","CIUDAD").trim();
+                String nivel  = m.getOrDefault("nivelAfectacion","LEVE").trim();
+                double lat = parseDoubleSafe(m.get("latitud"), 0);
+                double lng = parseDoubleSafe(m.get("longitud"), 0);
                 if (nombre==null || nombre.isEmpty()) { enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}"); return; }
                 Evacuacion evac = new Evacuacion("E"+System.nanoTime(),0,0,EstadoEvacuacion.PENDIENTE,null);
                 Ubicacion u = new Ubicacion("U"+System.nanoTime(), nombre, TipoZona.valueOf(tipo),
-                        NivelDeAfectacion.valueOf(nivel), evac, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                        NivelDeAfectacion.valueOf(nivel), evac, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), lat, lng);
                 registrarUbicacion(u); sistema.agregarUbicacion(u);
                 enviarTexto(ex,200,"{\"ok\":true}"); return;
             }
@@ -272,9 +274,9 @@ public class WebServer {
     private void cargarDemo() {
         // Evacuación neutra
         Evacuacion evac = new Evacuacion("E0",0,0,EstadoEvacuacion.PENDIENTE,null);
-        Ubicacion a=new Ubicacion("U1","Ciudad A",TipoZona.CIUDAD,       NivelDeAfectacion.MODERADO,evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
-        Ubicacion b=new Ubicacion("U2","Refugio B",TipoZona.REFUGIO,     NivelDeAfectacion.LEVE,     evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
-        Ubicacion c=new Ubicacion("U3","Centro C", TipoZona.CENTRO_AYUDA,NivelDeAfectacion.GRAVE,    evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
+        Ubicacion a=new Ubicacion("U1","Ciudad A",TipoZona.CIUDAD,       NivelDeAfectacion.MODERADO,evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>(), 0.0, 0.0);
+        Ubicacion b=new Ubicacion("U2","Refugio B",TipoZona.REFUGIO,     NivelDeAfectacion.LEVE,     evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>(), 1.0, 1.0);
+        Ubicacion c=new Ubicacion("U3","Centro C", TipoZona.CENTRO_AYUDA,NivelDeAfectacion.GRAVE,    evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>(), 2.0, 2.0);
         registrarUbicacion(a); registrarUbicacion(b); registrarUbicacion(c);
         sistema.agregarUbicacion(a); sistema.agregarUbicacion(b); sistema.agregarUbicacion(c);
         sistema.agregarRuta(new Ruta("R1",a,b,2.5));
@@ -285,18 +287,29 @@ public class WebServer {
     private void registrarUbicacion(Ubicacion u){ if(u!=null) ubicacionesPorNombre.put(u.getNombre(), u); }
 
     private String listarUbicacionesJson(){
-        List<String> items=new ArrayList<>();
-        for(Ubicacion u: ubicacionesPorNombre.values()){
-            items.add(String.format("{\"nombre\":\"%s\",\"tipo\":\"%s\",\"afectacion\":\"%s\"}",
-                    esc(u.getNombre()),u.getTipoZona(),u.getNivelAfectacion()));
+        List<String> items = new ArrayList<>();
+        for (Ubicacion u : ubicacionesPorNombre.values()) {
+            items.add(String.format(Locale.US,
+                    "{\"nombre\":\"%s\",\"tipoZona\":\"%s\",\"nivelAfectacion\":\"%s\",\"latitud\":%.6f,\"longitud\":%.6f}",
+                    esc(u.getNombre()), u.getTipoZona(), u.getNivelAfectacion(), u.getLatitud(), u.getLongitud()
+            ));
+
         }
-        return "["+String.join(",",items)+"]";
+        return "[" + String.join(",", items) + "]";
     }
     private String listarRutasJson(){
         List<String> items=new ArrayList<>();
         for(Ruta r: sistema.getGrafo().obtenerTodasLasRutas()){
-            items.add(String.format("{\"origen\":\"%s\",\"destino\":\"%s\",\"distancia\":%.2f}",
-                    esc(r.getOrigen().getNombre()), esc(r.getDestino().getNombre()), r.getDistancia()));
+            items.add(String.format(Locale.US,
+                    "{\"origen\":\"%s\",\"destino\":\"%s\",\"latOrigen\":%.6f,\"lngOrigen\":%.6f,\"latDestino\":%.6f,\"lngDestino\":%.6f,\"distancia\":%.2f}",
+                    esc(r.getOrigen().getNombre()),
+                    esc(r.getDestino().getNombre()),
+                    r.getOrigen().getLatitud(),
+                    r.getOrigen().getLongitud(),
+                    r.getDestino().getLatitud(),
+                    r.getDestino().getLongitud(),
+                    r.getDistancia()
+            ));
         }
         return "["+String.join(",",items)+"]";
     }

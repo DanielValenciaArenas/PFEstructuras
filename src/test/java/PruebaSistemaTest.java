@@ -31,11 +31,11 @@ public class PruebaSistemaTest {
         sistema = new SistemaGestionDesastres(grafo, cola, mapa, arbol, usuarios);
 
         ciudad = new Ubicacion("U1", "Ciudad Central", TipoZona.CIUDAD,
-                NivelDeAfectacion.MODERADO, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.MODERADO, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 0.0, 0.0);
         centro = new Ubicacion("U2", "Centro de Ayuda", TipoZona.CENTRO_AYUDA,
-                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1.0, 1.0);
         refugio = new Ubicacion("U3", "Refugio Norte", TipoZona.REFUGIO,
-                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 2.0, 2.0);
 
         sistema.agregarUbicacion(ciudad);
         sistema.agregarUbicacion(centro);

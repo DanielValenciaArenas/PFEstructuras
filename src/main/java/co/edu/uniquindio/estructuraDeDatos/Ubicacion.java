@@ -13,8 +13,12 @@ public class Ubicacion implements Comparable<Ubicacion>{
     private List<Recurso> recursos;
     private List<EquipoRescate> equiposDeRescate;
 
+    private double latitud;
+    private double longitud;
+
     public Ubicacion(String idUbicacion, String nombre, TipoZona tipoZona, NivelDeAfectacion nivelAfectacion,
-                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRescate) {
+                     Evacuacion evacuacion, List<Persona> personas, List<Recurso> recursos, List<EquipoRescate> equiposDeRescate,
+                     double latitud, double longitud) {
         this.idUbicacion = idUbicacion;
         this.nombre = nombre;
         this.tipoZona = tipoZona;
@@ -23,6 +27,8 @@ public class Ubicacion implements Comparable<Ubicacion>{
         this.personas = new ArrayList<>();
         this.recursos = new ArrayList<>();
         this.equiposDeRescate = new ArrayList<>();
+        this.latitud = latitud;
+        this.longitud = longitud;
     }
 
     // Getters y Setters
@@ -42,6 +48,10 @@ public class Ubicacion implements Comparable<Ubicacion>{
     public void setRecursos(List<Recurso> recursos) { this.recursos = recursos; }
     public List<EquipoRescate> getEquiposDeRescate() { return equiposDeRescate; }
     public void setEquiposDeRescate(List<EquipoRescate> equiposDeRecaste) { this.equiposDeRescate = equiposDeRecaste; }
+    public double getLatitud() { return latitud; }
+    public void setLatitud(double latitud) { this.latitud = latitud; }
+    public double getLongitud() { return longitud; }
+    public void setLongitud(double longitud) { this.longitud = longitud; }
 
     //Agregar una persona a la ubicación
     public void agregarPersona(Persona p) {
