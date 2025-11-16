@@ -25,13 +25,13 @@ public class Main {
 
         // ----- Crear ubicaciones -----
         Ubicacion ciudad = new Ubicacion("U1", "Ciudad Central", TipoZona.CIUDAD,
-                NivelDeAfectacion.GRAVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.GRAVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 0.0, 0.0);
 
         Ubicacion refugio = new Ubicacion("U2", "Refugio Norte", TipoZona.REFUGIO,
-                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.LEVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1.0, 1.0);
 
         Ubicacion centroAyuda = new Ubicacion("U3", "Centro de Ayuda Sur", TipoZona.CENTRO_AYUDA,
-                NivelDeAfectacion.MODERADO, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                NivelDeAfectacion.MODERADO, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 2.0, 2.0);
 
         sistema.agregarUbicacion(ciudad);
         sistema.agregarUbicacion(refugio);

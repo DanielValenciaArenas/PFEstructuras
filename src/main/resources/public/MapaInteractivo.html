@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa Interactivo - Sistema Gestión de Desastres</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            width: 60%;
+            height: 100%;
+        }
+
+        #sidebar {
+            width: 40%;
+            background: #f8f9fa;
+            border-left: 2px solid #ccc;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ubicacion-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="sidebar">
+    <h2>Panel de Control</h2>
+
+    <h3>Crear nueva ubicación</h3>
+    <small>Haz clic en el mapa para seleccionar lat/lng</small>
+
+    <form id="crearUbicacionForm">
+        <label>Nombre:</label>
+        <input type="text" id="nombre" required><br><br>
+
+        <label>Tipo de Zona:</label>
+        <select id="tipo">
+            <option>CIUDAD</option>
+            <option>REFUGIO</option>
+            <option>CENTRO_AYUDA</option>
+        </select><br><br>
+
+        <label>Nivel de Afectación:</label>
+        <select id="afectacion">
+            <option>LEVE</option>
+            <option>MODERADO</option>
+            <option>GRAVE</option>
+        </select><br><br>
+
+        <label>Latitud:</label>
+        <input type="text" id="lat" readonly><br><br>
+
+        <label>Longitud:</label>
+        <input type="text" id="lng" readonly><br><br>
+
+        <button type="submit">Crear ubicación</button>
+    </form>
+
+    <h3>Ubicaciones existentes</h3>
+    <div id="listaUbicaciones"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+    // === referencia del panel ===
+    const listaUbicaciones = document.getElementById('listaUbicaciones');
+
+    const map = L.map('map').setView([4.535, -75.675], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const capaUbicaciones = L.layerGroup().addTo(map);
+    const capaRutas = L.layerGroup().addTo(map);
+
+    // === colores por nivel ===
+    function colorPorAfectacion(nivel) {
+        switch (nivel) {
+            case "LEVE": return "green";
+            case "MODERADO": return "orange";
+            case "GRAVE": return "red";
+            default: return "gray";
+        }
+    }
+
+    // === click en mapa ===
+    map.on('click', e => {
+        lat.value = e.latlng.lat;
+        lng.value = e.latlng.lng;
+    });
+
+    // === crear ubicación ===
+    document.getElementById('crearUbicacionForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const nueva = {
+            nombre: nombre.value,
+            tipoZona: tipo.value,
+            nivelAfectacion: afectacion.value,
+            latitud: parseFloat(lat.value),
+            longitud: parseFloat(lng.value)
+        };
+
+        const res = await fetch('/api/ubicaciones', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(nueva)
+        });
+
+        if (res.ok) {
+            alert("Ubicación creada");
+            cargarUbicaciones();
+        }
+    });
+
+    // === cargar ubicaciones ===
+    async function cargarUbicaciones() {
+        capaUbicaciones.clearLayers();
+
+        const r = await fetch('/api/ubicaciones');
+        const data = await r.json();
+
+        listaUbicaciones.innerHTML = "";
+
+        data.forEach(u => {
+
+            const color = colorPorAfectacion(u.nivelAfectacion);
+
+            // ⭐ marcador como bolita coloreada ⭐
+            L.circleMarker([u.latitud, u.longitud], {
+                radius: 10,
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.8
+            })
+            .addTo(capaUbicaciones)
+            .bindPopup(`
+                <b>${u.nombre}</b><br>
+                Tipo: ${u.tipoZona}<br>
+                Afectación: <b style="color:${color}">${u.nivelAfectacion}</b>
+            `);
+
+            // panel lateral
+            const div = document.createElement("div");
+            div.className = "ubicacion-item";
+            div.innerHTML = `
+                <b>${u.nombre}</b><br>
+                ${u.tipoZona} — <b style="color:${color}">${u.nivelAfectacion}</b><br>
+                (${u.latitud.toFixed(4)}, ${u.longitud.toFixed(4)})
+            `;
+            listaUbicaciones.appendChild(div);
+        });
+    }
+
+   // === cargar rutas con popup en cada línea ===
+async function cargarRutas() {
+    capaRutas.clearLayers();
+
+    const r = await fetch('/api/rutas');
+    const data = await r.json();
+
+    data.forEach(rt => {
+        const linea = L.polyline([
+            [rt.latOrigen, rt.lngOrigen],
+            [rt.latDestino, rt.lngDestino]
+        ], { color: "blue", weight: 5 }).addTo(capaRutas);
+
+        // Popup al click en la ruta
+        linea.bindPopup(`
+            <b>Ubicación origen:</b> ${rt.origen}<br>
+            <b>Ubicación destino:</b> ${rt.destino}<br>
+            <b>Distancia:</b> ${rt.distancia} km
+        `);
+    });
+}
+
+
+    cargarUbicaciones();
+    cargarRutas();
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-polylinedecorator/1.7.0/leaflet.polylineDecorator.min.js"></script>
+
+</body>
+</html>
