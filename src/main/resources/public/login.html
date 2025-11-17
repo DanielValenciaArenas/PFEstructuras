@@ -15,6 +15,7 @@
     <div class="card card-center" style="max-width:420px">
         <h2>Iniciar sesión</h2>
         <p class="muted">Usa las credenciales proporcionadas por el admin.</p>
+
         <form id="frmLogin" class="mt">
             <div class="row">
                 <input id="txtUsuario" placeholder="Usuario" required>
@@ -26,6 +27,7 @@
                 <button class="btn" type="submit">Entrar</button>
             </div>
         </form>
+
         <div id="msg" class="pill mt" style="display:none"></div>
 
         <details class="mt">
@@ -42,21 +44,27 @@
 
 <script src="/public/js/auth.js"></script>
 <script>
-    // Si ya hay sesión, vete directo al portal
-    if (Auth.isLogged()) location.replace("/");
+    // ✔ Si ya hay sesión → ir directo al dashboard
+    if (Auth.isLogged()) {
+        location.replace("/public/dashboard.html");
+    }
 
     document.getElementById("frmLogin").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const usuario = document.getElementById("txtUsuario").value.trim();
-      const contrasena = document.getElementById("txtClave").value.trim();
-      const ok = await Auth.login(usuario, contrasena);
-      const box = document.getElementById("msg");
-      if (!ok) {
-        box.textContent = "Usuario o contraseña inválidos";
-        box.style.display = "inline-block";
-      } else {
-        location.replace("/");
-      }
+        e.preventDefault();
+
+        const usuario = document.getElementById("txtUsuario").value.trim();
+        const contrasena = document.getElementById("txtClave").value.trim();
+        const ok = await Auth.login(usuario, contrasena);
+
+        const box = document.getElementById("msg");
+
+        if (!ok) {
+            box.textContent = "Usuario o contraseña inválidos";
+            box.style.display = "inline-block";
+            return;
+        }
+
+        // ✔ NO redirigimos aquí. Auth.login() lo hace.
     });
 </script>
 </body>

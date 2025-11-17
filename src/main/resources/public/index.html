@@ -7,6 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="shell">
+
+<script src="/public/js/auth.js"></script>
+<script>
+    Auth.requireLogin();
+</script>
+
 <header class="top">
     <div class="brand">PFEstructuras — Portal</div>
     <div class="user">
@@ -18,49 +24,42 @@
 <main class="container">
     <div class="grid">
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Ubicaciones</h2>
             <p>Registrar zonas y su nivel de afectación.</p>
             <a class="btn" href="/public/ubicaciones.html">Abrir</a>
         </section>
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Rutas</h2>
             <p>Registrar rutas y calcular la ruta más corta.</p>
             <a class="btn" href="/public/rutas.html">Abrir</a>
         </section>
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Recursos</h2>
             <p>Gestionar recursos y asignar equipos de rescate.</p>
             <a class="btn" href="/public/recursos.html">Abrir</a>
         </section>
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Evacuaciones</h2>
             <p>Crear y actualizar estado de evacuaciones.</p>
             <a class="btn" href="/public/evacuaciones.html">Abrir</a>
         </section>
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Dashboard</h2>
             <p>Resumen del sistema.</p>
             <a class="btn" href="/public/dashboard.html">Abrir</a>
         </section>
 
-        <!-- ADMIN + OPERADOR -->
         <section class="card" data-roles="ADMINISTRADOR,OPERADOR">
             <h2>Mapa Interactivo</h2>
             <p>Visualizar y crear ubicaciones en el mapa.</p>
             <a class="btn" href="/public/mapaInteractivo.html">Abrir</a>
         </section>
 
-        <!-- SOLO ADMIN -->
         <section class="card" data-roles="ADMINISTRADOR">
             <h2>Usuarios</h2>
             <p>Listado de usuarios del sistema (solo Administrador).</p>
@@ -74,7 +73,8 @@
     © Proyecto Estructura de Datos
 </footer>
 
-<script src="/public/js/auth.js"></script>
+<!-- Mantén portal.js (control de roles + logout) -->
 <script src="/public/js/portal.js"></script>
+
 </body>
 </html>
