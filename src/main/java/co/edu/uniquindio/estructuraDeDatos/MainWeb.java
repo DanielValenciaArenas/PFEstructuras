@@ -18,10 +18,10 @@ public class MainWeb {
                 grafo, cola, mapa, arbol, usuarios
         );
 
-        // 🔹 Intentar cargar desde JSON si existe
+        // Intentar cargar desde JSON si existe
         PersistenciaJson.cargar(sistema);
 
-        // 🟩 Guardar automáticamente cuando el programa se cierre
+        // Guardar automáticamente cuando el programa se cierre
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println(" Guardando datos antes de cerrar...");
             PersistenciaJson.guardar(sistema);
