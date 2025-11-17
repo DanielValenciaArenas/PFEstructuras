@@ -135,6 +135,14 @@
       "nivelAfectacion": "GRAVE",
       "latitud": 2.0,
       "longitud": 2.0
+    },
+    {
+      "id": "U_BODEGA_EQUIPOS",
+      "nombre": "__SIN_UBICACION__",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "LEVE",
+      "latitud": 0.0,
+      "longitud": 0.0
     }
   ],
   "rutas": [
@@ -237,12 +245,20 @@
   ],
   "recursos": [
     {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "General"
+      "id": "RA81086998329300",
+      "nombre": "Atun",
+      "cantidad": 7,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-13"
+    },
+    {
+      "id": "RA16173423774900",
+      "nombre": "ALIMENTO",
+      "cantidad": 10,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-12-16"
     },
     {
       "id": "RM16138741810600",
@@ -253,28 +269,35 @@
       "extra": "General"
     },
     {
-      "id": "RA16173423774900",
-      "nombre": "ALIMENTO",
-      "cantidad": 10,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-12-16"
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 15,
+      "nombreUbicacion": "Alamos",
+      "tipo": "MEDICINA",
+      "extra": "General"
     }
   ],
   "equipos": [
+    {
+      "id": "EQ83455292153900",
+      "nombre": "Los mejores",
+      "tipo": "Policias",
+      "miembros": 8,
+      "nombreUbicacion": "El bosque"
+    },
     {
       "id": "EQ16470256995600",
       "nombre": "Los capos",
       "tipo": "bomberos",
       "miembros": 8,
-      "nombreUbicacion": "El bosque"
+      "nombreUbicacion": "Alamos"
     },
     {
-      "id": "EQ16552362510000",
-      "nombre": "Yasuri",
+      "id": "EQ80888514951000",
+      "nombre": "Los mejores",
       "tipo": "Policias",
-      "miembros": 4,
-      "nombreUbicacion": "El bosque"
+      "miembros": 8,
+      "nombreUbicacion": "Refugio B"
     }
   ],
   "evacuaciones": [
