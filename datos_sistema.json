@@ -49,28 +49,12 @@
       "longitud": 0.0
     },
     {
-      "id": "U1",
-      "nombre": "Ciudad A",
+      "id": "U11988680639200",
+      "nombre": "El bosque",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U2",
-      "nombre": "Refugio B",
-      "tipoZona": "REFUGIO",
       "nivelAfectacion": "LEVE",
-      "latitud": 1.0,
-      "longitud": 1.0
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
+      "latitud": 4.539470543182852,
+      "longitud": -75.67751995090067
     },
     {
       "id": "U11955740345200",
@@ -81,12 +65,28 @@
       "longitud": -75.67336713492051
     },
     {
-      "id": "U11988680639200",
-      "nombre": "El bosque",
-      "tipoZona": "CIUDAD",
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U2",
+      "nombre": "Refugio B",
+      "tipoZona": "REFUGIO",
       "nivelAfectacion": "LEVE",
-      "latitud": 4.539470543182852,
-      "longitud": -75.67751995090067
+      "latitud": 1.0,
+      "longitud": 1.0
+    },
+    {
+      "id": "U1",
+      "nombre": "Ciudad A",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
     },
     {
       "id": "U1",
@@ -145,18 +145,6 @@
       "distancia": 3.0
     },
     {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
-    },
-    {
       "id": "R2",
       "origenNombre": "Refugio B",
       "destinoNombre": "Centro C",
@@ -193,6 +181,12 @@
       "distancia": 2.5
     },
     {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
+    },
+    {
       "id": "R1",
       "origenNombre": "Ciudad A",
       "destinoNombre": "Refugio B",
@@ -203,6 +197,12 @@
       "origenNombre": "Ciudad A",
       "destinoNombre": "Centro C",
       "distancia": 5.0
+    },
+    {
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
     },
     {
       "id": "R1",
@@ -239,16 +239,16 @@
     {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
       "tipo": "MEDICINA",
       "extra": "General"
     },
     {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 15,
+      "nombreUbicacion": "Alamos",
       "tipo": "MEDICINA",
       "extra": "General"
     },
