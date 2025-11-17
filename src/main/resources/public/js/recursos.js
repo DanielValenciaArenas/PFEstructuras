@@ -6,6 +6,7 @@
 //  - Listar recursos (incluyendo vencimiento / tipo medicamento)
 //  - Listar equipos
 //  - Cargar ubicaciones reales en los selects (coherencia con otras interfaces)
+//  - 🔴 NUEVO: Asignar equipos EXISTENTES a ubicaciones (si existe el formulario en el HTML)
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -29,6 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputNombreRecurso      = document.getElementById("nombreRecurso");
     const inputFechaVencimiento   = document.getElementById("fechaVencimiento");
     const inputTipoMedicamento    = document.getElementById("tipoMedicamento");
+
+    // 🔴 NUEVOS ELEMENTOS PARA ASIGNAR EQUIPOS EXISTENTES (opcional)
+    const formularioAsignarEquipo = document.getElementById("formAsignarEquipo"); // <form ...>
+    const selectEquipoExistente   = document.getElementById("equipoExistente");   // <select ...>
+    const selectUbicacionAsignar  = document.getElementById("ubicacionEquipo");   // <select ...>
 
     // Mostrar mensaje "Guardado correctamente" por un momento
     function mostrarOK() {
@@ -80,19 +86,39 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await resp.json(); // [{nombre, tipoZona, nivelAfectacion, latitud, longitud}, ...]
 
             // Limpiar selects y dejar el placeholder
-            selectUbicacionRec.innerHTML = '<option value="">Selecciona ubicación</option>';
-            selectUbicacionEq.innerHTML  = '<option value="">Selecciona ubicación</option>';
+            if (selectUbicacionRec) {
+                selectUbicacionRec.innerHTML = '<option value="">Selecciona ubicación</option>';
+            }
+            if (selectUbicacionEq) {
+                selectUbicacionEq.innerHTML  = '<option value="">Selecciona ubicación</option>';
+            }
+            // 🔴 NUEVO: select de ubicación para asignar equipo
+            if (selectUbicacionAsignar) {
+                selectUbicacionAsignar.innerHTML = '<option value="">Selecciona ubicación</option>';
+            }
 
             data.forEach(u => {
-                const op1 = document.createElement("option");
-                op1.value = u.nombre;
-                op1.textContent = u.nombre;
-                selectUbicacionRec.appendChild(op1);
+                if (selectUbicacionRec) {
+                    const op1 = document.createElement("option");
+                    op1.value = u.nombre;
+                    op1.textContent = u.nombre;
+                    selectUbicacionRec.appendChild(op1);
+                }
 
-                const op2 = document.createElement("option");
-                op2.value = u.nombre;
-                op2.textContent = u.nombre;
-                selectUbicacionEq.appendChild(op2);
+                if (selectUbicacionEq) {
+                    const op2 = document.createElement("option");
+                    op2.value = u.nombre;
+                    op2.textContent = u.nombre;
+                    selectUbicacionEq.appendChild(op2);
+                }
+
+                // 🔴 NUEVO: misma lista para el select de asignación
+                if (selectUbicacionAsignar) {
+                    const op3 = document.createElement("option");
+                    op3.value = u.nombre;
+                    op3.textContent = u.nombre;
+                    selectUbicacionAsignar.appendChild(op3);
+                }
             });
 
         } catch (e) {
@@ -167,6 +193,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!respuesta.ok) {
                 tablaEquiposBody.innerHTML =
                     '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
+                // 🔴 También limpiamos el combo de equipos existentes si existe
+                if (selectEquipoExistente) {
+                    selectEquipoExistente.innerHTML =
+                        '<option value="">No se pudieron cargar los equipos</option>';
+                }
                 return;
             }
 
@@ -175,6 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!data || data.length === 0) {
                 tablaEquiposBody.innerHTML =
                     '<tr><td colspan="4" class="muted center">Sin equipos</td></tr>';
+                if (selectEquipoExistente) {
+                    selectEquipoExistente.innerHTML =
+                        '<option value="">No hay equipos registrados</option>';
+                }
                 return;
             }
 
@@ -196,10 +231,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
             tablaEquiposBody.innerHTML = filas.join("");
 
+            // 🔴 NUEVO: llenar combo de equipos existentes para ASIGNAR
+            if (selectEquipoExistente) {
+                selectEquipoExistente.innerHTML =
+                    '<option value="">Selecciona un equipo</option>';
+                data.forEach(e => {
+                    const opt = document.createElement("option");
+                    opt.value = e.nombre;
+                    opt.textContent = `${e.nombre} (${e.tipo})`;
+                    selectEquipoExistente.appendChild(opt);
+                });
+            }
+
         } catch (err) {
             console.error("Error al listar equipos:", err);
             tablaEquiposBody.innerHTML =
                 '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
+
+            if (selectEquipoExistente) {
+                selectEquipoExistente.innerHTML =
+                    '<option value="">Error al cargar equipos</option>';
+            }
         }
     }
 
@@ -260,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // =============== ENVIAR FORMULARIO EQUIPO ===============
+    // =============== ENVIAR FORMULARIO EQUIPO (CREAR EQUIPO) ===============
     formularioEquipo.addEventListener("submit", async (evento) => {
         evento.preventDefault();
 
@@ -303,6 +355,50 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Ocurrió un error al comunicarse con el servidor.");
         }
     });
+
+    // =============== 🔴 ENVIAR FORMULARIO ASIGNAR EQUIPO EXISTENTE ===============
+    if (formularioAsignarEquipo && selectEquipoExistente && selectUbicacionAsignar) {
+        formularioAsignarEquipo.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+
+            const nombreEquipo   = selectEquipoExistente.value;
+            const nombreUbicacion = selectUbicacionAsignar.value;
+
+            if (!nombreEquipo) {
+                alert("Selecciona un equipo existente.");
+                return;
+            }
+            if (!nombreUbicacion) {
+                alert("Selecciona una ubicación existente.");
+                return;
+            }
+
+            try {
+                const resp = await fetch("/api/equipos/asignar", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        equipo: nombreEquipo,
+                        ubicacion: nombreUbicacion
+                    })
+                });
+
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    alert("No se pudo asignar el equipo. Detalle: " + txt);
+                    return;
+                }
+
+                formularioAsignarEquipo.reset();
+                mostrarOK();
+                listarEquipos(); // para actualizar la columna "Ubicación" en la tabla
+
+            } catch (err) {
+                console.error("Error al asignar equipo:", err);
+                alert("Error de comunicación con el servidor.");
+            }
+        });
+    }
 
     // =============== INICIO ===============
     cargarUbicacionesEnSelects();
