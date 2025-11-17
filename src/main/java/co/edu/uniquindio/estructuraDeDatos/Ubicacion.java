@@ -12,7 +12,6 @@ public class Ubicacion implements Comparable<Ubicacion>{
     private List<Persona> personas;
     private List<Recurso> recursos;
     private List<EquipoRescate> equiposDeRescate;
-
     private double latitud;
     private double longitud;
 

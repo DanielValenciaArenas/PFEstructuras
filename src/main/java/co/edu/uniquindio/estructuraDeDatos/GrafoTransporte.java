@@ -1,6 +1,5 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +8,8 @@ import java.util.Map;
 public class GrafoTransporte {
 
     private NodoUbicacion primero;
+
+    // ================== MÉTODOS BÁSICOS DEL GRAFO ==================
 
     // Agregar una ubicación (nodo) al grafo
     public void agregarUbicacion(Ubicacion u) {
@@ -22,6 +23,7 @@ public class GrafoTransporte {
     public void agregarRuta(Ruta r) {
         if (r == null) return;
 
+        // Asegurar que origen y destino están en el grafo
         agregarUbicacion(r.getOrigen());
         agregarUbicacion(r.getDestino());
 
@@ -43,11 +45,71 @@ public class GrafoTransporte {
         return null;
     }
 
+    // ================== ELIMINAR UBICACIÓN + RUTAS ==================
+
+    /**
+     * Elimina una ubicación del grafo y todas las rutas que la usen
+     * como origen o destino.
+     */
+    public void eliminarUbicacion(Ubicacion u) {
+        if (u == null || primero == null) return;
+
+        // 1. Eliminar el nodo de la lista de ubicaciones
+        if (primero.ubicacion.equals(u)) {
+            primero = primero.siguiente;
+        } else {
+            NodoUbicacion ant = primero;
+            NodoUbicacion act = primero.siguiente;
+            while (act != null) {
+                if (act.ubicacion.equals(u)) {
+                    ant.siguiente = act.siguiente;
+                    break;
+                }
+                ant = act;
+                act = act.siguiente;
+            }
+        }
+
+        // 2. Eliminar todas las rutas que apunten a esa ubicación
+        NodoUbicacion aux = primero;
+        while (aux != null) {
+            NodoRuta rAct = aux.primeraRuta;
+            NodoRuta antR = null;
+
+            while (rAct != null) {
+                boolean tocaBorrar =
+                        rAct.ruta.getOrigen().equals(u) ||
+                                rAct.ruta.getDestino().equals(u);
+
+                if (tocaBorrar) {
+                    if (antR == null) {
+                        aux.primeraRuta = rAct.siguiente;
+                    } else {
+                        antR.siguiente = rAct.siguiente;
+                    }
+                    rAct = (antR == null) ? aux.primeraRuta : antR.siguiente;
+                } else {
+                    antR = rAct;
+                    rAct = rAct.siguiente;
+                }
+            }
+
+            aux = aux.siguiente;
+        }
+    }
+
+    // ================== DIJKSTRA ==================
+
+    /**
+     * Calcula el camino más corto entre origen y destino usando Dijkstra.
+     * Devuelve una lista de ubicaciones en orden (origen -> ... -> destino).
+     * Si no hay camino, devuelve null.
+     */
     public List<Ubicacion> buscarCaminoDijkstra(Ubicacion origen, Ubicacion destino) {
 
         if (origen == null || destino == null) return null;
 
-        // Tabla de estados (NO toca Ubicacion)
+        // Tabla de estados
         Map<Ubicacion, EstadoNodo> tabla = new HashMap<>();
 
         // Inicialización
@@ -57,15 +119,17 @@ public class GrafoTransporte {
             aux = aux.siguiente;
         }
 
+        // Validación
         if (!tabla.containsKey(origen) || !tabla.containsKey(destino))
             return null;
 
-        // Distancia inicial a 0
+        // Distancia inicial del origen
         tabla.get(origen).distancia = 0;
 
         // Algoritmo principal
         while (true) {
-            // 1. Escoger el no visitado con menor distancia
+
+            // 1. Escoger no visitado con menor distancia
             Ubicacion actual = null;
             double mejor = Double.MAX_VALUE;
 
@@ -77,17 +141,18 @@ public class GrafoTransporte {
                 }
             }
 
-            // No alcanzable
+            // No quedan alcanzables
             if (actual == null) break;
 
-            // Marcar como visitado
             tabla.get(actual).visitado = true;
 
-            // Si llegamos al destino -> terminar
+            // Si llegamos al destino
             if (actual.equals(destino)) break;
 
-            // Obtener sus vecinos
+            // 2. Relajar aristas
             NodoUbicacion nodoActual = buscarNodo(actual);
+            if (nodoActual == null) continue;
+
             NodoRuta rutaAux = nodoActual.primeraRuta;
 
             while (rutaAux != null) {
@@ -109,10 +174,11 @@ public class GrafoTransporte {
             }
         }
 
-        // Reconstrucción del camino
+        // No hay camino
         if (tabla.get(destino).distancia == Double.MAX_VALUE)
-            return null; // NO HAY CAMINO
+            return null;
 
+        // Reconstrucción del camino
         List<Ubicacion> camino = new ArrayList<>();
         Ubicacion paso = destino;
 
@@ -124,7 +190,7 @@ public class GrafoTransporte {
         return camino;
     }
 
-
+    // Lista de TODAS las rutas del grafo
     public List<Ruta> obtenerTodasLasRutas() {
         List<Ruta> todas = new ArrayList<>();
 
@@ -143,7 +209,7 @@ public class GrafoTransporte {
         return todas;
     }
 
-
+    // Lista de rutas que salen desde una ubicación
     public List<Ruta> obtenerRutasDesde(Ubicacion ubicacion) {
         List<Ruta> rutas = new ArrayList<>();
 
@@ -168,6 +234,7 @@ public class GrafoTransporte {
         return rutas;
     }
 
+    // ✅ ESTA ES LA QUE LE FALTABA A WEBServer
     public List<Ubicacion> obtenerTodasLasUbicaciones() {
         List<Ubicacion> lista = new ArrayList<>();
 
@@ -180,5 +247,20 @@ public class GrafoTransporte {
         return lista;
     }
 
+    // ================== CLASE DE APOYO PARA DIJKSTRA ==================
 
+    /**
+     * Clase interna para guardar el estado de cada nodo en Dijkstra.
+     */
+    private static class EstadoNodo {
+        double distancia;
+        boolean visitado;
+        Ubicacion anterior;
+
+        EstadoNodo() {
+            this.distancia = Double.MAX_VALUE;
+            this.visitado = false;
+            this.anterior = null;
+        }
+    }
 }

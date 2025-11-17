@@ -1,63 +1,63 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><title>Rutas</title>
+    <meta charset="utf-8"/>
+    <title>PFEstructuras — Rutas</title>
     <link rel="stylesheet" href="/public/css/estilos.css">
-    <script src="/public/js/auth.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
-<script>renderHeader('Rutas'); requireRole(['ADMIN','OPERADOR']);</script>
+<body class="shell">
+
+<header class="top">
+    <div class="brand">PFEstructuras — Rutas</div>
+    <div class="user">
+        <span id="who"></span>
+        <button id="btnLogout" class="btn outline">Salir</button>
+    </div>
+</header>
 
 <main class="container">
     <section class="card">
-        <h2>Registrar nueva ruta</h2>
-        <form id="fr" class="row">
-            <input id="ori" placeholder="Origen (nombre exacto)" required>
-            <input id="des" placeholder="Destino (nombre exacto)" required>
-            <input id="dis" type="number" min="0.1" step="0.1" placeholder="Distancia (km)" required>
-            <button class="btn">Agregar</button>
-        </form>
-    </section>
+        <h2>Ruta más corta</h2>
+        <p>
+            Selecciona una <strong>ubicación de origen</strong> y una
+            <strong>ubicación de destino</strong>. El sistema calculará la
+            ruta más corta usando las rutas registradas en el mapa interactivo.
+        </p>
 
-    <section class="card mt">
-        <h2>Rutas registradas</h2>
-        <table><thead><tr><th>Origen</th><th>Destino</th><th>Distancia</th></tr></thead>
-            <tbody id="tb"></tbody>
-        </table>
-    </section>
+        <!-- FORMULARIO SOLO PARA CALCULAR (NO CREA RUTAS) -->
+        <form id="formRutaCorta" class="form-grid">
+            <div class="campo">
+                <label for="origen">Origen</label>
+                <select id="origen" required>
+                    <option value="">Cargando ubicaciones...</option>
+                </select>
+            </div>
 
-    <section class="card mt">
-        <h2>Calcular ruta más corta</h2>
-        <form id="fc" class="row">
-            <input id="a" placeholder="Origen (nombre exacto)" required>
-            <input id="b" placeholder="Destino (nombre exacto)" required>
-            <button class="btn">Calcular</button>
+            <div class="campo">
+                <label for="destino">Destino</label>
+                <select id="destino" required>
+                    <option value="">Cargando ubicaciones...</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <button type="submit" class="btn">Calcular ruta más corta</button>
+            </div>
         </form>
-        <pre class="mt" id="res" style="white-space:pre-wrap"></pre>
+
+        <h3>Resultado</h3>
+        <pre id="resultado" class="resultado">
+Seleccione origen y destino, luego pulse "Calcular ruta más corta".
+        </pre>
     </section>
 </main>
 
-<script>
-    async function listar(){
-      const r = await fetch('/api/rutas'); const data = await r.json();
-      tb.innerHTML = data.length ? data.map(x=>`
-        <tr><td>${x.origen}</td><td>${x.destino}</td><td>${x.distancia.toFixed(2)} km</td></tr>
-      ").join("") : '<tr><td colspan="3" class="muted center">Sin rutas</td></tr>';
-    }
-    fr.addEventListener('submit', async e=>{
-      e.preventDefault();
-      const d = parseFloat(dis.value);
-      if(!(d>0)){ alert('La distancia debe ser > 0'); return; }
-      const body = { origen: ori.value.trim(), destino: des.value.trim(), distancia: d };
-      const res = await fetch('/api/rutas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){ fr.reset(); listar(); } else alert('Datos inválidos');
-    });
-    fc.addEventListener('submit', async e=>{
-      e.preventDefault();
-      const r = await fetch(`/api/rutas/corta?origen=${encodeURIComponent(a.value.trim())}&destino=${encodeURIComponent(b.value.trim())}`);
-      res.textContent = await r.text();
-    });
-    listar();
-</script>
+<footer class="foot">
+    © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/rutas.js"></script>
 </body>
 </html>

@@ -1,81 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><title>Recursos y Equipos</title>
+    <meta charset="UTF-8">
+    <title>Recursos y Equipos</title>
     <link rel="stylesheet" href="/public/css/estilos.css">
     <script src="/public/js/auth.js"></script>
 </head>
 <body>
-<script>renderHeader('Recursos y Equipos'); requireRole(['ADMIN','OPERADOR']);</script>
+<script>
+    renderHeader('Recursos y Equipos');
+    requireRole(['ADMIN','OPERADOR']);
+</script>
 
 <main class="container">
+    <!-- AGREGAR RECURSO -->
     <section class="card">
         <h2>Agregar recurso</h2>
-        <form id="fr" class="row">
-            <select id="tipo">
+        <form id="formRecurso" class="row">
+            <select id="tipoRecurso">
                 <option value="ALIMENTO">ALIMENTO</option>
                 <option value="MEDICINA">MEDICINA</option>
             </select>
-            <input id="cant" type="number" min="1" placeholder="Cantidad" required>
-            <input id="ubic" placeholder="Ubicación (nombre exacto)" required>
-            <button class="btn">Agregar</button>
+
+            <input id="nombreRecurso" placeholder="Nombre del recurso" required>
+
+            <input id="cantidadRecurso" type="number" min="1" placeholder="Cantidad" required>
+
+            <input id="ubicacionRecurso" placeholder="Ubicación (nombre exacto)" required>
+
+            <!-- Solo para alimento -->
+            <input id="fechaVencimiento" type="date" placeholder="Fecha de vencimiento">
+
+            <!-- Solo para medicina -->
+            <input id="tipoMedicamento" placeholder="Tipo de medicamento (ej. analgésico)">
+
+            <button class="btn">Agregar recurso</button>
         </form>
     </section>
 
+    <!-- ASIGNAR EQUIPO EXISTENTE A UNA UBICACIÓN -->
     <section class="card mt">
-        <h2>Asignar equipo de rescate</h2>
-        <form id="fe" class="row">
-            <input id="nom" placeholder="Nombre del equipo" required>
-            <input id="tip" placeholder="Tipo (Bomberos/USAR...)" required>
-            <input id="miem" type="number" min="1" placeholder="Miembros" required>
-            <input id="ubi" placeholder="Ubicación (nombre exacto)" required>
-            <button class="btn">Asignar</button>
+        <h2>Asignar equipo de rescate existente</h2>
+        <p>Primero se crean los equipos en otra interfaz (por ejemplo, Equipos). Aquí solo se asignan a una ubicación.</p>
+        <form id="formAsignarEquipo" class="row">
+            <select id="equipoExistente">
+                <!-- Se llena desde /api/equipos -->
+            </select>
+            <input id="ubicacionEquipo" placeholder="Ubicación (nombre exacto)" required>
+            <button class="btn">Asignar equipo</button>
         </form>
     </section>
 
+    <!-- RESUMEN -->
     <section class="card mt">
         <h2>Resumen</h2>
-        <div id="ok" class="success" style="display:none">Guardado correctamente</div>
+        <div id="msgOk" class="success" style="display:none">Guardado correctamente</div>
+
+        <h3 class="mt">Recursos</h3>
         <table class="mt">
-            <thead><tr><th>Tipo</th><th>Cantidad</th><th>Ubicación</th></tr></thead>
-            <tbody id="tb"></tbody>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Ubicación</th>
+                <th>Detalle</th>
+            </tr>
+            </thead>
+            <tbody id="tablaRecursos"></tbody>
         </table>
+
         <h3 class="mt">Equipos</h3>
         <table>
-            <thead><tr><th>Nombre</th><th>Tipo</th><th>Miembros</th><th>Ubicación</th></tr></thead>
-            <tbody id="te"></tbody>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Miembros</th>
+                <th>Ubicación</th>
+            </tr>
+            </thead>
+            <tbody id="tablaEquipos"></tbody>
         </table>
     </section>
 </main>
 
-<script>
-    function flashOK(){ const d=document.getElementById('ok'); d.style.display='block'; setTimeout(()=>d.style.display='none',1500); }
-
-    async function listarRecursos(){
-      const r = await fetch('/api/recursos'); const data = await r.json();
-      tb.innerHTML = data.length ? data.map(x=>`
-        <tr><td>${x.tipo}</td><td>${x.cantidad}</td><td>${x.ubicacion}</td></tr>
-      ").join("") : '<tr><td colspan="3" class="muted center">Sin recursos</td></tr>';
-    }
-    async function listarEquipos(){
-      const r = await fetch('/api/equipos'); const data = await r.json();
-      te.innerHTML = data.length ? data.map(e=>`
-        <tr><td>${e.nombre}</td><td>${e.tipo}</td><td>${e.miembros}</td><td>${e.ubicacion}</td></tr>
-      ").join("") : '<tr><td colspan="4" class="muted center">Sin equipos</td></tr>';
-    }
-    fr.addEventListener('submit', async e=>{
-      e.preventDefault();
-      const body={ tipo: tipo.value, cantidad: +cant.value, ubicacion: ubic.value.trim() };
-      const res=await fetch('/api/recursos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){ fr.reset(); flashOK(); listarRecursos(); } else alert('Datos inválidos');
-    });
-    fe.addEventListener('submit', async e=>{
-      e.preventDefault();
-      const body={ nombre: nom.value.trim(), tipo: tip.value.trim(), miembros:+miem.value, ubicacion: ubi.value.trim() };
-      const res=await fetch('/api/equipos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){ fe.reset(); flashOK(); listarEquipos(); } else alert('Datos inválidos');
-    });
-    listarRecursos(); listarEquipos();
-</script>
+<script src="/public/js/recursos.js"></script>
 </body>
 </html>

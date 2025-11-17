@@ -1,53 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><title>Ubicaciones</title>
+    <meta charset="utf-8"/>
+    <title>PFEstructuras — Ubicaciones</title>
     <link rel="stylesheet" href="/public/css/estilos.css">
-    <script src="/public/js/auth.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
-<script>renderHeader('Ubicaciones'); requireRole(['ADMIN','OPERADOR']);</script>
+<body class="shell">
+
+<header class="top">
+    <div class="brand">PFEstructuras — Ubicaciones</div>
+    <div class="user">
+        <span id="who"></span>
+        <button id="btnLogout" class="btn outline">Salir</button>
+    </div>
+</header>
 
 <main class="container">
+
     <section class="card">
-        <h2>Registrar ubicación</h2>
-        <form id="f" class="row">
-            <input id="nombre" placeholder="Nombre" required>
-            <select id="tipo">
-                <option value="CIUDAD">CIUDAD</option>
-                <option value="REFUGIO">REFUGIO</option>
-                <option value="CENTRO_AYUDA">CENTRO_AYUDA</option>
-            </select>
-            <select id="nivel">
-                <option value="LEVE">LEVE</option>
-                <option value="MODERADO">MODERADO</option>
-                <option value="GRAVE">GRAVE</option>
-            </select>
-            <button class="btn">Agregar</button>
-        </form>
+        <h2>Ubicaciones registradas</h2>
+        <p>
+            Aquí se muestran las <strong>ubicaciones</strong> creadas en el
+            <strong>mapa interactivo</strong>, junto con información extra:
+            recursos, equipos de rescate y personas asociadas.
+        </p>
+        <p>
+            Desde esta pantalla <strong>no se crean ubicaciones</strong>. Toda
+            la creación y edición de ubicaciones y rutas se hace en el
+            <strong>Mapa Interactivo</strong>.
+        </p>
+        <p>
+            Desde aquí también puedes <strong>eliminar una ubicación</strong>
+            usando el botón correspondiente en cada tarjeta. Al eliminarla,
+            se eliminan también sus rutas y datos asociados en el sistema.
+        </p>
+
+        <div id="listaUbicaciones" class="lista-ubicaciones"></div>
     </section>
 
-    <section class="card mt">
-        <h2>Ubicaciones registradas</h2>
-        <table><thead><tr><th>Nombre</th><th>Tipo</th><th>Nivel</th></tr></thead>
-            <tbody id="tb"></tbody></table>
-    </section>
 </main>
 
-<script>
-    async function listar(){
-      const r = await fetch('/api/ubicaciones'); const data = await r.json();
-      tb.innerHTML = data.length ? data.map(u=>`
-        <tr><td>${u.nombre}</td><td>${u.tipo}</td><td>${u.afectacion}</td></tr>
-      `).join('') : `<tr><td colspan="3" class="muted center">Sin registros</td></tr>`;
-    }
-    f.addEventListener('submit', async e=>{
-      e.preventDefault();
-      const body = { nombre: nombre.value.trim(), tipo: tipo.value, nivel: nivel.value };
-      const res = await fetch('/api/ubicaciones',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){ f.reset(); listar(); } else alert('Datos inválidos');
-    });
-    listar();
-</script>
+<footer class="foot">
+    © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/ubicaciones.js"></script>
 </body>
 </html>
