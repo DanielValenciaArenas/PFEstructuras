@@ -1,28 +1,12 @@
 {
   "ubicaciones": [
     {
-      "id": "U11988680639200",
-      "nombre": "El bosque",
+      "id": "U1",
+      "nombre": "Ciudad A",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "LEVE",
-      "latitud": 4.539470543182852,
-      "longitud": -75.67751995090067
-    },
-    {
-      "id": "U11955740345200",
-      "nombre": "Alamos",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 4.54077464711482,
-      "longitud": -75.67336713492051
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
     },
     {
       "id": "U2",
@@ -33,26 +17,36 @@
       "longitud": 1.0
     },
     {
-      "id": "U1",
-      "nombre": "Ciudad A",
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U11955740345200",
+      "nombre": "Alamos",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
+      "nivelAfectacion": "GRAVE",
+      "latitud": 4.54077464711482,
+      "longitud": -75.67336713492051
+    },
+    {
+      "id": "U11988680639200",
+      "nombre": "El bosque",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "LEVE",
+      "latitud": 4.539470543182852,
+      "longitud": -75.67751995090067
     }
   ],
   "rutas": [
     {
-      "id": "R12041261827500",
-      "origenNombre": "El bosque",
-      "destinoNombre": "Alamos",
-      "distancia": 12.0
-    },
-    {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
     },
     {
       "id": "R3",
@@ -61,10 +55,16 @@
       "distancia": 5.0
     },
     {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R12041261827500",
+      "origenNombre": "El bosque",
+      "destinoNombre": "Alamos",
+      "distancia": 12.0
     }
   ],
   "recursos": [
@@ -94,6 +94,13 @@
     }
   ],
   "equipos": [
+    {
+      "id": "EQ67887992467700",
+      "nombre": "Los guardias",
+      "tipo": "Bomberos",
+      "miembros": 10,
+      "nombreUbicacion": "El bosque"
+    },
     {
       "id": "EQ16470256995600",
       "nombre": "Los capos",
