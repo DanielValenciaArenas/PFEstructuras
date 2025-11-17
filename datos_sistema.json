@@ -263,17 +263,17 @@
   ],
   "equipos": [
     {
-      "id": "EQ16552362510000",
-      "nombre": "Yasuri",
-      "tipo": "Policias",
-      "miembros": 4,
-      "nombreUbicacion": "El bosque"
-    },
-    {
       "id": "EQ16470256995600",
       "nombre": "Los capos",
       "tipo": "bomberos",
       "miembros": 8,
+      "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EQ16552362510000",
+      "nombre": "Yasuri",
+      "tipo": "Policias",
+      "miembros": 4,
       "nombreUbicacion": "El bosque"
     }
   ],
