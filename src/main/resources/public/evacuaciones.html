@@ -1,64 +1,566 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><title>Evacuaciones</title>
-    <link rel="stylesheet" href="/public/css/estilos.css">
-    <script src="/public/js/auth.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Evacuaciones — Sistema Gestión de Desastres (Ultra Modern)</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        /* ---------- FUENTES Y BASE ---------- */
+        :root{
+          --glass-bg: rgba(255,255,255,0.06);
+          --panel-bg: rgba(255,255,255,0.9);
+          --accent: #6c5ce7;
+          --danger: #ef4444;
+          --muted: #6b7280;
+          --glass-border: rgba(255,255,255,0.08);
+        }
+        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial;color:#0f172a;background:
+          linear-gradient(180deg,#0f172a 0%, #0b1220 60%);-webkit-font-smoothing:antialiased}
+        /* ---------- CONTENEDOR PRINCIPAL ---------- */
+        .app {
+          display:grid;
+          grid-template-columns:420px 1fr;
+          gap:28px;
+          height:100vh;
+          padding:28px;
+          box-sizing:border-box;
+        }
+
+        /* ---------- PANEL LATERAL (glass) ---------- */
+        .panel {
+          border-radius:16px;
+          padding:20px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+          border: 1px solid var(--glass-border);
+          backdrop-filter: blur(8px) saturate(120%);
+          box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+          color: #ffffff;
+          display:flex;
+          flex-direction:column;
+          gap:16px;
+        }
+
+        .brand {
+          display:flex;align-items:center;gap:12px;
+        }
+        .brand .logo {
+          width:44px;height:44px;border-radius:10px;
+          background:linear-gradient(135deg,var(--accent),#a78bfa);
+          box-shadow:0 6px 18px rgba(108,92,231,0.28);
+          display:flex;align-items:center;justify-content:center;font-weight:800;color:white;
+          font-size:18px;
+        }
+        .brand h1 {margin:0;font-size:18px;letter-spacing:0.3px}
+
+        /* ---------- SECCION DE UBICACIONES ---------- */
+        .card {
+          background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+          border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.04);
+        }
+
+        .card h2 {margin:0;color:#e6e9f2;font-size:16px}
+        .small {color: #cfe0ff; font-size:13px; margin-top:6px}
+
+        .locations {
+          margin-top:12px; display:flex; flex-direction:column; gap:10px;
+          max-height:260px; overflow:auto; padding-right:6px;
+        }
+
+        .loc {
+          display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+          border:1px solid rgba(255,255,255,0.02);
+          transition: transform .15s, box-shadow .15s;
+        }
+        .loc:hover { transform: translateY(-4px); box-shadow:0 12px 28px rgba(2,6,23,0.5)}
+        .loc .bubble { width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#07112b}
+        .lvl1{ background: linear-gradient(135deg,#bbf7d0,#86efac) } /* bajo */
+        .lvl3{ background: linear-gradient(135deg,#ffedd5,#ffc58a) } /* medio */
+        .lvl5{ background: linear-gradient(135deg,#ffd6d6,#ff8a8a) } /* alto */
+
+        .loc .meta {flex:1}
+        .loc .meta b{display:block;font-size:15px;color:#f8fafc}
+        .loc .meta span{color:var(--muted);font-size:13px}
+
+        /* ---------- COLA PRIORIDAD (VISUAL) ---------- */
+        .cola-wrap {
+          display:flex; flex-direction:column; gap:10px;
+        }
+        .cola-title { display:flex; justify-content:space-between; align-items:center; }
+        .queue {
+          display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+        }
+
+        .pill {
+          min-width:110px;
+          padding:10px 12px;border-radius:999px;
+          background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+          border:1px solid rgba(255,255,255,0.03);
+          color:white;font-weight:700; display:flex;gap:10px;align-items:center;
+          box-shadow:0 6px 18px rgba(2,6,23,0.45);
+          transition: transform .12s;
+        }
+        .pill:hover { transform: translateY(-6px) }
+
+        .priority-dot { width:12px;height:12px;border-radius:50% }
+        .dot-high { background: #ff6b6b; box-shadow:0 6px 18px rgba(255,107,107,0.18) }
+        .dot-mid  { background: #ffa94d }
+        .dot-low  { background: #63e6be }
+
+        /* ---------- BOTONES ACCIÓN (GRAN) ---------- */
+        .cta {
+          display:flex; gap:12px; margin-top:8px;
+        }
+        .btn {
+          background: linear-gradient(90deg,#6c5ce7,#8e7cff);
+          color:white;border:none;padding:12px 16px;border-radius:12px;font-weight:700;
+          cursor:pointer;box-shadow:0 8px 30px rgba(108,92,231,0.2);transition: transform .12s;
+        }
+        .btn.secondary {
+          background: transparent;border:1px solid rgba(255,255,255,0.06); color:#cfe0ff;
+        }
+        .btn:active { transform: translateY(2px) }
+
+        /* ---------- PANEL DERECHO (workspace) ---------- */
+        .workspace {
+          padding:18px;
+          display:flex;flex-direction:column; gap:18px;
+        }
+
+        .topbar {
+          display:flex; justify-content:space-between; align-items:center;
+          color:#e6e9ff;
+        }
+        .title-big { font-size:20px; font-weight:800; letter-spacing:0.3px }
+
+        /* Mapa */
+        #map { height: 56vh; border-radius:16px; overflow:hidden; box-shadow: 0 20px 60px rgba(2,6,23,0.6) }
+
+        /* TRANSFER RESULT */
+        .transfer {
+          display:flex; gap:14px; align-items:center; padding:14px; border-radius:12px;
+          background:linear-gradient(90deg, rgba(124,58,237,0.06), rgba(124,58,237,0.03));
+          color:#e9edff;
+        }
+        .transfer .big { font-size:18px; font-weight:800 }
+
+        /* animacion flecha en mapa overlay (simple) */
+        .arrow-anim {
+          position:absolute; pointer-events:none; transition: opacity .35s;
+        }
+
+        /* responsive */
+        @media (max-width:1050px){
+          .app{ grid-template-columns: 1fr; grid-auto-rows: auto 1fr; height:auto }
+          .panel{ width:100%; height:auto; border-radius:12px }
+          #map{ height: 48vh }
+        }
+    </style>
 </head>
 <body>
-<script>renderHeader('Evacuaciones'); requireRole(['ADMIN','OPERADOR']);</script>
 
-<main class="container">
-    <section class="card">
-        <h2>Crear evacuación</h2>
-        <form id="crear" class="row">
-            <input id="ubic" placeholder="Ubicación (nombre exacto)" required>
-            <input id="prio" type="number" min="0" placeholder="Prioridad" required>
-            <input id="pers" type="number" min="1" placeholder="Personas" required>
-            <button class="btn">Crear</button>
-        </form>
-    </section>
+<div class="app">
+    <!-- PANEL LATERAL -->
+    <aside class="panel" aria-label="Panel lateral de evacuaciones">
+        <div class="brand">
+            <div class="logo">ED</div>
+            <h1>Evacuaciones — Ultra Modern</h1>
+        </div>
 
-    <section class="card mt">
-        <h2>Listado por prioridad</h2>
-        <table><thead><tr>
-            <th>ID</th><th>Ubicación</th><th>Prioridad</th><th>Personas</th><th>Estado</th><th>Acción</th>
-        </tr></thead><tbody id="tabla"></tbody></table>
-    </section>
-</main>
+        <!-- Ubicaciones -->
+        <div class="card">
+            <h2>Ubicaciones</h2>
+            <div class="small">Zona afectada y refugios (traído del servidor)</div>
+            <div id="locations" class="locations" style="margin-top:12px"></div>
+            <div style="margin-top:10px;color:var(--muted);font-size:12px">Haz clic en una ubicación para seleccionarla en el mapa.</div>
+        </div>
+
+        <!-- Cola prioridad -->
+        <div class="card cola-wrap">
+            <div class="cola-title">
+                <h2>Cola de Prioridad</h2>
+                <div class="small">Mayor prioridad → primero</div>
+            </div>
+
+            <div id="queue" class="queue" style="margin-top:8px"></div>
+
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">
+                Arrastra o pulsa una tarjeta para ver detalles. Usa <b>Planificar</b> para ejecutar la siguiente evacuación.
+            </div>
+        </div>
+
+        <!-- Planificación -->
+        <div class="card">
+            <h2>Planificación</h2>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <select id="selectOrigen" style="flex:1"></select>
+                <select id="selectDestino" style="flex:1"></select>
+            </div>
+            <div style="display:flex;margin-top:10px;gap:8px">
+                <button class="btn" id="btnPlan">▶ Planificar (auto)</button>
+                <button class="btn secondary" id="btnManual">✚ Añadir a cola</button>
+            </div>
+            <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+                El botón <b>Planificar</b> pide al servidor ejecutar la siguiente evacuación en la cola. Si el servidor no soporta planificación, el front hace una simulación local y marca la evacuación como completada.
+            </div>
+        </div>
+
+        <div style="flex:1"></div>
+
+        <div style="text-align:center;color:rgba(255,255,255,0.55);font-size:12px">
+            © Proyecto — Gestión de Desastres
+        </div>
+    </aside>
+
+    <!-- WORKSPACE -->
+    <main class="workspace">
+        <div class="topbar">
+            <div>
+                <div class="title-big">Módulo: Evacuaciones</div>
+                <div style="color:#cfe0ff;font-size:13px">Visión centralizada — cola priorizada — planificación</div>
+            </div>
+
+            <div>
+                <button class="btn secondary" id="btnRefresh">Actualizar</button>
+            </div>
+        </div>
+
+        <div id="map"></div>
+
+        <div id="transferResult" class="transfer" style="display:none">
+            <div>
+                <div style="color:var(--muted);font-size:12px">Última planificación</div>
+                <div class="big" id="transferText"></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-    async function listar(){
-      const r = await fetch('/api/evacuaciones'); const data = await r.json();
-      const tb = document.getElementById('tabla');
-      tb.innerHTML = data.length ? data.map(e=>`
-        <tr>
-          <td>${e.id}</td><td>${e.ubicacion}</td><td>${e.prioridad}</td><td>${e.personas}</td>
-          <td>${e.estado}</td>
-          <td>
-            <select id="s-${e.id}">
-              <option ${e.estado==='PENDIENTE'?'selected':''}>PENDIENTE</option>
-              <option ${e.estado==='EN_PROCESO'?'selected':''}>EN_PROCESO</option>
-              <option ${e.estado==='COMPLETADA'?'selected':''}>COMPLETADA</option>
-            </select>
-            <button class="btn" onclick="cambiar('${e.id}')">Actualizar</button>
-          </td>
-        </tr>`).join('') :
-        `<tr><td colspan="6" class="muted center">Sin registros</td></tr>`;
+    /*
+      Evacuaciones — Frontend ultra-moderno
+      - Usa /api/ubicaciones   (GET)
+      - Usa /api/evacuaciones  (GET, POST, PUT)
+      - INTENTA usar /api/evacuaciones/planificar (POST) si el backend lo implementa.
+        Si 404 o falla, hace una simulación local y actualiza solo el estado de evacuación (PUT).
+    */
+
+    /* ---------- UTIL y ESTADO ---------- */
+    let ubicaciones = [];     // array de ubicaciones del servidor
+    let evacuaciones = [];    // array de evacuaciones (sacado de /api/evacuaciones)
+    let markers = [];
+    let map, layerGroup;
+
+    /* ---------- INICIALIZAR MAPA ---------- */
+    map = L.map('map', {zoomControl:true}).setView([4.535, -75.675], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    layerGroup = L.layerGroup().addTo(map);
+
+    /* ---------- DOM refs ---------- */
+    const elLocations = document.getElementById('locations');
+    const elQueue = document.getElementById('queue');
+    const selOrigen = document.getElementById('selectOrigen');
+    const selDestino = document.getElementById('selectDestino');
+    const btnPlan = document.getElementById('btnPlan');
+    const btnManual = document.getElementById('btnManual');
+    const btnRefresh = document.getElementById('btnRefresh');
+    const transferDiv = document.getElementById('transferResult');
+    const transferText = document.getElementById('transferText');
+
+    /* ---------- CARGAR INICIAL ---------- */
+    async function init(){
+      await Promise.all([cargarUbicaciones(), cargarEvacuaciones()]);
+      renderAll();
     }
-    async function cambiar(id){
-      const estado = document.getElementById('s-'+id).value;
-      await fetch('/api/evacuaciones',{method:'PUT',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({id,estado})});
-      listar();
+    init();
+
+    /* ---------- LLAMADAS AL BACKEND ---------- */
+    async function cargarUbicaciones(){
+      try {
+        const r = await fetch('/api/ubicaciones');
+        ubicaciones = await r.json();
+      } catch (e) {
+        console.error('Error cargando ubicaciones', e);
+        ubicaciones = [];
+      }
     }
-    document.getElementById('crear').addEventListener('submit', async e=>{
-      e.preventDefault();
-      const body={ubicacion:ubic.value.trim(), prioridad:+prio.value, personas:+pers.value};
-      const res=await fetch('/api/evacuaciones',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){ e.target.reset(); listar(); } else alert('Datos inválidos');
+
+    async function cargarEvacuaciones(){
+      try {
+        const r = await fetch('/api/evacuaciones');
+        evacuaciones = await r.json();
+        // tu backend devuelve objetos con {id, prioridad, personas, estado, ubicacion}
+        // la cola ya viene ordenada por prioridad (según tu ColaPrioridadEvacuacion)
+      } catch (e) {
+        console.error('Error cargando evacuaciones', e);
+        evacuaciones = [];
+      }
+    }
+
+    /* ---------- RENDERIZADO UI ---------- */
+    function renderLocations(){
+      elLocations.innerHTML = '';
+      layerGroup.clearLayers();
+      selOrigen.innerHTML = '';
+      selDestino.innerHTML = '';
+
+      ubicaciones.forEach((u, i) => {
+        // elegir color por nivel de afectación si viene o por nombre
+        let lvlClass = 'lvl1';
+        // Asumimos que servidor devuelve 'nivelAfectacion' o similar
+        const nivel = u.nivelAfectacion || (u.nivel || 'LEVE');
+        if (nivel === 'GRAVE' || nivel === 'ALTO' || nivel === '5') lvlClass = 'lvl5';
+        else if (nivel === 'MODERADO' || nivel === '3') lvlClass = 'lvl3';
+
+        const div = document.createElement('div');
+        div.className = 'loc';
+        div.innerHTML = `
+          <div class="bubble ${lvlClass}">${u.nombre[0] ? u.nombre[0].toUpperCase() : 'U'}</div>
+          <div class="meta">
+            <b>${u.nombre}</b>
+            <span>${u.tipoZona || ''} • ${u.nivelAfectacion || ''}</span>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:800;color:#e6eefc">${u.personas ?? (u.cantidadPersonas ?? 0)}</div>
+            <div style="font-size:12px;color:var(--muted)">personas</div>
+          </div>
+        `;
+        // click selecciona en mapa
+        div.addEventListener('click', ()=> {
+          if (u.latitud || u.lat || u.coords) {
+            const lat = u.latitud ?? u.lat ?? (u.coords && u.coords[0]);
+            const lng = u.longitud ?? u.lng ?? (u.coords && u.coords[1]);
+            map.flyTo([lat,lng],15,{duration:0.8});
+          }
+        });
+
+        elLocations.appendChild(div);
+
+        // agrega opciones selects
+        const opt1 = document.createElement('option'); opt1.value = i; opt1.text = u.nombre;
+        const opt2 = document.createElement('option'); opt2.value = i; opt2.text = u.nombre;
+        selOrigen.appendChild(opt1); selDestino.appendChild(opt2);
+
+        // marcador
+        const lat = parseFloat(u.latitud ?? u.lat ?? (u.coords && u.coords[0]) ?? 0);
+        const lng = parseFloat(u.longitud ?? u.lng ?? (u.coords && u.coords[1]) ?? 0);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const m = L.circleMarker([lat,lng], {
+            radius: 10,
+            fillColor: (nivel==='GRAVE' || nivel==='5') ? '#ff6b6b' : ((nivel==='MODERADO' || nivel==='3') ? '#ffa94d' : '#63e6be'),
+            color: '#fff', weight:2, fillOpacity:0.95
+          }).bindPopup(`<b>${u.nombre}</b><br>Personas: ${u.personas ?? (u.cantidadPersonas ?? 0)}<br>${u.tipoZona ?? ''}`);
+          layerGroup.addLayer(m);
+        }
+      });
+    }
+
+    /* visual cola (pill) */
+    function renderQueue(){
+      elQueue.innerHTML = '';
+      if (!evacuaciones || evacuaciones.length===0) {
+        elQueue.innerHTML = `<div style="color:#cfe0ff;font-size:13px">La cola está vacía</div>`;
+        return;
+      }
+      evacuaciones.forEach(ev => {
+        const pill = document.createElement('div');
+        pill.className = 'pill';
+        // prioridad visual
+        const dot = document.createElement('div');
+        dot.className = 'priority-dot ' + (ev.prioridad>=4 ? 'dot-high' : (ev.prioridad>=2 ? 'dot-mid' : 'dot-low'));
+        pill.appendChild(dot);
+        const txt = document.createElement('div');
+        txt.innerHTML = `<div style="font-size:13px">${ev.ubicacion}</div><div style="font-size:12px;color:var(--muted)">${ev.personas} personas • prio ${ev.prioridad}</div>`;
+        pill.appendChild(txt);
+        // on click: show details + zoom
+        pill.addEventListener('click', ()=> {
+          // find ubicacion coords and flyTo
+          const ub = ubicaciones.find(u => u.nombre === ev.ubicacion);
+          if (ub) {
+            const lat = ub.latitud ?? ub.lat ?? (ub.coords && ub.coords[0]);
+            const lng = ub.longitud ?? ub.lng ?? (ub.coords && ub.coords[1]);
+            if (lat && lng) map.flyTo([lat,lng],15,{duration:0.7});
+          }
+        });
+        elQueue.appendChild(pill);
+      });
+    }
+
+    /* render everything */
+    function renderAll(){
+      renderLocations();
+      renderQueue();
+    }
+
+    /* ---------- ACCIONES: Añadir a cola (manual) ---------- */
+    btnManual.addEventListener('click', async ()=>{
+      // abre modal minimal usando prompt para datos mínimos (ubicacion y personas)
+      const ubic = prompt("Nombre de la ubicación a evacuar (exacto):");
+      if (!ubic) return;
+      const prio = parseInt(prompt("Prioridad (1 baja - 5 alta)", "3"));
+      const pers = parseInt(prompt("Cantidad de personas a evacuar", "10"));
+      if (!pers || pers<=0) return alert("cantidad inválida");
+
+      // send POST /api/evacuaciones
+      try {
+        const body = { ubicacion: ubic, prioridad: prio, personas: pers };
+        const res = await fetch('/api/evacuaciones', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        if (res.ok) {
+          await cargarEvacuaciones();
+          renderQueue();
+          alert('Evacuación añadida a la cola');
+        } else {
+          const txt = await res.text();
+          console.warn('POST evac error', txt);
+          alert('Error añadiendo evacuación (revisa consola)');
+        }
+      } catch(err) {
+        console.error(err);
+        alert('Error comunicando con servidor. Uso modo local: añadiendo a cola visual.');
+        // modo local: añadir a front (no persistente)
+        evacuaciones.push({ id:'L'+Date.now(), prioridad: prio, personas: pers, estado:'PENDIENTE', ubicacion: ubic });
+        evacuaciones.sort((a,b)=> b.prioridad - a.prioridad);
+        renderQueue();
+      }
     });
-    listar();
+
+    /* ---------- ACCIÓN: PLANIFICAR ---------- */
+    btnPlan.addEventListener('click', async ()=>{
+      btnPlan.disabled = true; btnPlan.textContent = 'Ejecutando...';
+      try {
+        // Intentamos llamar al endpoint server-side de planificación
+        const res = await fetch('/api/evacuaciones/planificar', { method:'POST' });
+        if (res.ok) {
+          // Se espera que el servidor devuelva un JSON con detalle: {origen:..., destino:..., personas: n, idEvacuacion: "..."}
+          const detalle = await res.json().catch(()=>null);
+          if (detalle) {
+            mostrarResultado(detalle);
+            // refrescar listas porque backend ya procesó
+            await Promise.all([cargarEvacuaciones(), cargarUbicaciones()]);
+            renderAll();
+          } else {
+            // sin cuerpo: refrescar
+            await Promise.all([cargarEvacuaciones(), cargarUbicaciones()]);
+            renderAll();
+            transferText.textContent = 'Planificación ejecutada (servidor).';
+            transferDiv.style.display = 'flex';
+          }
+        } else {
+          // endpoint no existe o falló: hacemos fallback local (simulación)
+          console.warn('Planificar falla en servidor, usando simulación front-end');
+          await fallbackPlanificarLocal();
+        }
+      } catch (e) {
+        console.error('Error planificar:', e);
+        await fallbackPlanificarLocal();
+      } finally {
+        btnPlan.disabled = false; btnPlan.textContent = '▶ Planificar (auto)';
+        setTimeout(()=>transferDiv.style.opacity = 1, 120);
+      }
+    });
+
+    /* ---------- FALLBACK LOCAL: planifica en front y marca evac COMPLETADA vía PUT ---------- */
+    async function fallbackPlanificarLocal(){
+      // 1) tomar primer elemento de evacuaciones (lista viene ordenada por prioridad del servidor)
+      if (!evacuaciones || evacuaciones.length===0) {
+        alert('Cola vacía — nada que planificar');
+        return;
+      }
+      const ev = evacuaciones[0]; // mayor prioridad (según backend)
+      // 2) elegir destino: por defecto elegimos la ubicación de tipo REFUGIO si existe, si no la menos poblada
+      let destino = ubicaciones.find(u => (u.tipoZona && u.tipoZona.toString().toUpperCase().includes('REFUGIO')));
+      if (!destino) {
+        // menos poblada
+        destino = ubicaciones.reduce((min,u)=> {
+          const p = Number(u.personas ?? u.cantidadPersonas ?? 0);
+          return (min==null || p < (Number(min.personas ?? min.cantidadPersonas ?? 0))) ? u : min;
+        }, null);
+      }
+      // 3) origen: buscar Ubicacion por nombre en ev.ubicacion
+      const origen = ubicaciones.find(u => u.nombre === ev.ubicacion);
+      if (!origen || !destino) {
+        alert('No se pudo encontrar origen o destino para la evacuación (simulación abortada).');
+        return;
+      }
+
+      // 4) cantidad a evacuar: si hay suficientes, movemos max  (por ejemplo) ev.personas o hasta lo que exista
+      const mover = Math.min(ev.personas, Number(origen.personas ?? origen.cantidadPersonas ?? 0) || ev.personas);
+
+      // 5) actualizar UI (local)
+      origen.personas = (Number(origen.personas ?? origen.cantidadPersonas ?? 0) - mover);
+      destino.personas = (Number(destino.personas ?? destino.cantidadPersonas ?? 0) + mover);
+
+      // 6) notificar al backend que la evacuación fue completada: PUT /api/evacuaciones {id, estado: "COMPLETADA"}
+      try {
+        await fetch('/api/evacuaciones', {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ id: ev.id, estado: 'COMPLETADA' })
+        });
+      } catch(e){ console.warn('No se pudo actualizar estado en servidor:', e) }
+
+      // 7) quitar de la lista local
+      evacuaciones = evacuaciones.filter(x => x.id !== ev.id);
+
+      // 8) mostrar resultado
+      mostrarResultado({
+        origen: origen.nombre,
+        destino: destino.nombre,
+        personas: mover,
+        idEvacuacion: ev.id,
+        modo: 'simulado-local'
+      });
+
+      renderAll();
+    }
+
+    /* ---------- Mostrar resultado visual ---------- */
+    function mostrarResultado(detalle){
+      transferText.textContent = `${detalle.personas} personas → ${detalle.origen} → ${detalle.destino} ${detalle.modo==='simulado-local' ? '(simulación local)' : ''}`;
+      transferDiv.style.display='flex';
+      transferDiv.style.opacity = 0;
+      setTimeout(()=>transferDiv.style.opacity = 1, 50);
+
+      // animación simple: dibujar polyline entre coords de origen y destino
+      const o = ubicaciones.find(u => u.nombre === detalle.origen);
+      const d = ubicaciones.find(u => u.nombre === detalle.destino);
+      if (o && d) {
+        const latO = Number(o.latitud ?? o.lat ?? (o.coords && o.coords[0]));
+        const lngO = Number(o.longitud ?? o.lng ?? (o.coords && o.coords[1]));
+        const latD = Number(d.latitud ?? d.lat ?? (d.coords && d.coords[0]));
+        const lngD = Number(d.longitud ?? d.lng ?? (d.coords && d.coords[1]));
+        if (!isNaN(latO) && !isNaN(lngO) && !isNaN(latD) && !isNaN(lngD)) {
+          const line = L.polyline([[latO,lngO],[latD,lngD]], {color:'#8b5cf6', weight:4, dashArray:'8 6'}).addTo(layerGroup);
+          setTimeout(()=> layerGroup.removeLayer(line), 4500);
+          // pulse markers
+          const m1 = L.circle([latO,lngO],{radius:80,color:'#ef4444',opacity:0.18}).addTo(layerGroup);
+          const m2 = L.circle([latD,lngD],{radius:80,color:'#10b981',opacity:0.18}).addTo(layerGroup);
+          setTimeout(()=>{ layerGroup.removeLayer(m1); layerGroup.removeLayer(m2); },4500);
+        }
+      }
+    }
+
+    /* ---------- REFRESH (manual) ---------- */
+    btnRefresh.addEventListener('click', async ()=>{
+      await Promise.all([cargarUbicaciones(), cargarEvacuaciones()]);
+      renderAll();
+    });
+
+    /* ---------- RENDER PERIODICO (pequeño) para mantener UI viva ---------- */
+    setInterval(async ()=>{
+      // intentar refrescar cola cada 12s (no intrusivo)
+      try { await cargarEvacuaciones(); renderQueue(); } catch{}
+    }, 12000);
+
 </script>
+
 </body>
 </html>

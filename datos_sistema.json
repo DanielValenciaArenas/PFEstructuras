@@ -77,37 +77,66 @@
       "extra": "2025-12-16"
     },
     {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "General"
-    },
-    {
       "id": "RM16125412229300",
       "nombre": "MEDICINA",
       "cantidad": 15,
       "nombreUbicacion": "Alamos",
       "tipo": "MEDICINA",
       "extra": "General"
+    },
+    {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "General"
     }
   ],
   "equipos": [
-    {
-      "id": "EQ16470256995600",
-      "nombre": "Los capos",
-      "tipo": "bomberos",
-      "miembros": 8,
-      "nombreUbicacion": "El bosque"
-    },
     {
       "id": "EQ16552362510000",
       "nombre": "Yasuri",
       "tipo": "Policias",
       "miembros": 4,
       "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EQ16470256995600",
+      "nombre": "Los capos",
+      "tipo": "bomberos",
+      "miembros": 8,
+      "nombreUbicacion": "El bosque"
     }
   ],
-  "evacuaciones": []
+  "evacuaciones": [
+    {
+      "id": "EV15683705883800",
+      "prioridad": 5,
+      "cantidadPersonas": 20,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Ciudad A"
+    },
+    {
+      "id": "EV15874218832900",
+      "prioridad": 5,
+      "cantidadPersonas": 3,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EV15730057916500",
+      "prioridad": 2,
+      "cantidadPersonas": 12,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Refugio B"
+    },
+    {
+      "id": "EV49972945098300",
+      "prioridad": 1,
+      "cantidadPersonas": 13,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Alamos"
+    }
+  ]
 }
