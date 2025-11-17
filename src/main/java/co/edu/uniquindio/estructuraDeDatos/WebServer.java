@@ -9,19 +9,19 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 
 /**
  * Servidor HTTP ligero para exponer interfaces HTML y APIs.
- * NOTA: versión “segura” para compilar aunque falten métodos en ArbolDistribuido
- * y Usuario sea abstracta. El login usa dos cuentas demo internas (admin/oper).
+ * Login con dos cuentas demo (admin/oper).
  */
 public class WebServer {
 
     private final SistemaGestionDesastres sistema;
     private final Map<String, Ubicacion> ubicacionesPorNombre = new LinkedHashMap<>();
 
-    // ======== Cuentas demo (no usa tu clase Usuario) =========
+    // ======== Cuentas demo =========
     private static final String ADMIN_USER = "admin";
     private static final String ADMIN_PASS = "admin123";
     private static final String ADMIN_ROLE = "ADMINISTRADOR";
@@ -31,14 +31,22 @@ public class WebServer {
     private static final String OPER_PASS = "oper123";
     private static final String OPER_ROLE = "OPERADOR";
     private static final String OPER_NAME = "Oscar Operador";
-    // =========================================================
+    // ===============================
 
     public WebServer(SistemaGestionDesastres sistema) {
         this.sistema = sistema;
     }
 
     public void start(int port) throws Exception {
-        cargarDemo(); // ubicaciones + rutas básicas
+
+        // Si el grafo viene vacío (no había JSON o estaba vacío) cargamos la demo.
+        // Si ya hay ubicaciones (cargadas desde PersistenciaJson.cargar),
+        // solo sincronizamos el mapa interno ubicacionesPorNombre.
+        if (sistema.getGrafo().obtenerTodasLasUbicaciones().isEmpty()) {
+            cargarDemo(); // ubicaciones + rutas básicas
+        } else {
+            sincronizarUbicacionesDesdeSistema();
+        }
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
@@ -52,9 +60,17 @@ public class WebServer {
 
         // ---------- UBICACIONES ----------
         server.createContext("/api/ubicaciones", ex -> {
-            Headers h = ex.getResponseHeaders(); h.add("Content-Type", "application/json; charset=utf-8");
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type", "application/json; charset=utf-8");
             String method = ex.getRequestMethod();
-            if ("GET".equals(method)) { enviarTexto(ex, 200, listarUbicacionesJson()); return; }
+
+            // LISTAR
+            if ("GET".equals(method)) {
+                enviarTexto(ex, 200, listarUbicacionesJson());
+                return;
+            }
+
+            // CREAR
             if ("POST".equals(method)) {
                 Map<String,String> m = tinyJson(cuerpo(ex));
                 String nombre = trimOrNull(m.get("nombre"));
@@ -62,31 +78,112 @@ public class WebServer {
                 String nivel  = m.getOrDefault("nivelAfectacion","LEVE").trim();
                 double lat = parseDoubleSafe(m.get("latitud"), 0);
                 double lng = parseDoubleSafe(m.get("longitud"), 0);
-                if (nombre==null || nombre.isEmpty()) { enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}"); return; }
+
+                if (nombre==null || nombre.isEmpty()) {
+                    enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}");
+                    return;
+                }
+
                 Evacuacion evac = new Evacuacion("E"+System.nanoTime(),0,0,EstadoEvacuacion.PENDIENTE,null);
-                Ubicacion u = new Ubicacion("U"+System.nanoTime(), nombre, TipoZona.valueOf(tipo),
-                        NivelDeAfectacion.valueOf(nivel), evac, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), lat, lng);
-                registrarUbicacion(u); sistema.agregarUbicacion(u);
-                enviarTexto(ex,200,"{\"ok\":true}"); return;
+                Ubicacion u = new Ubicacion(
+                        "U"+System.nanoTime(),
+                        nombre,
+                        TipoZona.valueOf(tipo),
+                        NivelDeAfectacion.valueOf(nivel),
+                        evac,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        lat,
+                        lng
+                );
+                registrarUbicacion(u);
+                sistema.agregarUbicacion(u);
+                guardarSistemaEnJson();
+                enviarTexto(ex,200,"{\"ok\":true}");
+                return;
             }
+
+            // ELIMINAR
+            if ("DELETE".equals(method)) {
+                Map<String,String> q = query(ex.getRequestURI().getQuery());
+                String nombre = trimOrNull(q.get("nombre"));
+
+                if (nombre == null) {
+                    enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}");
+                    return;
+                }
+
+                // Buscar coincidencia real (ignorando mayúsculas y espacios)
+                Ubicacion u = null;
+                for (Map.Entry<String, Ubicacion> entry : ubicacionesPorNombre.entrySet()) {
+                    if (entry.getKey().trim().equalsIgnoreCase(nombre.trim())) {
+                        u = entry.getValue();
+                        break;
+                    }
+                }
+
+                if (u == null) {
+                    enviarTexto(ex,400,"{\"error\":\"ubicacion no encontrada\"}");
+                    return;
+                }
+
+                // Eliminar del mapa interno
+                ubicacionesPorNombre.remove(u.getNombre());
+
+                // Eliminar del grafo (incluye rutas asociadas)
+                sistema.getGrafo().eliminarUbicacion(u);
+
+                // Guardar cambios en JSON
+                guardarSistemaEnJson();
+
+                enviarTexto(ex,200,"{\"ok\":true}");
+                return;
+            }
+
             enviarTexto(ex,405,"{}");
         });
 
         // ---------- RUTAS ----------
         server.createContext("/api/rutas", ex -> {
-            Headers h = ex.getResponseHeaders(); h.add("Content-Type", "application/json; charset=utf-8");
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type", "application/json; charset=utf-8");
             String method = ex.getRequestMethod();
-            if ("GET".equals(method)) { enviarTexto(ex,200,listarRutasJson()); return; }
+            if ("GET".equals(method)) {
+                enviarTexto(ex,200,listarRutasJson());
+                return;
+            }
             if ("POST".equals(method)) {
                 Map<String,String> m = tinyJson(cuerpo(ex));
-                String so=trimOrNull(m.get("origen")), sd=trimOrNull(m.get("destino"));
-                double dist = parseDoubleSafe(m.get("distancia"), 0);
-                if (so==null || sd==null) { enviarTexto(ex,400,"{\"error\":\"origen/destino\"}"); return; }
-                if (dist<=0) { enviarTexto(ex,400,"{\"error\":\"distancia debe ser > 0\"}"); return; }
-                Ubicacion o=ubicacionesPorNombre.get(so), d=ubicacionesPorNombre.get(sd);
-                if (o==null||d==null){ enviarTexto(ex,400,"{\"error\":\"ubicación inválida\"}"); return; }
-                sistema.agregarRuta(new Ruta("R"+System.nanoTime(),o,d,dist));
-                enviarTexto(ex,200,"{\"ok\":true}"); return;
+                String so = trimOrNull(m.get("origen"));
+                String sd = trimOrNull(m.get("destino"));
+
+                if (so==null || sd==null) {
+                    enviarTexto(ex,400,"{\"error\":\"origen/destino\"}");
+                    return;
+                }
+
+                Ubicacion o = ubicacionesPorNombre.get(so);
+                Ubicacion d = ubicacionesPorNombre.get(sd);
+
+                if (o==null || d==null){
+                    enviarTexto(ex,400,"{\"error\":\"ubicacion invalida\"}");
+                    return;
+                }
+
+                // Intentar leer distancia del JSON, si viene
+                double dist = parseDoubleSafe(m.get("distancia"), -1);
+
+                // Si no viene o es <= 0, calcular con lat/lng (distancia real aprox.)
+                if (dist <= 0) {
+                    dist = distanciaKm(o, d);
+                }
+
+                Ruta ruta = new Ruta("R"+System.nanoTime(), o, d, dist);
+                sistema.agregarRuta(ruta);
+                guardarSistemaEnJson();
+                enviarTexto(ex,200,"{\"ok\":true}");
+                return;
             }
             enviarTexto(ex,405,"{}");
         });
@@ -96,67 +193,232 @@ public class WebServer {
             Map<String,String> q = query(ex.getRequestURI().getQuery());
             Ubicacion o = ubicacionesPorNombre.get(trimOrNull(q.get("origen")));
             Ubicacion d = ubicacionesPorNombre.get(trimOrNull(q.get("destino")));
-            if (o==null||d==null){ enviarTexto(ex,400,"Ubicaciones no válidas"); return; }
+            if (o==null||d==null){
+                try {
+                    enviarTexto(ex,400,"Ubicaciones no válidas");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             var camino = sistema.getGrafo().buscarCaminoDijkstra(o,d);
-            if (camino==null || camino.isEmpty()){ enviarTexto(ex,200,"No existe una ruta entre esas ubicaciones"); return; }
+            if (camino==null || camino.isEmpty()){
+                try {
+                    enviarTexto(ex,200,"No existe una ruta entre esas ubicaciones");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             double total=0;
             for(int i=0;i<camino.size()-1;i++){
                 Ubicacion a=camino.get(i), b=camino.get(i+1);
-                for(Ruta r: sistema.getGrafo().obtenerRutasDesde(a)) if (r.getDestino().equals(b)) total+=r.getDistancia();
+                for(Ruta r: sistema.getGrafo().obtenerRutasDesde(a)) {
+                    if (r.getDestino().equals(b)) {
+                        total+=r.getDistancia();
+                    }
+                }
             }
             StringBuilder sb=new StringBuilder("Ruta más corta:\n");
-            for(int i=0;i<camino.size();i++){ sb.append(camino.get(i).getNombre()); if(i<camino.size()-1) sb.append(" -> "); }
+            for(int i=0;i<camino.size();i++){
+                sb.append(camino.get(i).getNombre());
+                if(i<camino.size()-1) sb.append(" -> ");
+            }
             sb.append("\nDistancia total: ").append(total).append(" km");
-            enviarTexto(ex,200,sb.toString());
+            try {
+                enviarTexto(ex,200,sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         // ---------- RECURSOS ----------
         server.createContext("/api/recursos", ex -> {
             Headers h = ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String method = ex.getRequestMethod();
+
+            // ===== GET =====
             if ("GET".equals(method)) {
                 String ubic = query(ex.getRequestURI().getQuery()).get("ubicacion");
+
+                // GET filtrando por ubicación (para ubicaciones.js)
                 if (ubic!=null) {
                     Ubicacion u = ubicacionesPorNombre.get(ubic);
                     List<String> arr=new ArrayList<>();
-                    for(Recurso r: sistema.getMapaRecursos().obtenerRecursos(u)){
-                        arr.add(String.format("{\"tipo\":\"%s\",\"cantidad\":%d}", r.getClass().getSimpleName(), r.getCantidad()));
+                    if (u != null) {
+                        for(Recurso r: sistema.getMapaRecursos().obtenerRecursos(u)){
+                            String tipo = (r instanceof RecursoAlimento) ? "ALIMENTO" :
+                                    (r instanceof RecursoMedicina) ? "MEDICINA" : "GEN";
+                            arr.add(String.format(
+                                    "{\"tipo\":\"%s\",\"cantidad\":%d}",
+                                    tipo, r.getCantidad()
+                            ));
+                        }
                     }
-                    enviarTexto(ex,200,"["+String.join(",",arr)+"]");
+                    try {
+                        enviarTexto(ex,200,"["+String.join(",",arr)+"]");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return;
                 }
+
+                // GET general (para recursos.js)
                 List<String> json=new ArrayList<>();
                 for(Recurso r: sistema.getMapaRecursos().obtenerTodosLosRecursos()){
-                    String nom = r.getUbicacion()!=null? r.getUbicacion().getNombre() : "Sin ubicación";
-                    json.add(String.format("{\"tipo\":\"%s\",\"cantidad\":%d,\"ubicacion\":\"%s\"}",
-                            r.getClass().getSimpleName(), r.getCantidad(), esc(nom)));
+
+                    String tipo;
+                    String vencimiento = null;
+                    String medicamento = null;
+
+                    if (r instanceof RecursoAlimento ra) {
+                        tipo = "ALIMENTO";
+                        if (ra.getFechaVencimiento() != null) {
+                            vencimiento = ra.getFechaVencimiento().toString();
+                        }
+                    } else if (r instanceof RecursoMedicina rm) {
+                        tipo = "MEDICINA";
+                        medicamento = rm.getTipoMedicamento();
+                    } else {
+                        tipo = "GEN";
+                    }
+
+                    String nombre = esc(r.getNombre() != null ? r.getNombre() : "");
+                    String nomUbi = r.getUbicacion()!=null ? esc(r.getUbicacion().getNombre()) : "Sin ubicación";
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("{")
+                            .append("\"tipo\":\"").append(tipo).append("\",")
+                            .append("\"nombre\":\"").append(nombre).append("\",")
+                            .append("\"cantidad\":").append(r.getCantidad()).append(",")
+                            .append("\"ubicacion\":\"").append(nomUbi).append("\"");
+
+                    if (vencimiento != null) {
+                        sb.append(",\"vencimiento\":\"").append(vencimiento).append("\"");
+                    }
+                    if (medicamento != null) {
+                        sb.append(",\"medicamento\":\"").append(esc(medicamento)).append("\"");
+                    }
+
+                    sb.append("}");
+                    json.add(sb.toString());
                 }
-                enviarTexto(ex,200,"["+String.join(",",json)+"]"); return;
+                try {
+                    enviarTexto(ex,200,"["+String.join(",",json)+"]");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
+
+            // ===== POST =====
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
-                String tipo=m.getOrDefault("tipo","ALIMENTO").trim();
-                int cantidad=(int)parseDoubleSafe(m.getOrDefault("cantidad","0"),0);
-                Ubicacion u=ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
-                if(cantidad<=0||u==null){ enviarTexto(ex,400,"{\"error\":\"datos\"}"); return; }
-                Recurso rec = tipo.equalsIgnoreCase("ALIMENTO")
-                        ? new RecursoAlimento("RA"+System.nanoTime(),"ALIMENTO",cantidad,u, java.time.LocalDate.now().plusDays(30))
-                        : new RecursoMedicina("RM"+System.nanoTime(),"MEDICINA",cantidad,u,"General");
+
+                String tipo    = m.getOrDefault("tipo","ALIMENTO").trim();
+                String nombre  = trimOrNull(m.get("nombre"));
+                String vencStr = trimOrNull(m.get("vencimiento"));
+                String medStr  = trimOrNull(m.get("medicamento"));
+
+                int cantidad   = (int)parseDoubleSafe(m.getOrDefault("cantidad","0"),0);
+                Ubicacion u    = ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
+
+                if(cantidad<=0||u==null){
+                    try {
+                        enviarTexto(ex,400,"{\"error\":\"datos\"}");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+
+                Recurso rec;
+
+                if (tipo.equalsIgnoreCase("ALIMENTO")) {
+                    LocalDate fecha;
+                    if (vencStr != null && !vencStr.isBlank()) {
+                        // Se espera formato yyyy-MM-dd
+                        fecha = LocalDate.parse(vencStr);
+                    } else {
+                        // Por defecto, 30 días después de hoy
+                        fecha = LocalDate.now().plusDays(30);
+                    }
+                    String nombreFinal = (nombre != null && !nombre.isBlank())
+                            ? nombre
+                            : "Alimento";
+                    rec = new RecursoAlimento(
+                            "RA"+System.nanoTime(),
+                            nombreFinal,
+                            cantidad,
+                            u,
+                            fecha
+                    );
+                } else if (tipo.equalsIgnoreCase("MEDICINA")) {
+                    String tipoMedFinal = (medStr != null && !medStr.isBlank())
+                            ? medStr
+                            : "General";
+                    String nombreFinal = (nombre != null && !nombre.isBlank())
+                            ? nombre
+                            : "Medicamento";
+                    rec = new RecursoMedicina(
+                            "RM"+System.nanoTime(),
+                            nombreFinal,
+                            cantidad,
+                            u,
+                            tipoMedFinal
+                    );
+                } else {
+                    // Tipo genérico por si acaso
+                    String nombreFinal = (nombre != null && !nombre.isBlank())
+                            ? nombre
+                            : "Recurso";
+                    rec = new RecursoMedicina(
+                            "RG"+System.nanoTime(),
+                            nombreFinal,
+                            cantidad,
+                            u,
+                            "GEN"
+                    );
+                }
+
                 sistema.getMapaRecursos().agregarRecurso(u, rec);
-                enviarTexto(ex,200,"{\"ok\":true}"); return;
+                guardarSistemaEnJson();
+                try {
+                    enviarTexto(ex,200,"{\"ok\":true}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
-            enviarTexto(ex,405,"{}");
+
+            try {
+                enviarTexto(ex,405,"{}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         server.createContext("/api/recursos/transferir", ex -> {
-            if (!"POST".equals(ex.getRequestMethod())) { enviarTexto(ex,405,"{}"); return; }
+            if (!"POST".equals(ex.getRequestMethod())) {
+                try {
+                    enviarTexto(ex,405,"{}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             Map<String,String> m=tinyJson(cuerpo(ex));
             Ubicacion o=ubicacionesPorNombre.get(trimOrNull(m.get("origen")));
             Ubicacion d=ubicacionesPorNombre.get(trimOrNull(m.get("destino")));
             String id = trimOrNull(m.get("idRecurso"));
             int cant = (int)parseDoubleSafe(m.getOrDefault("cantidad","0"),0);
             var result = sistema.getMapaRecursos().transferirRecurso(o,d,id,cant);
-            enviarTexto(ex,200, result!=null? "{\"ok\":true}" : "{\"ok\":false}");
+            guardarSistemaEnJson();
+            try {
+                enviarTexto(ex,200, result!=null? "{\"ok\":true}" : "{\"ok\":false}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         // ---------- EQUIPOS ----------
@@ -166,45 +428,129 @@ public class WebServer {
             if ("GET".equals(method)) {
                 List<String> items=new ArrayList<>();
                 for(Ubicacion u: ubicacionesPorNombre.values()){
-                    for(EquipoRescate e: u.getEquiposDeRescate()){
-                        items.add(String.format("{\"nombre\":\"%s\",\"tipo\":\"%s\",\"miembros\":%d,\"ubicacion\":\"%s\"}",
-                                esc(e.getNombre()), esc(e.getTipo()), e.getMiembros(), esc(u.getNombre())));
+                    if (u.getEquiposDeRescate() != null) {
+                        for(EquipoRescate e: u.getEquiposDeRescate()){
+                            items.add(String.format("{\"nombre\":\"%s\",\"tipo\":\"%s\",\"miembros\":%d,\"ubicacion\":\"%s\"}",
+                                    esc(e.getNombre()), esc(e.getTipo()), e.getMiembros(), esc(u.getNombre())));
+                        }
                     }
                 }
-                enviarTexto(ex,200,"["+String.join(",",items)+"]"); return;
+                try {
+                    enviarTexto(ex,200,"["+String.join(",",items)+"]");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
-                String nombre=trimOrNull(m.get("nombre")), tipo=m.getOrDefault("tipo","GENERAL").trim();
+                String nombre=trimOrNull(m.get("nombre"));
+                String tipo=m.getOrDefault("tipo","GENERAL").trim();
                 int miembros=(int)parseDoubleSafe(m.getOrDefault("miembros","0"),0);
                 Ubicacion u=ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
-                if(nombre==null||miembros<=0||u==null){ enviarTexto(ex,400,"{\"error\":\"datos\"}"); return; }
-                EquipoRescate eq=new EquipoRescate("EQ"+System.nanoTime(),tipo,miembros,u); eq.setNombre(nombre);
-                u.asignarEquipo(eq); enviarTexto(ex,200,"{\"ok\":true}"); return;
+                if(nombre==null||miembros<=0||u==null){
+                    try {
+                        enviarTexto(ex,400,"{\"error\":\"datos\"}");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+                EquipoRescate eq=new EquipoRescate("EQ"+System.nanoTime(),tipo,miembros,u);
+                eq.setNombre(nombre);
+                u.asignarEquipo(eq);
+                guardarSistemaEnJson();
+                try {
+                    enviarTexto(ex,200,"{\"ok\":true}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
-            enviarTexto(ex,405,"{}");
+            try {
+                enviarTexto(ex,405,"{}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
-        // ---------- LOGIN (no usa tu modelo Usuario abstracto) ----------
+        // ---------- PERSONAS (extra, por si lo usas) ----------
+        server.createContext("/api/personas", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type", "application/json; charset=utf-8");
+
+            String method = ex.getRequestMethod();
+            if (!"GET".equals(method)) {
+                try {
+                    enviarTexto(ex, 405, "{}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            Map<String,String> q = query(ex.getRequestURI().getQuery());
+            String nombreUbicacion = trimOrNull(q.get("ubicacion"));
+
+            List<String> personasJson = new ArrayList<>();
+
+            if (nombreUbicacion != null) {
+                Ubicacion u = ubicacionesPorNombre.get(nombreUbicacion);
+                if (u != null && u.getPersonas() != null) {
+                    for (Persona p : u.getPersonas()) {
+                        personasJson.add(
+                                String.format("{\"nombre\":\"%s\"}", esc(p.getNombre()))
+                        );
+                    }
+                }
+            }
+
+            try {
+                enviarTexto(ex, 200, "[" + String.join(",", personasJson) + "]");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // ---------- LOGIN ----------
         server.createContext("/api/login", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
-            if (!"POST".equals(ex.getRequestMethod())) { enviarTexto(ex,405,"{}"); return; }
+            if (!"POST".equals(ex.getRequestMethod())) {
+                try {
+                    enviarTexto(ex,405,"{}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             Map<String,String> m=tinyJson(cuerpo(ex));
             String usr = trimOrNull(m.get("usuario"));
             String pwd = trimOrNull(m.get("contrasena"));
 
             if (ADMIN_USER.equals(usr) && ADMIN_PASS.equals(pwd)) {
-                enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", ADMIN_ROLE, ADMIN_NAME));
+                try {
+                    enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", ADMIN_ROLE, ADMIN_NAME));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return;
             }
             if (OPER_USER.equals(usr) && OPER_PASS.equals(pwd)) {
-                enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", OPER_ROLE, OPER_NAME));
+                try {
+                    enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", OPER_ROLE, OPER_NAME));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return;
             }
-            enviarTexto(ex,401,"{\"ok\":false}");
+            try {
+                enviarTexto(ex,401,"{\"ok\":false}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
-        // ---------- RESUMEN (no usa métodos del árbol) ----------
+        // ---------- RESUMEN ----------
         server.createContext("/api/resumen", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String json = String.format(
@@ -213,7 +559,11 @@ public class WebServer {
                     sistema.contarUbicacionesPorNivel(NivelDeAfectacion.MODERADO),
                     sistema.contarUbicacionesPorNivel(NivelDeAfectacion.GRAVE),
                     sistema.contarRecursos(), sistema.contarEquipos(), sistema.contarEvacuacionesPendientes());
-            enviarTexto(ex,200,json);
+            try {
+                enviarTexto(ex,200,json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         // ---------- EVACUACIONES ----------
@@ -227,27 +577,55 @@ public class WebServer {
                     arr.add(String.format("{\"id\":\"%s\",\"prioridad\":%d,\"personas\":%d,\"estado\":\"%s\",\"ubicacion\":\"%s\"}",
                             e.getIdEvacuacion(), e.getPrioridad(), e.getCantidadPersonas(), e.getEstado(), esc(u)));
                 }
-                enviarTexto(ex,200,"["+String.join(",",arr)+"]"); return;
+                try {
+                    enviarTexto(ex,200,"["+String.join(",",arr)+"]");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 Ubicacion u = ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
                 int prio=(int)parseDoubleSafe(m.getOrDefault("prioridad","0"),0);
                 int pers=(int)parseDoubleSafe(m.getOrDefault("personas","0"),0);
-                if (u==null||prio<0||pers<=0){ enviarTexto(ex,400,"{\"error\":\"datos\"}"); return; }
+                if (u==null||prio<0||pers<=0){
+                    try {
+                        enviarTexto(ex,400,"{\"error\":\"datos\"}");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
                 sistema.getColaEvacuaciones().insertar(new Evacuacion("EV"+System.nanoTime(), prio, pers, EstadoEvacuacion.PENDIENTE, u));
-                enviarTexto(ex,200,"{\"ok\":true}"); return;
+                guardarSistemaEnJson();
+                try {
+                    enviarTexto(ex,200,"{\"ok\":true}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
             if ("PUT".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 sistema.getColaEvacuaciones().actualizarEstado(trimOrNull(m.get("id")),
                         EstadoEvacuacion.valueOf(trimOrNull(m.get("estado"))));
-                enviarTexto(ex,200,"{\"ok\":true}"); return;
+                guardarSistemaEnJson();
+                try {
+                    enviarTexto(ex,200,"{\"ok\":true}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
-            enviarTexto(ex,405,"{}");
+            try {
+                enviarTexto(ex,405,"{}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
-        // ---------- USUARIOS (devuelve las cuentas demo) ----------
+        // ---------- USUARIOS ----------
         server.createContext("/api/usuarios", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String json = String.format(
@@ -256,13 +634,21 @@ public class WebServer {
                     ADMIN_USER, ADMIN_NAME, ADMIN_ROLE,
                     OPER_USER,  OPER_NAME,  OPER_ROLE
             );
-            enviarTexto(ex,200,json);
+            try {
+                enviarTexto(ex,200,json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
-        // ---------- PING (verificación de versión en ejecución) ----------
+        // ---------- PING ----------
         server.createContext("/api/ping", ex -> {
             ex.getResponseHeaders().add("Content-Type","application/json; charset=utf-8");
-            enviarTexto(ex, 200, "{\"pong\":true,\"webserver\":\"v-demo-hardcoded-users\"}");
+            try {
+                enviarTexto(ex, 200, "{\"pong\":true,\"webserver\":\"v-demo-hardcoded-users\"}");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         server.start();
@@ -270,6 +656,12 @@ public class WebServer {
     }
 
     // ================== Helpers / utilidades ==================
+
+    private void sincronizarUbicacionesDesdeSistema() {
+        for (Ubicacion u : sistema.getGrafo().obtenerTodasLasUbicaciones()) {
+            registrarUbicacion(u);
+        }
+    }
 
     private void cargarDemo() {
         // Evacuación neutra
@@ -284,7 +676,9 @@ public class WebServer {
         sistema.agregarRuta(new Ruta("R3",a,c,5.0));
     }
 
-    private void registrarUbicacion(Ubicacion u){ if(u!=null) ubicacionesPorNombre.put(u.getNombre(), u); }
+    private void registrarUbicacion(Ubicacion u){
+        if(u!=null) ubicacionesPorNombre.put(u.getNombre(), u);
+    }
 
     private String listarUbicacionesJson(){
         List<String> items = new ArrayList<>();
@@ -293,10 +687,10 @@ public class WebServer {
                     "{\"nombre\":\"%s\",\"tipoZona\":\"%s\",\"nivelAfectacion\":\"%s\",\"latitud\":%.6f,\"longitud\":%.6f}",
                     esc(u.getNombre()), u.getTipoZona(), u.getNivelAfectacion(), u.getLatitud(), u.getLongitud()
             ));
-
         }
         return "[" + String.join(",", items) + "]";
     }
+
     private String listarRutasJson(){
         List<String> items=new ArrayList<>();
         for(Ruta r: sistema.getGrafo().obtenerTodasLasRutas()){
@@ -312,6 +706,31 @@ public class WebServer {
             ));
         }
         return "["+String.join(",",items)+"]";
+    }
+
+    // --- distancia real aproximada entre dos ubicaciones (Haversine) ---
+    private static double distanciaKm(Ubicacion o, Ubicacion d) {
+        return distanciaKm(o.getLatitud(), o.getLongitud(), d.getLatitud(), d.getLongitud());
+    }
+
+    private static double distanciaKm(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371.0; // radio aproximado de la Tierra en km
+        double rad = Math.PI / 180.0;
+
+        double dLat = (lat2 - lat1) * rad;
+        double dLon = (lon2 - lon1) * rad;
+
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1*rad) * Math.cos(lat2*rad) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // Guardar JSON
+    private void guardarSistemaEnJson() {
+        PersistenciaJson.guardar(sistema);
     }
 
     // ---- IO helpers ----
@@ -372,7 +791,13 @@ public class WebServer {
         }
         return map;
     }
-    private static double parseDoubleSafe(String s,double def){ try{ return (s==null||s.isBlank())?def:Double.parseDouble(s);}catch(Exception e){return def;} }
+    private static double parseDoubleSafe(String s,double def){
+        try{
+            return (s==null||s.isBlank())?def:Double.parseDouble(s);
+        }catch(Exception e){
+            return def;
+        }
+    }
     private static String trimOrNull(String s){ return s==null? null : s.trim(); }
     private static String esc(String s){ return s==null? "" : s.replace("\"","\\\""); }
 }

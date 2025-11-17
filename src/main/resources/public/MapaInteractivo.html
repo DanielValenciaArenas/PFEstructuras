@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mapa Interactivo - Sistema Gestión de Desastres</title>
 
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
@@ -29,12 +30,31 @@
             overflow-y: auto;
         }
 
-        .ubicacion-item {
+        .ubicacion-item, .ruta-item {
             background: white;
             border: 1px solid #ddd;
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 6px;
+        }
+
+        .titulo-seccion {
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+
+        .small {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+
+        input, select, button {
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -43,57 +63,91 @@
 <div id="map"></div>
 
 <div id="sidebar">
-    <h2>Panel de Control</h2>
+    <h2>Mapa Interactivo</h2>
 
+    <!-- =================== CREAR UBICACIÓN =================== -->
     <h3>Crear nueva ubicación</h3>
-    <small>Haz clic en el mapa para seleccionar lat/lng</small>
+    <small class="small">Haz clic en el mapa para seleccionar latitud y longitud</small>
 
     <form id="crearUbicacionForm">
         <label>Nombre:</label>
-        <input type="text" id="nombre" required><br><br>
+        <input type="text" id="nombre" required>
 
         <label>Tipo de Zona:</label>
         <select id="tipo">
             <option>CIUDAD</option>
             <option>REFUGIO</option>
             <option>CENTRO_AYUDA</option>
-        </select><br><br>
+        </select>
 
         <label>Nivel de Afectación:</label>
         <select id="afectacion">
             <option>LEVE</option>
             <option>MODERADO</option>
             <option>GRAVE</option>
-        </select><br><br>
+        </select>
 
         <label>Latitud:</label>
-        <input type="text" id="lat" readonly><br><br>
+        <input type="text" id="lat" readonly>
 
         <label>Longitud:</label>
-        <input type="text" id="lng" readonly><br><br>
+        <input type="text" id="lng" readonly>
 
         <button type="submit">Crear ubicación</button>
     </form>
 
-    <h3>Ubicaciones existentes</h3>
+    <!-- =================== CREAR RUTA =================== -->
+    <h3 class="titulo-seccion">Crear nueva ruta</h3>
+    <small class="small">Las rutas se crean entre ubicaciones ya registradas</small>
+
+    <form id="crearRutaForm">
+        <label>Origen:</label>
+        <select id="origenRuta" required>
+            <option value="">Selecciona origen</option>
+        </select>
+
+        <label>Destino:</label>
+        <select id="destinoRuta" required>
+            <option value="">Selecciona destino</option>
+        </select>
+
+        <label>Distancia (km):</label>
+        <input type="number" id="distanciaRuta" min="0.1" step="0.1" required>
+
+        <button type="submit">Crear ruta</button>
+    </form>
+
+    <!-- =================== LISTAS =================== -->
+    <h3 class="titulo-seccion">Ubicaciones existentes</h3>
     <div id="listaUbicaciones"></div>
+
+    <h3 class="titulo-seccion">Rutas existentes</h3>
+    <div id="listaRutas"></div>
 </div>
 
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-
-    // === referencia del panel ===
+    // Referencias al panel
     const listaUbicaciones = document.getElementById('listaUbicaciones');
+    const listaRutas = document.getElementById('listaRutas');
 
+    const selectOrigenRuta = document.getElementById('origenRuta');
+    const selectDestinoRuta = document.getElementById('destinoRuta');
+
+    // Crear mapa centrado (ajusta las coordenadas si quieres)
     const map = L.map('map').setView([4.535, -75.675], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    // Capa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        .addTo(map);
 
+    // Capas para poder limpiar y dibujar
     const capaUbicaciones = L.layerGroup().addTo(map);
     const capaRutas = L.layerGroup().addTo(map);
 
-    // === colores por nivel ===
+    // === colores por nivel de afectación ===
     function colorPorAfectacion(nivel) {
         switch (nivel) {
             case "LEVE": return "green";
@@ -103,23 +157,28 @@
         }
     }
 
-    // === click en mapa ===
+    // === click en el mapa: asigna lat/lng al formulario de ubicación ===
     map.on('click', e => {
-        lat.value = e.latlng.lat;
-        lng.value = e.latlng.lng;
+        document.getElementById('lat').value = e.latlng.lat;
+        document.getElementById('lng').value = e.latlng.lng;
     });
 
-    // === crear ubicación ===
+    // =================== CREAR UBICACIÓN ===================
     document.getElementById('crearUbicacionForm').addEventListener('submit', async e => {
         e.preventDefault();
 
         const nueva = {
-            nombre: nombre.value,
-            tipoZona: tipo.value,
-            nivelAfectacion: afectacion.value,
-            latitud: parseFloat(lat.value),
-            longitud: parseFloat(lng.value)
+            nombre: document.getElementById('nombre').value,
+            tipoZona: document.getElementById('tipo').value,
+            nivelAfectacion: document.getElementById('afectacion').value,
+            latitud: parseFloat(document.getElementById('lat').value),
+            longitud: parseFloat(document.getElementById('lng').value)
         };
+
+        if (!nueva.nombre || isNaN(nueva.latitud) || isNaN(nueva.longitud)) {
+            alert("Por favor completa el nombre y selecciona un punto en el mapa.");
+            return;
+        }
 
         const res = await fetch('/api/ubicaciones', {
             method: 'POST',
@@ -129,24 +188,74 @@
 
         if (res.ok) {
             alert("Ubicación creada");
-            cargarUbicaciones();
+            document.getElementById('crearUbicacionForm').reset();
+            document.getElementById('lat').value = "";
+            document.getElementById('lng').value = "";
+            await cargarUbicaciones();
+        } else {
+            const txt = await res.text();
+            alert("Error al crear ubicación: " + txt);
         }
     });
 
-    // === cargar ubicaciones ===
+    // =================== CREAR RUTA ===================
+    document.getElementById('crearRutaForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const origen = selectOrigenRuta.value;
+        const destino = selectDestinoRuta.value;
+        const distancia = parseFloat(document.getElementById('distanciaRuta').value);
+
+        if (!origen || !destino || origen === destino) {
+            alert("Selecciona origen y destino diferentes.");
+            return;
+        }
+        if (isNaN(distancia) || distancia <= 0) {
+            alert("Ingresa una distancia válida en km.");
+            return;
+        }
+
+        const body = {
+            origen: origen,
+            destino: destino,
+            distancia: distancia
+        };
+
+        const res = await fetch('/api/rutas', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            alert("Ruta creada");
+            document.getElementById('crearRutaForm').reset();
+            // Dejamos el primer option "Selecciona" nuevamente
+            selectOrigenRuta.value = "";
+            selectDestinoRuta.value = "";
+            await cargarRutas();
+        } else {
+            const txt = await res.text();
+            alert("Error al crear ruta: " + txt);
+        }
+    });
+
+    // =================== CARGAR UBICACIONES ===================
     async function cargarUbicaciones() {
         capaUbicaciones.clearLayers();
+        listaUbicaciones.innerHTML = "";
+
+        // También vaciamos los selects de rutas y dejamos solo el placeholder
+        selectOrigenRuta.innerHTML = '<option value="">Selecciona origen</option>';
+        selectDestinoRuta.innerHTML = '<option value="">Selecciona destino</option>';
 
         const r = await fetch('/api/ubicaciones');
         const data = await r.json();
 
-        listaUbicaciones.innerHTML = "";
-
         data.forEach(u => {
-
             const color = colorPorAfectacion(u.nivelAfectacion);
 
-            // ⭐ marcador como bolita coloreada ⭐
+            // Marcador circular
             L.circleMarker([u.latitud, u.longitud], {
                 radius: 10,
                 color: color,
@@ -157,50 +266,74 @@
             .bindPopup(`
                 <b>${u.nombre}</b><br>
                 Tipo: ${u.tipoZona}<br>
-                Afectación: <b style="color:${color}">${u.nivelAfectacion}</b>
+                Afectación: <b style="color:${color}">${u.nivelAfectacion}</b><br>
+                (${u.latitud.toFixed(4)}, ${u.longitud.toFixed(4)})
             `);
 
-            // panel lateral
+            // Panel lateral: lista de ubicaciones
             const div = document.createElement("div");
             div.className = "ubicacion-item";
             div.innerHTML = `
                 <b>${u.nombre}</b><br>
                 ${u.tipoZona} — <b style="color:${color}">${u.nivelAfectacion}</b><br>
-                (${u.latitud.toFixed(4)}, ${u.longitud.toFixed(4)})
+                <span class="small">(${u.latitud.toFixed(4)}, ${u.longitud.toFixed(4)})</span>
             `;
             listaUbicaciones.appendChild(div);
+
+            // Agregar opción a los selects de rutas
+            const optO = document.createElement("option");
+            optO.value = u.nombre;
+            optO.textContent = u.nombre;
+            selectOrigenRuta.appendChild(optO);
+
+            const optD = document.createElement("option");
+            optD.value = u.nombre;
+            optD.textContent = u.nombre;
+            selectDestinoRuta.appendChild(optD);
         });
     }
 
-   // === cargar rutas con popup en cada línea ===
-async function cargarRutas() {
-    capaRutas.clearLayers();
+    // =================== CARGAR RUTAS ===================
+    async function cargarRutas() {
+        capaRutas.clearLayers();
+        listaRutas.innerHTML = "";
 
-    const r = await fetch('/api/rutas');
-    const data = await r.json();
+        const r = await fetch('/api/rutas');
+        const data = await r.json();
 
-    data.forEach(rt => {
-        const linea = L.polyline([
-            [rt.latOrigen, rt.lngOrigen],
-            [rt.latDestino, rt.lngDestino]
-        ], { color: "blue", weight: 5 }).addTo(capaRutas);
+        data.forEach(rt => {
+            // Dibujar la línea en el mapa
+            const linea = L.polyline([
+                [rt.latOrigen, rt.lngOrigen],
+                [rt.latDestino, rt.lngDestino]
+            ], {
+                color: "blue",
+                weight: 5
+            }).addTo(capaRutas);
 
-        // Popup al click en la ruta
-        linea.bindPopup(`
-            <b>Ubicación origen:</b> ${rt.origen}<br>
-            <b>Ubicación destino:</b> ${rt.destino}<br>
-            <b>Distancia:</b> ${rt.distancia} km
-        `);
-    });
-}
+            // Popup con info
+            linea.bindPopup(`
+                <b>Ruta</b><br>
+                Origen: ${rt.origen}<br>
+                Destino: ${rt.destino}<br>
+                Distancia: ${rt.distancia} km
+            `);
 
+            // Resumen en el panel lateral
+            const div = document.createElement("div");
+            div.className = "ruta-item";
+            div.innerHTML = `
+                <b>${rt.origen} → ${rt.destino}</b><br>
+                <span class="small">Distancia: ${rt.distancia} km</span>
+            `;
+            listaRutas.appendChild(div);
+        });
+    }
 
+    // =================== INICIO ===================
     cargarUbicaciones();
     cargarRutas();
-
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-polylinedecorator/1.7.0/leaflet.polylineDecorator.min.js"></script>
 
 </body>
 </html>
