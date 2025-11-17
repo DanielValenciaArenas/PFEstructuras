@@ -1,35 +1,104 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><title>Dashboard</title>
-    <link rel="stylesheet" href="/public/css/estilos.css">
-    <script src="/public/js/auth.js"></script>
-</head>
-<body>
-<script>renderHeader('Dashboard'); requireRole(['ADMIN']);</script>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
 
-<main class="container">
-    <section class="grid">
-        <div class="card"><h3>Ubicaciones LEVE</h3><div id="lev" class="mt"></div></div>
-        <div class="card"><h3>Ubicaciones MODERADO</h3><div id="mod" class="mt"></div></div>
-        <div class="card"><h3>Ubicaciones GRAVE</h3><div id="gra" class="mt"></div></div>
-        <div class="card"><h3>Total recursos</h3><div id="rec" class="mt"></div></div>
-        <div class="card"><h3>Equipos de rescate</h3><div id="eq" class="mt"></div></div>
-        <div class="card"><h3>Evacuaciones pendientes</h3><div id="pen" class="mt"></div></div>
-    </section>
-</main>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+
+    <script src="/public/js/auth.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        .stats-box {
+            margin-top: 24px;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--card);
+            box-shadow: var(--shadow);
+        }
+
+        .statLine {
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .btn-pdf {
+            background: #0284c7;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-pdf:hover {
+            filter: brightness(1.1);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat {
+            font-size: 1.4rem;
+            margin-top: 8px;
+            font-weight: bold;
+            color: var(--ink-2);
+        }
+    </style>
+</head>
+
+<body>
 
 <script>
-    async function cargar(){
-      const r = await fetch('/api/resumen'); const d = await r.json();
-      lev.textContent = d.ubicaciones.leve;
-      mod.textContent = d.ubicaciones.moderado;
-      gra.textContent = d.ubicaciones.grave;
-      rec.textContent = d.recursos;
-      eq.textContent  = d.equipos;
-      pen.textContent = d.pendientes;
-    }
-    cargar();
+    renderHeader("Dashboard");
+    requireRole(["ADMINISTRADOR", "OPERADOR"]);
 </script>
+
+<main class="container">
+
+    <h2 class="mt">Resumen general</h2>
+
+    <section class="dash-grid mt">
+        <div class="card"><h3>Ubicaciones Leve</h3><div id="lev" class="stat"></div></div>
+        <div class="card"><h3>Ubicaciones Moderado</h3><div id="mod" class="stat"></div></div>
+        <div class="card"><h3>Ubicaciones Grave</h3><div id="gra" class="stat"></div></div>
+        <div class="card"><h3>Total Recursos</h3><div id="rec" class="stat"></div></div>
+        <div class="card"><h3>Equipos de Rescate</h3><div id="eq" class="stat"></div></div>
+        <div class="card"><h3>Evacuaciones Pendientes</h3><div id="pen" class="stat"></div></div>
+    </section>
+
+    <section class="stats-box mt">
+        <div class="stats-header">
+            <h3>Estadísticas Generales</h3>
+            <button class="btn-pdf" id="exportPdfBtn">Exportar PDF</button>
+        </div>
+
+        <p class="muted">Datos generados automáticamente.</p>
+
+        <div id="statsContent" class="mt"></div>
+
+        <h4 class="mt">Gráfico de Ubicaciones</h4>
+        <canvas id="chartUbicaciones" height="120"></canvas>
+
+        <h4 class="mt">Uso de Recursos</h4>
+        <canvas id="chartRecursos" height="120"></canvas>
+
+        <h4 class="mt">Actividad de Evacuaciones</h4>
+        <canvas id="chartEvacuaciones" height="120"></canvas>
+    </section>
+
+</main>
+
+<script src="/public/js/dashboard.js"></script>
+
 </body>
 </html>
