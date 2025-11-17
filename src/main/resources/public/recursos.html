@@ -26,7 +26,7 @@
 
             <input id="cantidadRecurso" type="number" min="1" placeholder="Cantidad" required>
 
-            <!-- 🔴 CAMBIO: ahora es un SELECT de ubicaciones existentes -->
+            <!-- 🔴 Es un SELECT de ubicaciones existentes, se llena desde recursos.js -->
             <select id="ubicacionRecurso" required>
                 <option value="">Selecciona ubicación</option>
                 <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
@@ -47,13 +47,12 @@
         <h2>Asignar equipo de rescate existente</h2>
         <p>Primero se crean los equipos en otra interfaz (por ejemplo, Equipos). Aquí solo se asignan a una ubicación.</p>
         <form id="formAsignarEquipo" class="row">
-            <!-- 🔴 CAMBIO: placeholder inicial -->
             <select id="equipoExistente">
                 <option value="">Selecciona equipo</option>
                 <!-- Se llena desde /api/equipos en recursos.js -->
             </select>
 
-            <!-- 🔴 CAMBIO: ahora es un SELECT de ubicaciones existentes -->
+            <!-- 🔴 SELECT de ubicaciones existentes para asignar -->
             <select id="ubicacionEquipo" required>
                 <option value="">Selecciona ubicación</option>
                 <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
@@ -72,11 +71,9 @@
         <table class="mt">
             <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
+                <th>Nombre / Tipo</th>
                 <th>Cantidad</th>
                 <th>Ubicación</th>
-                <th>Detalle</th>
             </tr>
             </thead>
             <tbody id="tablaRecursos"></tbody>
