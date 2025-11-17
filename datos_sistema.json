@@ -1,6 +1,54 @@
 {
   "ubicaciones": [
     {
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U2",
+      "nombre": "Refugio B",
+      "tipoZona": "REFUGIO",
+      "nivelAfectacion": "LEVE",
+      "latitud": 1.0,
+      "longitud": 1.0
+    },
+    {
+      "id": "U1",
+      "nombre": "Ciudad A",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
+    },
+    {
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U2",
+      "nombre": "Refugio B",
+      "tipoZona": "REFUGIO",
+      "nivelAfectacion": "LEVE",
+      "latitud": 1.0,
+      "longitud": 1.0
+    },
+    {
+      "id": "U1",
+      "nombre": "Ciudad A",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
+    },
+    {
       "id": "U1",
       "nombre": "Ciudad A",
       "tipoZona": "CIUDAD",
@@ -39,9 +87,111 @@
       "nivelAfectacion": "LEVE",
       "latitud": 4.539470543182852,
       "longitud": -75.67751995090067
+    },
+    {
+      "id": "U1",
+      "nombre": "Ciudad A",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
+    },
+    {
+      "id": "U2",
+      "nombre": "Refugio B",
+      "tipoZona": "REFUGIO",
+      "nivelAfectacion": "LEVE",
+      "latitud": 1.0,
+      "longitud": 1.0
+    },
+    {
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U1",
+      "nombre": "Ciudad A",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
+    },
+    {
+      "id": "U2",
+      "nombre": "Refugio B",
+      "tipoZona": "REFUGIO",
+      "nivelAfectacion": "LEVE",
+      "latitud": 1.0,
+      "longitud": 1.0
+    },
+    {
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
     }
   ],
   "rutas": [
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
+    },
+    {
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
+    },
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
+    },
+    {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
+    },
+    {
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
+    },
     {
       "id": "R1",
       "origenNombre": "Ciudad A",
@@ -55,10 +205,28 @@
       "distancia": 5.0
     },
     {
-      "id": "R2",
-      "origenNombre": "Refugio B",
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
+    },
+    {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
       "destinoNombre": "Centro C",
-      "distancia": 3.0
+      "distancia": 5.0
+    },
+    {
+      "id": "R1",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Refugio B",
+      "distancia": 2.5
+    },
+    {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
     },
     {
       "id": "R12041261827500",
@@ -69,12 +237,12 @@
   ],
   "recursos": [
     {
-      "id": "RA16173423774900",
-      "nombre": "ALIMENTO",
-      "cantidad": 10,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-12-16"
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 15,
+      "nombreUbicacion": "Alamos",
+      "tipo": "MEDICINA",
+      "extra": "General"
     },
     {
       "id": "RM16138741810600",
@@ -85,20 +253,20 @@
       "extra": "General"
     },
     {
-      "id": "RM16125412229300",
-      "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
-      "tipo": "MEDICINA",
-      "extra": "General"
+      "id": "RA16173423774900",
+      "nombre": "ALIMENTO",
+      "cantidad": 10,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-12-16"
     }
   ],
   "equipos": [
     {
-      "id": "EQ67887992467700",
-      "nombre": "Los guardias",
-      "tipo": "Bomberos",
-      "miembros": 10,
+      "id": "EQ16552362510000",
+      "nombre": "Yasuri",
+      "tipo": "Policias",
+      "miembros": 4,
       "nombreUbicacion": "El bosque"
     },
     {
@@ -107,14 +275,36 @@
       "tipo": "bomberos",
       "miembros": 8,
       "nombreUbicacion": "El bosque"
-    },
-    {
-      "id": "EQ16552362510000",
-      "nombre": "Yasuri",
-      "tipo": "Policias",
-      "miembros": 4,
-      "nombreUbicacion": "El bosque"
     }
   ],
-  "evacuaciones": []
+  "evacuaciones": [
+    {
+      "id": "EV15683705883800",
+      "prioridad": 5,
+      "cantidadPersonas": 20,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Ciudad A"
+    },
+    {
+      "id": "EV15874218832900",
+      "prioridad": 5,
+      "cantidadPersonas": 3,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EV15730057916500",
+      "prioridad": 2,
+      "cantidadPersonas": 12,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Refugio B"
+    },
+    {
+      "id": "EV49972945098300",
+      "prioridad": 1,
+      "cantidadPersonas": 13,
+      "estado": "COMPLETADA",
+      "nombreUbicacion": "Alamos"
+    }
+  ]
 }

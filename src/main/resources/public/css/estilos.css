@@ -44,3 +44,56 @@ muted, .muted{color:var(--muted)}
 .foot{margin-top:auto;padding:24px 16px;text-align:center;color:var(--muted)}
 .mt{margin-top:16px}
 .mt-8{margin-top:8px}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats-box {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+}
+
+.btn-pdf {
+    background: #2563eb;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-pdf:hover {
+    filter: brightness(1.15);
+}
+
+.statLine {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+canvas {
+    margin-top: 20px;
+}
+#chartRecursos {
+    height: 260px !important;
+    max-height: 260px !important;
+    width: 100% !important;
+}
+/* Asegura que los canvas tengan espacio y sean proporcionales */
+.stats-box canvas { width: 100% !important; display:block; margin-top:8px; }
+
+/* Alturas: ubicar y evacuaciones un poco más altas, recursos mediano */
+#chartUbicaciones { height: 160px !important; max-height: 180px; }
+#chartRecursos  { height: 160px !important; max-height: 180px; }
+#chartEvacuaciones { height: 160px !important; max-height: 180px; }
+
+
+
