@@ -263,8 +263,8 @@
     {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 15,
+      "nombreUbicacion": "Alamos",
       "tipo": "MEDICINA",
       "extra": "General"
     },
