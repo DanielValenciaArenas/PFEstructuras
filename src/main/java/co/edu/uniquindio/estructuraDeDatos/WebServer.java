@@ -21,6 +21,11 @@ public class WebServer {
     private final SistemaGestionDesastres sistema;
     private final Map<String, Ubicacion> ubicacionesPorNombre = new LinkedHashMap<>();
 
+    // 🔹 Equipos que todavía no tienen ubicación asignada (se guardan en una "bodega" oculta)
+    private final List<EquipoRescate> equiposSinUbicacion = new ArrayList<>();
+    private Ubicacion ubicacionBodegaEquipos;
+    private static final String NOMBRE_BODEGA_EQUIPOS = "__SIN_UBICACION__";
+
     // ======== Cuentas demo =========
     private static final String ADMIN_USER = "admin";
     private static final String ADMIN_PASS = "admin123";
@@ -41,7 +46,7 @@ public class WebServer {
 
         // Si el grafo viene vacío (no había JSON o estaba vacío) cargamos la demo.
         // Si ya hay ubicaciones (cargadas desde PersistenciaJson.cargar),
-        // solo sincronizamos el mapa interno ubicacionesPorNombre.
+        // solo sincronizamos el mapa interno ubicacionesPorNombre y la bodega de equipos.
         if (sistema.getGrafo().obtenerTodasLasUbicaciones().isEmpty()) {
             cargarDemo(); // ubicaciones + rutas básicas
         } else {
@@ -425,13 +430,27 @@ public class WebServer {
         server.createContext("/api/equipos", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String method=ex.getRequestMethod();
+
+            // LISTAR TODOS LOS EQUIPOS (con y sin ubicación)
             if ("GET".equals(method)) {
                 List<String> items=new ArrayList<>();
+
+                // Equipos sin ubicación (bodega)
+                for (EquipoRescate e : equiposSinUbicacion) {
+                    items.add(String.format(
+                            "{\"nombre\":\"%s\",\"tipo\":\"%s\",\"miembros\":%d,\"ubicacion\":\"%s\"}",
+                            esc(e.getNombre()), esc(e.getTipo()), e.getMiembros(), "Sin ubicación"
+                    ));
+                }
+
+                // Equipos asociados a ubicaciones reales
                 for(Ubicacion u: ubicacionesPorNombre.values()){
                     if (u.getEquiposDeRescate() != null) {
                         for(EquipoRescate e: u.getEquiposDeRescate()){
-                            items.add(String.format("{\"nombre\":\"%s\",\"tipo\":\"%s\",\"miembros\":%d,\"ubicacion\":\"%s\"}",
-                                    esc(e.getNombre()), esc(e.getTipo()), e.getMiembros(), esc(u.getNombre())));
+                            items.add(String.format(
+                                    "{\"nombre\":\"%s\",\"tipo\":\"%s\",\"miembros\":%d,\"ubicacion\":\"%s\"}",
+                                    esc(e.getNombre()), esc(e.getTipo()), e.getMiembros(), esc(u.getNombre())
+                            ));
                         }
                     }
                 }
@@ -442,13 +461,15 @@ public class WebServer {
                 }
                 return;
             }
+
+            // CREAR EQUIPO SIN UBICACIÓN (se guarda en bodega oculta)
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 String nombre=trimOrNull(m.get("nombre"));
                 String tipo=m.getOrDefault("tipo","GENERAL").trim();
                 int miembros=(int)parseDoubleSafe(m.getOrDefault("miembros","0"),0);
-                Ubicacion u=ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
-                if(nombre==null||miembros<=0||u==null){
+
+                if(nombre==null||miembros<=0){
                     try {
                         enviarTexto(ex,400,"{\"error\":\"datos\"}");
                     } catch (IOException e) {
@@ -456,9 +477,13 @@ public class WebServer {
                     }
                     return;
                 }
-                EquipoRescate eq=new EquipoRescate("EQ"+System.nanoTime(),tipo,miembros,u);
+
+                Ubicacion bodega = obtenerUbicacionBodegaEquipos();
+                EquipoRescate eq=new EquipoRescate("EQ"+System.nanoTime(),tipo,miembros,bodega);
                 eq.setNombre(nombre);
-                u.asignarEquipo(eq);
+                bodega.asignarEquipo(eq);      // queda persistido dentro de la bodega
+                equiposSinUbicacion.add(eq);   // lista auxiliar para la API
+
                 guardarSistemaEnJson();
                 try {
                     enviarTexto(ex,200,"{\"ok\":true}");
@@ -467,11 +492,143 @@ public class WebServer {
                 }
                 return;
             }
+
             try {
                 enviarTexto(ex,405,"{}");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        });
+
+        // 🔹 Asignar / reasignar equipo a una ubicación REAL
+        server.createContext("/api/equipos/asignar", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
+
+            if (!"PUT".equals(ex.getRequestMethod())) {
+                try { enviarTexto(ex,405,"{}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            Map<String,String> m = tinyJson(cuerpo(ex));
+            String nombreEquipo = trimOrNull(m.get("equipo"));
+            String nombreUbic   = trimOrNull(m.get("ubicacion"));
+
+            if (nombreEquipo == null || nombreUbic == null) {
+                try { enviarTexto(ex,400,"{\"error\":\"datos\"}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            Ubicacion nuevaUb = ubicacionesPorNombre.get(nombreUbic);
+            if (nuevaUb == null) {
+                try { enviarTexto(ex,400,"{\"error\":\"ubicacion\"}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            EquipoRescate encontrado = null;
+
+            // Buscar primero en lista sin ubicación (bodega)
+            Iterator<EquipoRescate> itSin = equiposSinUbicacion.iterator();
+            while (itSin.hasNext()) {
+                EquipoRescate e = itSin.next();
+                if (nombreEquipo.equalsIgnoreCase(e.getNombre())) {
+                    itSin.remove();
+                    if (ubicacionBodegaEquipos != null &&
+                            ubicacionBodegaEquipos.getEquiposDeRescate() != null) {
+                        ubicacionBodegaEquipos.getEquiposDeRescate().remove(e);
+                    }
+                    encontrado = e;
+                    break;
+                }
+            }
+
+            // Si no estaba ahí, buscar en cada ubicación (reasignación)
+            if (encontrado == null) {
+                for (Ubicacion u : ubicacionesPorNombre.values()) {
+                    if (u.getEquiposDeRescate() == null) continue;
+                    Iterator<EquipoRescate> it = u.getEquiposDeRescate().iterator();
+                    while (it.hasNext()) {
+                        EquipoRescate e = it.next();
+                        if (nombreEquipo.equalsIgnoreCase(e.getNombre())) {
+                            it.remove();
+                            encontrado = e;
+                            break;
+                        }
+                    }
+                    if (encontrado != null) break;
+                }
+            }
+
+            if (encontrado == null) {
+                try { enviarTexto(ex,400,"{\"error\":\"equipo no encontrado\"}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            encontrado.setUbicacion(nuevaUb);
+            nuevaUb.asignarEquipo(encontrado);
+
+            guardarSistemaEnJson();
+            try { enviarTexto(ex,200,"{\"ok\":true}"); } catch (IOException e) { e.printStackTrace(); }
+        });
+
+        // 🔹 Eliminar equipo por nombre (tanto en bodega como en ubicaciones reales)
+        server.createContext("/api/equipos/eliminar", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
+
+            if (!"DELETE".equals(ex.getRequestMethod())) {
+                try { enviarTexto(ex,405,"{}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            Map<String,String> q = query(ex.getRequestURI().getQuery());
+            String nombre = trimOrNull(q.get("nombre"));
+            if (nombre == null) {
+                try { enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            boolean borrado = false;
+
+            // 1) Lista sin ubicación + bodega
+            Iterator<EquipoRescate> itSin = equiposSinUbicacion.iterator();
+            while (itSin.hasNext()) {
+                EquipoRescate e = itSin.next();
+                if (nombre.equalsIgnoreCase(e.getNombre())) {
+                    itSin.remove();
+                    if (ubicacionBodegaEquipos != null &&
+                            ubicacionBodegaEquipos.getEquiposDeRescate() != null) {
+                        ubicacionBodegaEquipos.getEquiposDeRescate().remove(e);
+                    }
+                    borrado = true;
+                    break;
+                }
+            }
+
+            // 2) Equipos dentro de ubicaciones reales
+            if (!borrado) {
+                for (Ubicacion u : ubicacionesPorNombre.values()) {
+                    if (u.getEquiposDeRescate() == null) continue;
+                    Iterator<EquipoRescate> it = u.getEquiposDeRescate().iterator();
+                    while (it.hasNext()) {
+                        EquipoRescate e = it.next();
+                        if (nombre.equalsIgnoreCase(e.getNombre())) {
+                            it.remove();
+                            borrado = true;
+                            break;
+                        }
+                    }
+                    if (borrado) break;
+                }
+            }
+
+            if (!borrado) {
+                try { enviarTexto(ex,400,"{\"error\":\"equipo no encontrado\"}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            guardarSistemaEnJson();
+            try { enviarTexto(ex,200,"{\"ok\":true}"); } catch (IOException e) { e.printStackTrace(); }
         });
 
         // ---------- PERSONAS (extra, por si lo usas) ----------
@@ -658,8 +815,19 @@ public class WebServer {
     // ================== Helpers / utilidades ==================
 
     private void sincronizarUbicacionesDesdeSistema() {
+        equiposSinUbicacion.clear();
+        ubicacionesPorNombre.clear();
+        ubicacionBodegaEquipos = null;
+
         for (Ubicacion u : sistema.getGrafo().obtenerTodasLasUbicaciones()) {
-            registrarUbicacion(u);
+            if (NOMBRE_BODEGA_EQUIPOS.equals(u.getNombre())) {
+                ubicacionBodegaEquipos = u;
+                if (u.getEquiposDeRescate() != null) {
+                    equiposSinUbicacion.addAll(u.getEquiposDeRescate());
+                }
+            } else {
+                registrarUbicacion(u);
+            }
         }
     }
 
@@ -674,6 +842,27 @@ public class WebServer {
         sistema.agregarRuta(new Ruta("R1",a,b,2.5));
         sistema.agregarRuta(new Ruta("R2",b,c,3.0));
         sistema.agregarRuta(new Ruta("R3",a,c,5.0));
+    }
+
+    private Ubicacion obtenerUbicacionBodegaEquipos() {
+        if (ubicacionBodegaEquipos == null) {
+            Evacuacion evac = new Evacuacion("EB"+System.nanoTime(),0,0,EstadoEvacuacion.PENDIENTE,null);
+            ubicacionBodegaEquipos = new Ubicacion(
+                    "U_BODEGA_EQUIPOS",
+                    NOMBRE_BODEGA_EQUIPOS,
+                    TipoZona.CENTRO_AYUDA,
+                    NivelDeAfectacion.LEVE,
+                    evac,
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    0.0,
+                    0.0
+            );
+            // No la registramos en ubicacionesPorNombre para que no salga en el mapa
+            sistema.agregarUbicacion(ubicacionBodegaEquipos);
+        }
+        return ubicacionBodegaEquipos;
     }
 
     private void registrarUbicacion(Ubicacion u){

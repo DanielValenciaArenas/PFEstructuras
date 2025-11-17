@@ -26,7 +26,11 @@
 
             <input id="cantidadRecurso" type="number" min="1" placeholder="Cantidad" required>
 
-            <input id="ubicacionRecurso" placeholder="Ubicación (nombre exacto)" required>
+            <!-- 🔴 Es un SELECT de ubicaciones existentes, se llena desde recursos.js -->
+            <select id="ubicacionRecurso" required>
+                <option value="">Selecciona ubicación</option>
+                <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
+            </select>
 
             <!-- Solo para alimento -->
             <input id="fechaVencimiento" type="date" placeholder="Fecha de vencimiento">
@@ -44,9 +48,16 @@
         <p>Primero se crean los equipos en otra interfaz (por ejemplo, Equipos). Aquí solo se asignan a una ubicación.</p>
         <form id="formAsignarEquipo" class="row">
             <select id="equipoExistente">
-                <!-- Se llena desde /api/equipos -->
+                <option value="">Selecciona equipo</option>
+                <!-- Se llena desde /api/equipos en recursos.js -->
             </select>
-            <input id="ubicacionEquipo" placeholder="Ubicación (nombre exacto)" required>
+
+            <!-- 🔴 SELECT de ubicaciones existentes para asignar -->
+            <select id="ubicacionEquipo" required>
+                <option value="">Selecciona ubicación</option>
+                <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
+            </select>
+
             <button class="btn">Asignar equipo</button>
         </form>
     </section>
@@ -60,11 +71,9 @@
         <table class="mt">
             <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
+                <th>Nombre / Tipo</th>
                 <th>Cantidad</th>
                 <th>Ubicación</th>
-                <th>Detalle</th>
             </tr>
             </thead>
             <tbody id="tablaRecursos"></tbody>
