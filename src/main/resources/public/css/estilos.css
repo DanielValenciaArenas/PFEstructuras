@@ -87,5 +87,13 @@ canvas {
     max-height: 260px !important;
     width: 100% !important;
 }
+/* Asegura que los canvas tengan espacio y sean proporcionales */
+.stats-box canvas { width: 100% !important; display:block; margin-top:8px; }
+
+/* Alturas: ubicar y evacuaciones un poco más altas, recursos mediano */
+#chartUbicaciones { height: 160px !important; max-height: 180px; }
+#chartRecursos  { height: 160px !important; max-height: 180px; }
+#chartEvacuaciones { height: 160px !important; max-height: 180px; }
+
 
 
