@@ -679,7 +679,7 @@ public class WebServer {
             try { enviarTexto(ex,200,"{\"ok\":true}"); } catch (IOException e) { e.printStackTrace(); }
         });
 
-        // ---------- PERSONAS (extra, por si lo usas) ----------
+        // ---------- PERSONAS ----------
         server.createContext("/api/personas", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type", "application/json; charset=utf-8");
@@ -773,58 +773,130 @@ public class WebServer {
 
         // ---------- EVACUACIONES ----------
         server.createContext("/api/evacuaciones", ex -> {
-            Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
             String method = ex.getRequestMethod();
+
+            // ===== GET =====
             if ("GET".equals(method)) {
-                List<String> arr=new ArrayList<>();
-                for(Evacuacion e: sistema.getColaEvacuaciones().listarTodas()){
-                    String u = e.getUbicacion()!=null? e.getUbicacion().getNombre() : "Sin ubicación";
-                    arr.add(String.format("{\"id\":\"%s\",\"prioridad\":%d,\"personas\":%d,\"estado\":\"%s\",\"ubicacion\":\"%s\"}",
-                            e.getIdEvacuacion(), e.getPrioridad(), e.getCantidadPersonas(), e.getEstado(), esc(u)));
+                List<String> arr = new ArrayList<>();
+                for (Evacuacion e : sistema.getColaEvacuaciones().listarTodas()) {
+                    String u = e.getUbicacion() != null ? e.getUbicacion().getNombre() : "Sin ubicación";
+                    arr.add(String.format(
+                            "{\"id\":\"%s\",\"prioridad\":%d,\"personas\":%d,\"estado\":\"%s\",\"ubicacion\":\"%s\"}",
+                            e.getIdEvacuacion(), e.getPrioridad(),
+                            e.getCantidadPersonas(), e.getEstado(), esc(u)
+                    ));
                 }
-                try {
-                    enviarTexto(ex,200,"["+String.join(",",arr)+"]");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                enviarTexto(ex,200,"["+String.join(",",arr)+"]");
                 return;
             }
+
+            // ===== POST (crear evacuación) =====
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 Ubicacion u = ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
-                int prio=(int)parseDoubleSafe(m.getOrDefault("prioridad","0"),0);
-                int pers=(int)parseDoubleSafe(m.getOrDefault("personas","0"),0);
-                if (u==null||prio<0||pers<=0){
-                    try {
-                        enviarTexto(ex,400,"{\"error\":\"datos\"}");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                int prio = (int)parseDoubleSafe(m.getOrDefault("prioridad","0"),0);
+                int pers = (int)parseDoubleSafe(m.getOrDefault("personas","0"),0);
+
+                if (u==null || prio<0 || pers<=0) {
+                    enviarTexto(ex,400,"{\"error\":\"datos\"}");
                     return;
                 }
-                sistema.getColaEvacuaciones().insertar(new Evacuacion("EV"+System.nanoTime(), prio, pers, EstadoEvacuacion.PENDIENTE, u));
+
+                Evacuacion nueva = new Evacuacion(
+                        "EV"+System.nanoTime(), prio, pers, EstadoEvacuacion.PENDIENTE, u
+                );
+                sistema.getColaEvacuaciones().insertar(nueva);
                 guardarSistemaEnJson();
-                try {
-                    enviarTexto(ex,200,"{\"ok\":true}");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                enviarTexto(ex,200,"{\"ok\":true}");
                 return;
             }
+
+            // ===== PUT (actualizar estado) =====
             if ("PUT".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
-                sistema.getColaEvacuaciones().actualizarEstado(trimOrNull(m.get("id")),
-                        EstadoEvacuacion.valueOf(trimOrNull(m.get("estado"))));
+                String id = trimOrNull(m.get("id"));
+                String nuevoEstado = trimOrNull(m.get("estado"));
+
+                sistema.getColaEvacuaciones().actualizarEstado(
+                        id, EstadoEvacuacion.valueOf(nuevoEstado)
+                );
                 guardarSistemaEnJson();
+                enviarTexto(ex,200,"{\"ok\":true}");
+                return;
+            }
+
+            // ===== DELETE (eliminar por id) =====
+            if ("DELETE".equals(method)) {
+                Map<String,String> q = query(ex.getRequestURI().getQuery());
+                String id = trimOrNull(q.get("id"));
+                if (id == null) {
+                    enviarTexto(ex,400,"{\"error\":\"id requerido\"}");
+                    return;
+                }
+
+                boolean ok = sistema.getColaEvacuaciones().eliminarPorId(id);
+                if (!ok) {
+                    enviarTexto(ex,404,"{\"error\":\"evacuacion no encontrada\"}");
+                    return;
+                }
+
+                guardarSistemaEnJson();
+                enviarTexto(ex,200,"{\"ok\":true}");
+                return;
+            }
+
+            enviarTexto(ex,405,"{}");
+        });
+
+        // 🔹 NUEVO: endpoint para PLANIFICAR una evacuación
+        server.createContext("/api/evacuaciones/planificar", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
+
+            if (!"POST".equals(ex.getRequestMethod())) {
+                try { enviarTexto(ex,405,"{}"); } catch (IOException e) { e.printStackTrace(); }
+                return;
+            }
+
+            // Tomar la primera evacuación PENDIENTE en orden de prioridad
+            Evacuacion seleccionada = null;
+            for (Evacuacion e : sistema.getColaEvacuaciones().listarTodas()) {
+                if (e.getEstado() == EstadoEvacuacion.PENDIENTE) {
+                    seleccionada = e;
+                    break;
+                }
+            }
+
+            if (seleccionada == null) {
                 try {
-                    enviarTexto(ex,200,"{\"ok\":true}");
+                    enviarTexto(ex,200,"{\"ok\":false,\"mensaje\":\"No hay evacuaciones pendientes\"}");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return;
             }
+
+            // La marcamos EN_PROCESO para que el front pueda mostrarla como planificada
+            seleccionada.setEstado(EstadoEvacuacion.EN_PROCESO);
+            guardarSistemaEnJson();
+
+            String ubic = (seleccionada.getUbicacion()!=null)
+                    ? esc(seleccionada.getUbicacion().getNombre())
+                    : "Sin ubicación";
+
+            String json = String.format(Locale.US,
+                    "{\"ok\":true,\"id\":\"%s\",\"ubicacion\":\"%s\",\"personas\":%d,\"prioridad\":%d,\"estado\":\"%s\"}",
+                    esc(seleccionada.getIdEvacuacion()),
+                    ubic,
+                    seleccionada.getCantidadPersonas(),
+                    seleccionada.getPrioridad(),
+                    seleccionada.getEstado().name()
+            );
+
             try {
-                enviarTexto(ex,405,"{}");
+                enviarTexto(ex,200,json);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -961,7 +1033,7 @@ public class WebServer {
                 Math.cos(lat1*rad) * Math.cos(lat2*rad) *
                         Math.sin(dLon/2) * Math.sin(dLon/2);
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double c = 2 * Math.atan2(Math.sqrt(Math.max(0,a)), Math.sqrt(Math.max(0,1-a)));
         return R * c;
     }
 

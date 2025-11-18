@@ -353,18 +353,18 @@
   ],
   "evacuaciones": [
     {
-      "id": "EV15683705883800",
+      "id": "EV145889971342300",
       "prioridad": 5,
-      "cantidadPersonas": 20,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "Ciudad A"
+      "cantidadPersonas": 10,
+      "estado": "EN_PROCESO",
+      "nombreUbicacion": "Alamos"
     },
     {
-      "id": "EV15874218832900",
-      "prioridad": 5,
-      "cantidadPersonas": 3,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "El bosque"
+      "id": "EV145793395285900",
+      "prioridad": 3,
+      "cantidadPersonas": 1,
+      "estado": "EN_PROCESO",
+      "nombreUbicacion": "Refugio B"
     },
     {
       "id": "EV17768977227791",
@@ -380,7 +380,7 @@
       "nombreUbicacion": "Refugio B"
     },
     {
-      "id": "EV49972945098300",
+      "id": "EV87881788892200",
       "prioridad": 1,
       "cantidadPersonas": 13,
       "estado": "COMPLETADA"
