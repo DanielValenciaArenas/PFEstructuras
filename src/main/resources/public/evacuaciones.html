@@ -18,8 +18,14 @@
           --muted: #6b7280;
           --glass-border: rgba(255,255,255,0.08);
         }
-        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial;color:#0f172a;background:
-          linear-gradient(180deg,#0f172a 0%, #0b1220 60%);-webkit-font-smoothing:antialiased}
+        html,body{
+          height:100%;
+          margin:0;
+          font-family:Inter,Segoe UI,Roboto,Arial;
+          color:#0f172a;
+          background: linear-gradient(180deg,#0f172a 0%, #0b1220 60%);
+          -webkit-font-smoothing:antialiased;
+        }
         /* ---------- CONTENEDOR PRINCIPAL ---------- */
         .app {
           display:grid;
@@ -138,7 +144,12 @@
         .title-big { font-size:20px; font-weight:800; letter-spacing:0.3px }
 
         /* Mapa */
-        #map { height: 56vh; border-radius:16px; overflow:hidden; box-shadow: 0 20px 60px rgba(2,6,23,0.6) }
+        #map {
+          height: 56vh;
+          border-radius:16px;
+          overflow:hidden;
+          box-shadow: 0 20px 60px rgba(2,6,23,0.6)
+        }
 
         /* TRANSFER RESULT */
         .transfer {
@@ -148,15 +159,71 @@
         }
         .transfer .big { font-size:18px; font-weight:800 }
 
-        /* animacion flecha en mapa overlay (simple) */
-        .arrow-anim {
-          position:absolute; pointer-events:none; transition: opacity .35s;
+        /* columnas de listas */
+        .lists-row {
+          display:flex;
+          gap:20px;
+          align-items:flex-start;
+          width:100%;
+        }
+
+        h3 {
+          color:#ffffff;
+        }
+
+        /* tarjetas de evac */
+        .evac-card {
+          padding:10px;
+          border:1px solid rgba(255,255,255,0.12);
+          border-radius:8px;
+          background:rgba(255,255,255,0.03);
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          font-size:14px;
+          color:#e5e7eb;
+          margin-bottom:8px;
+        }
+
+        .evac-info b {
+          display:block;
+          color:#f9fafb;
+        }
+        .evac-info small {
+          color:#9ca3af;
+          display:block;
+          margin-top:2px;
+        }
+
+        .evac-actions button {
+          border:none;
+          border-radius:6px;
+          padding:4px 8px;
+          cursor:pointer;
+          font-size:12px;
+          margin-left:4px;
+        }
+        .btn-del {
+          background:#ef4444;
+          color:white;
+        }
+        .btn-done {
+          background:#22c55e;
+          color:white;
         }
 
         /* responsive */
         @media (max-width:1050px){
-          .app{ grid-template-columns: 1fr; grid-auto-rows: auto 1fr; height:auto }
-          .panel{ width:100%; height:auto; border-radius:12px }
+          .app{
+            grid-template-columns: 1fr;
+            grid-auto-rows: auto 1fr;
+            height:auto
+          }
+          .panel{
+            width:100%;
+            height:auto;
+            border-radius:12px
+          }
           #map{ height: 48vh }
         }
     </style>
@@ -176,7 +243,9 @@
             <h2>Ubicaciones</h2>
             <div class="small">Zona afectada y refugios (traído del servidor)</div>
             <div id="locations" class="locations" style="margin-top:12px"></div>
-            <div style="margin-top:10px;color:var(--muted);font-size:12px">Haz clic en una ubicación para seleccionarla en el mapa.</div>
+            <div style="margin-top:10px;color:var(--muted);font-size:12px">
+                Haz clic en una ubicación para seleccionarla en el mapa.
+            </div>
         </div>
 
         <!-- Cola prioridad -->
@@ -189,7 +258,7 @@
             <div id="queue" class="queue" style="margin-top:8px"></div>
 
             <div style="margin-top:10px;font-size:13px;color:var(--muted)">
-                Arrastra o pulsa una tarjeta para ver detalles. Usa <b>Planificar</b> para ejecutar la siguiente evacuación.
+                Las tarjetas muestran las evacuaciones en cola. Puedes eliminarlas o planificarlas.
             </div>
         </div>
 
@@ -201,18 +270,18 @@
                 <select id="selectDestino" style="flex:1"></select>
             </div>
             <div style="display:flex;margin-top:10px;gap:8px">
-                <button class="btn" id="btnPlan">▶ Planificar (auto)</button>
+                <button class="btn" id="btnPlan">▶️ Planificar (auto)</button>
                 <button class="btn secondary" id="btnManual">✚ Añadir a cola</button>
             </div>
             <div style="margin-top:8px;font-size:13px;color:var(--muted)">
-                El botón <b>Planificar</b> pide al servidor ejecutar la siguiente evacuación en la cola. Si el servidor no soporta planificación, el front hace una simulación local y marca la evacuación como completada.
+                <b>Planificar</b> toma la evacuación de mayor prioridad y la pasa a la lista de planificadas.
             </div>
         </div>
 
         <div style="flex:1"></div>
 
         <div style="text-align:center;color:rgba(255,255,255,0.55);font-size:12px">
-            © Proyecto — Gestión de Desastres
+            ©️ Proyecto — Gestión de Desastres
         </div>
     </aside>
 
@@ -221,7 +290,9 @@
         <div class="topbar">
             <div>
                 <div class="title-big">Módulo: Evacuaciones</div>
-                <div style="color:#cfe0ff;font-size:13px">Visión centralizada — cola priorizada — planificación</div>
+                <div style="color:#cfe0ff;font-size:13px">
+                    Visión centralizada — cola priorizada — planificación
+                </div>
             </div>
 
             <div>
@@ -230,6 +301,23 @@
         </div>
 
         <div id="map"></div>
+
+        <!-- LISTADO DE EVACUACIONES -->
+        <div class="lists-row">
+
+            <!-- COLUMNA IZQUIERDA: COLA (ya está arriba) y PLANIFICADAS -->
+            <div style="flex:1;">
+                <h3 style="margin-top:12px;">Evacuaciones Planificadas</h3>
+                <div id="evacPlan"></div>
+            </div>
+
+            <!-- COLUMNA DERECHA: COMPLETADAS -->
+            <div style="flex:1;">
+                <h3 style="margin-top:12px;">Evacuaciones Completadas</h3>
+                <div id="evacDone"></div>
+            </div>
+
+        </div>
 
         <div id="transferResult" class="transfer" style="display:none">
             <div>
@@ -246,25 +334,31 @@
 
 <script>
     /*
-      Evacuaciones — Frontend ultra-moderno
-      - Usa /api/ubicaciones   (GET)
-      - Usa /api/evacuaciones  (GET, POST, PUT)
-      - INTENTA usar /api/evacuaciones/planificar (POST) si el backend lo implementa.
-        Si 404 o falla, hace una simulación local y actualiza solo el estado de evacuación (PUT).
+      Evacuaciones — Frontend
+      Usa:
+        - GET /api/ubicaciones
+        - GET /api/evacuaciones
+        - POST /api/evacuaciones
+        - PUT /api/evacuaciones
+        - DELETE /api/evacuaciones?id=...
+        - POST /api/evacuaciones/planificar
     */
 
-    /* ---------- UTIL y ESTADO ---------- */
-    let ubicaciones = [];     // array de ubicaciones del servidor
-    let evacuaciones = [];    // array de evacuaciones (sacado de /api/evacuaciones)
-    let markers = [];
+    // ====== ESTADO GLOBAL ======
+    let ubicaciones = [];         // ubicaciones del servidor
+    let listaEvacuaciones = [];   // todas las evacuaciones
+    let cola = [];                // estado PENDIENTE
+    let planificadas = [];        // estado EN_PROCESO
+    let completadas = [];         // estado COMPLETADA
+
     let map, layerGroup;
 
-    /* ---------- INICIALIZAR MAPA ---------- */
+    // ====== MAPA ======
     map = L.map('map', {zoomControl:true}).setView([4.535, -75.675], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     layerGroup = L.layerGroup().addTo(map);
 
-    /* ---------- DOM refs ---------- */
+    // ====== DOM refs ======
     const elLocations = document.getElementById('locations');
     const elQueue = document.getElementById('queue');
     const selOrigen = document.getElementById('selectOrigen');
@@ -275,17 +369,28 @@
     const transferDiv = document.getElementById('transferResult');
     const transferText = document.getElementById('transferText');
 
-    /* ---------- CARGAR INICIAL ---------- */
+    const elEvacPlan = document.getElementById('evacPlan');
+    const elEvacDone = document.getElementById('evacDone');
+
+    // ====== UTIL ======
+    function textoEstado(e) {
+        if (e === 'PENDIENTE') return 'Pendiente (en cola)';
+        if (e === 'EN_PROCESO') return 'Planificada';
+        if (e === 'COMPLETADA') return 'Completada';
+        return e || '';
+    }
+
+    // ---------- Cargar datos iniciales ----------
     async function init(){
       await Promise.all([cargarUbicaciones(), cargarEvacuaciones()]);
       renderAll();
     }
     init();
 
-    /* ---------- LLAMADAS AL BACKEND ---------- */
     async function cargarUbicaciones(){
       try {
         const r = await fetch('/api/ubicaciones');
+        if (!r.ok) { ubicaciones = []; return; }
         ubicaciones = await r.json();
       } catch (e) {
         console.error('Error cargando ubicaciones', e);
@@ -296,16 +401,26 @@
     async function cargarEvacuaciones(){
       try {
         const r = await fetch('/api/evacuaciones');
-        evacuaciones = await r.json();
-        // tu backend devuelve objetos con {id, prioridad, personas, estado, ubicacion}
-        // la cola ya viene ordenada por prioridad (según tu ColaPrioridadEvacuacion)
+        if (!r.ok) {
+          listaEvacuaciones = [];
+          cola = planificadas = completadas = [];
+          return;
+        }
+        const lista = await r.json();
+        listaEvacuaciones = Array.isArray(lista) ? lista : [];
+
+        cola        = listaEvacuaciones.filter(ev => ev.estado === 'PENDIENTE');
+        planificadas= listaEvacuaciones.filter(ev => ev.estado === 'EN_PROCESO');
+        completadas = listaEvacuaciones.filter(ev => ev.estado === 'COMPLETADA');
+
       } catch (e) {
         console.error('Error cargando evacuaciones', e);
-        evacuaciones = [];
+        listaEvacuaciones = [];
+        cola = planificadas = completadas = [];
       }
     }
 
-    /* ---------- RENDERIZADO UI ---------- */
+    // ---------- RENDER UBICACIONES + MAPA ----------
     function renderLocations(){
       elLocations.innerHTML = '';
       layerGroup.clearLayers();
@@ -313,253 +428,365 @@
       selDestino.innerHTML = '';
 
       ubicaciones.forEach((u, i) => {
-        // elegir color por nivel de afectación si viene o por nombre
         let lvlClass = 'lvl1';
-        // Asumimos que servidor devuelve 'nivelAfectacion' o similar
         const nivel = u.nivelAfectacion || (u.nivel || 'LEVE');
         if (nivel === 'GRAVE' || nivel === 'ALTO' || nivel === '5') lvlClass = 'lvl5';
         else if (nivel === 'MODERADO' || nivel === '3') lvlClass = 'lvl3';
 
         const div = document.createElement('div');
         div.className = 'loc';
+        const personas = u.personas ?? u.cantidadPersonas ?? 0;
         div.innerHTML = `
-          <div class="bubble ${lvlClass}">${u.nombre[0] ? u.nombre[0].toUpperCase() : 'U'}</div>
+          <div class="bubble ${lvlClass}">${u.nombre && u.nombre[0] ? u.nombre[0].toUpperCase() : 'U'}</div>
           <div class="meta">
             <b>${u.nombre}</b>
             <span>${u.tipoZona || ''} • ${u.nivelAfectacion || ''}</span>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:800;color:#e6eefc">${u.personas ?? (u.cantidadPersonas ?? 0)}</div>
+            <div style="font-weight:800;color:#e6eefc">${personas}</div>
             <div style="font-size:12px;color:var(--muted)">personas</div>
           </div>
         `;
-        // click selecciona en mapa
         div.addEventListener('click', ()=> {
-          if (u.latitud || u.lat || u.coords) {
-            const lat = u.latitud ?? u.lat ?? (u.coords && u.coords[0]);
-            const lng = u.longitud ?? u.lng ?? (u.coords && u.coords[1]);
+          const lat = u.latitud ?? u.lat ?? (u.coords && u.coords[0]);
+          const lng = u.longitud ?? u.lng ?? (u.coords && u.coords[1]);
+          if (lat != null && lng != null) {
             map.flyTo([lat,lng],15,{duration:0.8});
           }
         });
 
         elLocations.appendChild(div);
 
-        // agrega opciones selects
-        const opt1 = document.createElement('option'); opt1.value = i; opt1.text = u.nombre;
-        const opt2 = document.createElement('option'); opt2.value = i; opt2.text = u.nombre;
-        selOrigen.appendChild(opt1); selDestino.appendChild(opt2);
+        const opt1 = document.createElement('option');
+        opt1.value = i; opt1.text = u.nombre;
+        const opt2 = document.createElement('option');
+        opt2.value = i; opt2.text = u.nombre;
+        selOrigen.appendChild(opt1);
+        selDestino.appendChild(opt2);
 
-        // marcador
         const lat = parseFloat(u.latitud ?? u.lat ?? (u.coords && u.coords[0]) ?? 0);
         const lng = parseFloat(u.longitud ?? u.lng ?? (u.coords && u.coords[1]) ?? 0);
         if (!isNaN(lat) && !isNaN(lng)) {
-          const m = L.circleMarker([lat,lng], {
+          const color = (nivel==='GRAVE' || nivel==='5') ? '#ff6b6b'
+                        : ((nivel==='MODERADO' || nivel==='3') ? '#ffa94d' : '#63e6be');
+          const marker = L.circleMarker([lat,lng], {
             radius: 10,
-            fillColor: (nivel==='GRAVE' || nivel==='5') ? '#ff6b6b' : ((nivel==='MODERADO' || nivel==='3') ? '#ffa94d' : '#63e6be'),
-            color: '#fff', weight:2, fillOpacity:0.95
-          }).bindPopup(`<b>${u.nombre}</b><br>Personas: ${u.personas ?? (u.cantidadPersonas ?? 0)}<br>${u.tipoZona ?? ''}`);
-          layerGroup.addLayer(m);
+            fillColor: color,
+            color: '#fff',
+            weight:2,
+            fillOpacity:0.95
+          }).bindPopup(
+            '<b>'+ (u.nombre || '') + '</b><br>' +
+            'Personas: ' + personas + '<br>' +
+            (u.tipoZona || '')
+          );
+          layerGroup.addLayer(marker);
         }
       });
     }
 
-    /* visual cola (pill) */
-    function renderQueue(){
+    // ---------- RENDER COLA (PENDIENTES) ----------
+    function renderQueue() {
       elQueue.innerHTML = '';
-      if (!evacuaciones || evacuaciones.length===0) {
-        elQueue.innerHTML = `<div style="color:#cfe0ff;font-size:13px">La cola está vacía</div>`;
+
+      if (!cola || cola.length === 0) {
+        elQueue.innerHTML =
+          '<div style="color:#cfe0ff;font-size:13px">La cola está vacía</div>';
         return;
       }
-      evacuaciones.forEach(ev => {
+
+      cola.forEach(ev => {
         const pill = document.createElement('div');
         pill.className = 'pill';
-        // prioridad visual
+
         const dot = document.createElement('div');
-        dot.className = 'priority-dot ' + (ev.prioridad>=4 ? 'dot-high' : (ev.prioridad>=2 ? 'dot-mid' : 'dot-low'));
+        const pr = ev.prioridad ?? 0;
+        dot.className = 'priority-dot ' + (
+          pr >= 4 ? 'dot-high' : (pr >= 2 ? 'dot-mid' : 'dot-low')
+        );
         pill.appendChild(dot);
+
         const txt = document.createElement('div');
-        txt.innerHTML = `<div style="font-size:13px">${ev.ubicacion}</div><div style="font-size:12px;color:var(--muted)">${ev.personas} personas • prio ${ev.prioridad}</div>`;
+        txt.innerHTML = `
+          <div style="font-size:13px">${ev.ubicacion || '(sin ubicación)'}</div>
+          <div style="font-size:12px;color:var(--muted)">
+            ${ev.personas ?? ev.cantidadPersonas ?? 0} personas • prio ${pr}<br>
+            ${textoEstado(ev.estado)}
+          </div>
+        `;
         pill.appendChild(txt);
-        // on click: show details + zoom
-        pill.addEventListener('click', ()=> {
-          // find ubicacion coords and flyTo
+
+        // botón eliminar
+        const btnDel = document.createElement('button');
+        btnDel.textContent = 'X';
+        btnDel.className = 'btn-del';
+        btnDel.style.marginLeft = 'auto';
+
+        btnDel.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!ev.id) return;
+          if (!confirm('¿Eliminar esta evacuación de la cola?')) return;
+          try {
+            const res = await fetch('/api/evacuaciones?id=' + encodeURIComponent(ev.id), {
+              method: 'DELETE'
+            });
+            if (!res.ok) {
+              alert('No se pudo eliminar en el servidor.');
+              return;
+            }
+            await cargarEvacuaciones();
+            renderAll();
+          } catch(err) {
+            console.error('Error eliminando evacuación', err);
+            alert('Error de comunicación con el servidor.');
+          }
+        });
+
+        pill.appendChild(btnDel);
+
+        pill.addEventListener('click', () => {
           const ub = ubicaciones.find(u => u.nombre === ev.ubicacion);
           if (ub) {
             const lat = ub.latitud ?? ub.lat ?? (ub.coords && ub.coords[0]);
             const lng = ub.longitud ?? ub.lng ?? (ub.coords && ub.coords[1]);
-            if (lat && lng) map.flyTo([lat,lng],15,{duration:0.7});
+            if (lat != null && lng != null) {
+              map.flyTo([lat,lng], 15, { duration: 0.7 });
+            }
           }
         });
+
         elQueue.appendChild(pill);
       });
     }
 
-    /* render everything */
-    function renderAll(){
+    // ---------- RENDER PLANIFICADAS (EN_PROCESO) ----------
+    function renderPlanificadas() {
+      elEvacPlan.innerHTML = '';
+
+      if (!planificadas || planificadas.length === 0) {
+        elEvacPlan.innerHTML =
+          '<div style="color:#cfe0ff;font-size:13px">Sin evacuaciones planificadas.</div>';
+        return;
+      }
+
+      planificadas.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'evac-card';
+
+        const info = document.createElement('div');
+        info.className = 'evac-info';
+        info.innerHTML = `
+          <b>${ev.ubicacion || '(sin ubicación)'}</b>
+          <small>
+            ${ev.personas ?? ev.cantidadPersonas ?? 0} personas • prioridad ${ev.prioridad ?? 0}<br>
+            Estado: ${textoEstado(ev.estado)}
+          </small>
+        `;
+
+        const actions = document.createElement('div');
+        actions.className = 'evac-actions';
+
+        // botón completar
+        const btnDone = document.createElement('button');
+        btnDone.textContent = '✔';
+        btnDone.className = 'btn-done';
+        btnDone.title = 'Marcar como completada';
+
+        btnDone.addEventListener('click', async () => {
+          if (!ev.id) return;
+          try {
+            const res = await fetch('/api/evacuaciones', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: ev.id, estado: 'COMPLETADA' })
+            });
+            if (!res.ok) {
+              alert('No se pudo actualizar el estado en el servidor.');
+              return;
+            }
+            await cargarEvacuaciones();
+            renderAll();
+          } catch (err) {
+            console.error('Error completando evacuación', err);
+            alert('Error de comunicación con el servidor.');
+          }
+        });
+
+        // botón eliminar planificada
+        const btnDel = document.createElement('button');
+        btnDel.textContent = 'X';
+        btnDel.className = 'btn-del';
+        btnDel.title = 'Eliminar definitivamente';
+
+        btnDel.addEventListener('click', async () => {
+          if (!ev.id) return;
+          if (!confirm('¿Eliminar esta evacuación planificada?')) return;
+          try {
+            const res = await fetch('/api/evacuaciones?id=' + encodeURIComponent(ev.id), {
+              method: 'DELETE'
+            });
+            if (!res.ok) {
+              alert('No se pudo eliminar en el servidor.');
+              return;
+            }
+            await cargarEvacuaciones();
+            renderAll();
+          } catch (err) {
+            console.error('Error eliminando evacuación', err);
+            alert('Error de comunicación con el servidor.');
+          }
+        });
+
+        actions.appendChild(btnDel);
+        actions.appendChild(btnDone);
+        card.appendChild(info);
+        card.appendChild(actions);
+        elEvacPlan.appendChild(card);
+      });
+    }
+
+    // ---------- RENDER COMPLETADAS ----------
+    function renderCompletadas() {
+      elEvacDone.innerHTML = '';
+
+      if (!completadas || completadas.length === 0) {
+        elEvacDone.innerHTML =
+          '<div style="color:#cfe0ff;font-size:13px">Sin evacuaciones completadas.</div>';
+        return;
+      }
+
+      completadas.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'evac-card';
+
+        const info = document.createElement('div');
+        info.className = 'evac-info';
+        info.innerHTML = `
+          <b>${ev.ubicacion || '(sin ubicación)'}</b>
+          <small>
+            ${ev.personas ?? ev.cantidadPersonas ?? 0} personas • prioridad ${ev.prioridad ?? 0}<br>
+            Estado: ${textoEstado(ev.estado)}
+          </small>
+        `;
+
+        const actions = document.createElement('div');
+        actions.className = 'evac-actions';
+
+        // botón eliminar completada
+        const btnDel = document.createElement('button');
+        btnDel.textContent = 'X';
+        btnDel.className = 'btn-del';
+        btnDel.title = 'Eliminar registro';
+
+        btnDel.addEventListener('click', async () => {
+          if (!ev.id) return;
+          if (!confirm('¿Eliminar esta evacuación completada?')) return;
+          try {
+            const res = await fetch('/api/evacuaciones?id=' + encodeURIComponent(ev.id), {
+              method: 'DELETE'
+            });
+            if (!res.ok) {
+              alert('No se pudo eliminar en el servidor.');
+              return;
+            }
+            await cargarEvacuaciones();
+            renderAll();
+          } catch (err) {
+            console.error('Error eliminando evacuación', err);
+            alert('Error de comunicación con el servidor.');
+          }
+        });
+
+        actions.appendChild(btnDel);
+        card.appendChild(info);
+        card.appendChild(actions);
+        elEvacDone.appendChild(card);
+      });
+    }
+
+    // ---------- Render global ----------
+    function renderAll() {
       renderLocations();
       renderQueue();
+      renderPlanificadas();
+      renderCompletadas();
     }
 
-    /* ---------- ACCIONES: Añadir a cola (manual) ---------- */
-    btnManual.addEventListener('click', async ()=>{
-      // abre modal minimal usando prompt para datos mínimos (ubicacion y personas)
-      const ubic = prompt("Nombre de la ubicación a evacuar (exacto):");
+    // ---------- Añadir evacuación manual ----------
+    btnManual.addEventListener('click', async () => {
+      const ubic = prompt('Nombre de la ubicación a evacuar (exacto):');
       if (!ubic) return;
-      const prio = parseInt(prompt("Prioridad (1 baja - 5 alta)", "3"));
-      const pers = parseInt(prompt("Cantidad de personas a evacuar", "10"));
-      if (!pers || pers<=0) return alert("cantidad inválida");
+      const prio = parseInt(prompt('Prioridad (1 baja - 5 alta)', '3'), 10);
+      const pers = parseInt(prompt('Cantidad de personas a evacuar', '10'), 10);
+      if (!pers || pers <= 0) {
+        alert('Cantidad inválida');
+        return;
+      }
 
-      // send POST /api/evacuaciones
       try {
         const body = { ubicacion: ubic, prioridad: prio, personas: pers };
-        const res = await fetch('/api/evacuaciones', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-        if (res.ok) {
-          await cargarEvacuaciones();
-          renderQueue();
-          alert('Evacuación añadida a la cola');
-        } else {
+        const res = await fetch('/api/evacuaciones', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
           const txt = await res.text();
           console.warn('POST evac error', txt);
-          alert('Error añadiendo evacuación (revisa consola)');
+          alert('Error añadiendo evacuación.');
+          return;
         }
+        await cargarEvacuaciones();
+        renderAll();
       } catch(err) {
         console.error(err);
-        alert('Error comunicando con servidor. Uso modo local: añadiendo a cola visual.');
-        // modo local: añadir a front (no persistente)
-        evacuaciones.push({ id:'L'+Date.now(), prioridad: prio, personas: pers, estado:'PENDIENTE', ubicacion: ubic });
-        evacuaciones.sort((a,b)=> b.prioridad - a.prioridad);
-        renderQueue();
+        alert('Error comunicando con servidor.');
       }
     });
 
-    /* ---------- ACCIÓN: PLANIFICAR ---------- */
-    btnPlan.addEventListener('click', async ()=>{
-      btnPlan.disabled = true; btnPlan.textContent = 'Ejecutando...';
+    // ---------- Planificar (usa endpoint backend) ----------
+    btnPlan.addEventListener('click', async () => {
+      btnPlan.disabled = true;
+      btnPlan.textContent = 'Ejecutando...';
       try {
-        // Intentamos llamar al endpoint server-side de planificación
         const res = await fetch('/api/evacuaciones/planificar', { method:'POST' });
-        if (res.ok) {
-          // Se espera que el servidor devuelva un JSON con detalle: {origen:..., destino:..., personas: n, idEvacuacion: "..."}
-          const detalle = await res.json().catch(()=>null);
-          if (detalle) {
-            mostrarResultado(detalle);
-            // refrescar listas porque backend ya procesó
-            await Promise.all([cargarEvacuaciones(), cargarUbicaciones()]);
-            renderAll();
-          } else {
-            // sin cuerpo: refrescar
-            await Promise.all([cargarEvacuaciones(), cargarUbicaciones()]);
-            renderAll();
-            transferText.textContent = 'Planificación ejecutada (servidor).';
-            transferDiv.style.display = 'flex';
-          }
-        } else {
-          // endpoint no existe o falló: hacemos fallback local (simulación)
-          console.warn('Planificar falla en servidor, usando simulación front-end');
-          await fallbackPlanificarLocal();
+        if (!res.ok) {
+          alert('No se pudo planificar en el servidor.');
+          return;
         }
-      } catch (e) {
-        console.error('Error planificar:', e);
-        await fallbackPlanificarLocal();
+        const detalle = await res.json().catch(() => null);
+        if (detalle && detalle.ubicacion) {
+          transferText.textContent =
+            `Se planificó evacuación en ${detalle.ubicacion} ` +
+            `(${detalle.personas || detalle.cantidadPersonas || 0} personas).`;
+          transferDiv.style.display = 'flex';
+        }
+        await cargarEvacuaciones();
+        renderAll();
+      } catch(err) {
+        console.error('Error al planificar', err);
+        alert('Error de comunicación con el servidor.');
       } finally {
-        btnPlan.disabled = false; btnPlan.textContent = '▶ Planificar (auto)';
-        setTimeout(()=>transferDiv.style.opacity = 1, 120);
+        btnPlan.disabled = false;
+        btnPlan.textContent = '▶️ Planificar (auto)';
       }
     });
 
-    /* ---------- FALLBACK LOCAL: planifica en front y marca evac COMPLETADA vía PUT ---------- */
-    async function fallbackPlanificarLocal(){
-      // 1) tomar primer elemento de evacuaciones (lista viene ordenada por prioridad del servidor)
-      if (!evacuaciones || evacuaciones.length===0) {
-        alert('Cola vacía — nada que planificar');
-        return;
-      }
-      const ev = evacuaciones[0]; // mayor prioridad (según backend)
-      // 2) elegir destino: por defecto elegimos la ubicación de tipo REFUGIO si existe, si no la menos poblada
-      let destino = ubicaciones.find(u => (u.tipoZona && u.tipoZona.toString().toUpperCase().includes('REFUGIO')));
-      if (!destino) {
-        // menos poblada
-        destino = ubicaciones.reduce((min,u)=> {
-          const p = Number(u.personas ?? u.cantidadPersonas ?? 0);
-          return (min==null || p < (Number(min.personas ?? min.cantidadPersonas ?? 0))) ? u : min;
-        }, null);
-      }
-      // 3) origen: buscar Ubicacion por nombre en ev.ubicacion
-      const origen = ubicaciones.find(u => u.nombre === ev.ubicacion);
-      if (!origen || !destino) {
-        alert('No se pudo encontrar origen o destino para la evacuación (simulación abortada).');
-        return;
-      }
-
-      // 4) cantidad a evacuar: si hay suficientes, movemos max  (por ejemplo) ev.personas o hasta lo que exista
-      const mover = Math.min(ev.personas, Number(origen.personas ?? origen.cantidadPersonas ?? 0) || ev.personas);
-
-      // 5) actualizar UI (local)
-      origen.personas = (Number(origen.personas ?? origen.cantidadPersonas ?? 0) - mover);
-      destino.personas = (Number(destino.personas ?? destino.cantidadPersonas ?? 0) + mover);
-
-      // 6) notificar al backend que la evacuación fue completada: PUT /api/evacuaciones {id, estado: "COMPLETADA"}
-      try {
-        await fetch('/api/evacuaciones', {
-          method:'PUT',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ id: ev.id, estado: 'COMPLETADA' })
-        });
-      } catch(e){ console.warn('No se pudo actualizar estado en servidor:', e) }
-
-      // 7) quitar de la lista local
-      evacuaciones = evacuaciones.filter(x => x.id !== ev.id);
-
-      // 8) mostrar resultado
-      mostrarResultado({
-        origen: origen.nombre,
-        destino: destino.nombre,
-        personas: mover,
-        idEvacuacion: ev.id,
-        modo: 'simulado-local'
-      });
-
-      renderAll();
-    }
-
-    /* ---------- Mostrar resultado visual ---------- */
-    function mostrarResultado(detalle){
-      transferText.textContent = `${detalle.personas} personas → ${detalle.origen} → ${detalle.destino} ${detalle.modo==='simulado-local' ? '(simulación local)' : ''}`;
-      transferDiv.style.display='flex';
-      transferDiv.style.opacity = 0;
-      setTimeout(()=>transferDiv.style.opacity = 1, 50);
-
-      // animación simple: dibujar polyline entre coords de origen y destino
-      const o = ubicaciones.find(u => u.nombre === detalle.origen);
-      const d = ubicaciones.find(u => u.nombre === detalle.destino);
-      if (o && d) {
-        const latO = Number(o.latitud ?? o.lat ?? (o.coords && o.coords[0]));
-        const lngO = Number(o.longitud ?? o.lng ?? (o.coords && o.coords[1]));
-        const latD = Number(d.latitud ?? d.lat ?? (d.coords && d.coords[0]));
-        const lngD = Number(d.longitud ?? d.lng ?? (d.coords && d.coords[1]));
-        if (!isNaN(latO) && !isNaN(lngO) && !isNaN(latD) && !isNaN(lngD)) {
-          const line = L.polyline([[latO,lngO],[latD,lngD]], {color:'#8b5cf6', weight:4, dashArray:'8 6'}).addTo(layerGroup);
-          setTimeout(()=> layerGroup.removeLayer(line), 4500);
-          // pulse markers
-          const m1 = L.circle([latO,lngO],{radius:80,color:'#ef4444',opacity:0.18}).addTo(layerGroup);
-          const m2 = L.circle([latD,lngD],{radius:80,color:'#10b981',opacity:0.18}).addTo(layerGroup);
-          setTimeout(()=>{ layerGroup.removeLayer(m1); layerGroup.removeLayer(m2); },4500);
-        }
-      }
-    }
-
-    /* ---------- REFRESH (manual) ---------- */
-    btnRefresh.addEventListener('click', async ()=>{
+    // ---------- Refresh manual ----------
+    btnRefresh.addEventListener('click', async () => {
       await Promise.all([cargarUbicaciones(), cargarEvacuaciones()]);
       renderAll();
     });
 
-    /* ---------- RENDER PERIODICO (pequeño) para mantener UI viva ---------- */
-    setInterval(async ()=>{
-      // intentar refrescar cola cada 12s (no intrusivo)
-      try { await cargarEvacuaciones(); renderQueue(); } catch{}
+    // ---------- Refresh periódico de la cola ----------
+    setInterval(async () => {
+      try {
+        await cargarEvacuaciones();
+        renderQueue();
+        renderPlanificadas();
+        renderCompletadas();
+      } catch {}
     }, 12000);
-
 </script>
 
 </body>

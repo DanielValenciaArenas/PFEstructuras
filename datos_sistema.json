@@ -49,28 +49,12 @@
       "longitud": 0.0
     },
     {
-      "id": "U11988680639200",
-      "nombre": "El bosque",
+      "id": "U1",
+      "nombre": "Ciudad A",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "LEVE",
-      "latitud": 4.539470543182852,
-      "longitud": -75.67751995090067
-    },
-    {
-      "id": "U11955740345200",
-      "nombre": "Alamos",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 4.54077464711482,
-      "longitud": -75.67336713492051
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
+      "nivelAfectacion": "MODERADO",
+      "latitud": 0.0,
+      "longitud": 0.0
     },
     {
       "id": "U2",
@@ -81,12 +65,28 @@
       "longitud": 1.0
     },
     {
-      "id": "U1",
-      "nombre": "Ciudad A",
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
+    },
+    {
+      "id": "U11955740345200",
+      "nombre": "Alamos",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
+      "nivelAfectacion": "GRAVE",
+      "latitud": 4.54077464711482,
+      "longitud": -75.67336713492051
+    },
+    {
+      "id": "U11988680639200",
+      "nombre": "El bosque",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "LEVE",
+      "latitud": 4.539470543182852,
+      "longitud": -75.67751995090067
     },
     {
       "id": "U1",
@@ -193,16 +193,16 @@
       "distancia": 2.5
     },
     {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
       "id": "R1",
       "origenNombre": "Ciudad A",
       "destinoNombre": "Refugio B",
       "distancia": 2.5
+    },
+    {
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
     },
     {
       "id": "R1",
@@ -237,6 +237,14 @@
   ],
   "recursos": [
     {
+      "id": "RA16173423774900",
+      "nombre": "ALIMENTO",
+      "cantidad": 10,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-12-16"
+    },
+    {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
       "cantidad": 25,
@@ -251,14 +259,6 @@
       "nombreUbicacion": "Alamos",
       "tipo": "MEDICINA",
       "extra": "General"
-    },
-    {
-      "id": "RA16173423774900",
-      "nombre": "ALIMENTO",
-      "cantidad": 10,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-12-16"
     }
   ],
   "equipos": [
@@ -279,32 +279,39 @@
   ],
   "evacuaciones": [
     {
-      "id": "EV15683705883800",
+      "id": "EV145889971342300",
       "prioridad": 5,
-      "cantidadPersonas": 20,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "Ciudad A"
+      "cantidadPersonas": 10,
+      "estado": "EN_PROCESO",
+      "nombreUbicacion": "Alamos"
     },
     {
-      "id": "EV15874218832900",
-      "prioridad": 5,
-      "cantidadPersonas": 3,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "El bosque"
+      "id": "EV145793395285900",
+      "prioridad": 3,
+      "cantidadPersonas": 1,
+      "estado": "EN_PROCESO",
+      "nombreUbicacion": "Refugio B"
     },
     {
-      "id": "EV15730057916500",
+      "id": "EV89026644898200",
       "prioridad": 2,
       "cantidadPersonas": 12,
       "estado": "COMPLETADA",
       "nombreUbicacion": "Refugio B"
     },
     {
-      "id": "EV49972945098300",
+      "id": "EV87881788892200",
       "prioridad": 1,
       "cantidadPersonas": 13,
       "estado": "COMPLETADA",
-      "nombreUbicacion": "Alamos"
+      "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EV145850192575600",
+      "prioridad": 1,
+      "cantidadPersonas": 10,
+      "estado": "EN_PROCESO",
+      "nombreUbicacion": "Ciudad A"
     }
   ]
 }
