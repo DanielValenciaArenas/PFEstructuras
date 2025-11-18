@@ -420,6 +420,38 @@
       }
     }
 
+        // Cargar y sincronizar el número de personas de una ubicación
+    async function sincronizarPersonasUbicacion(u, cardDiv, marker) {
+      if (!u || !u.nombre) return;
+      try {
+        const resp = await fetch(`/api/personas?ubicacion=${encodeURIComponent(u.nombre)}`);
+        if (!resp.ok) return;
+
+        const lista = await resp.json();
+        const total = Array.isArray(lista) ? lista.length : 0;
+
+        // Actualizar contador en la tarjeta de la columna izquierda
+        if (cardDiv) {
+          const span = cardDiv.querySelector('.personas-count');
+          if (span) {
+            span.textContent = total;
+          }
+        }
+
+        // Actualizar también el popup del marcador en el mapa
+        if (marker) {
+          marker.setPopupContent(
+            '<b>' + (u.nombre || '') + '</b><br>' +
+            'Personas: ' + total + '<br>' +
+            (u.tipoZona || '')
+          );
+        }
+      } catch (err) {
+        console.error('Error sincronizando personas de', u.nombre, err);
+      }
+    }
+
+
     // ---------- RENDER UBICACIONES + MAPA ----------
     function renderLocations(){
       elLocations.innerHTML = '';
@@ -433,9 +465,13 @@
         if (nivel === 'GRAVE' || nivel === 'ALTO' || nivel === '5') lvlClass = 'lvl5';
         else if (nivel === 'MODERADO' || nivel === '3') lvlClass = 'lvl3';
 
-        const div = document.createElement('div');
+
+                const div = document.createElement('div');
         div.className = 'loc';
+
+        // número inicial (placeholder) mientras se carga el real desde /api/personas
         const personas = u.personas ?? u.cantidadPersonas ?? 0;
+
         div.innerHTML = `
           <div class="bubble ${lvlClass}">${u.nombre && u.nombre[0] ? u.nombre[0].toUpperCase() : 'U'}</div>
           <div class="meta">
@@ -443,10 +479,13 @@
             <span>${u.tipoZona || ''} • ${u.nivelAfectacion || ''}</span>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:800;color:#e6eefc">${personas}</div>
+            <div style="font-weight:800;color:#e6eefc">
+              <span class="personas-count" data-ubicacion="${u.nombre}">${personas}</span>
+            </div>
             <div style="font-size:12px;color:var(--muted)">personas</div>
           </div>
         `;
+
         div.addEventListener('click', ()=> {
           const lat = u.latitud ?? u.lat ?? (u.coords && u.coords[0]);
           const lng = u.longitud ?? u.lng ?? (u.coords && u.coords[1]);
@@ -463,6 +502,7 @@
         opt2.value = i; opt2.text = u.nombre;
         selOrigen.appendChild(opt1);
         selDestino.appendChild(opt2);
+
 
         const lat = parseFloat(u.latitud ?? u.lat ?? (u.coords && u.coords[0]) ?? 0);
         const lng = parseFloat(u.longitud ?? u.lng ?? (u.coords && u.coords[1]) ?? 0);
@@ -481,9 +521,13 @@
             (u.tipoZona || '')
           );
           layerGroup.addLayer(marker);
+
+          // 🔵 NUEVO: sincronizar el número de personas con /api/personas
+          sincronizarPersonasUbicacion(u, div, marker);
         }
       });
     }
+
 
     // ---------- RENDER COLA (PENDIENTES) ----------
     function renderQueue() {

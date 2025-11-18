@@ -84,6 +84,10 @@ public class WebServer {
                 double lat = parseDoubleSafe(m.get("latitud"), 0);
                 double lng = parseDoubleSafe(m.get("longitud"), 0);
 
+                //  cantidad de personas iniciales
+                int personasIniciales = (int) parseDoubleSafe(m.getOrDefault("personas", "0"), 0);
+                if (personasIniciales < 0) personasIniciales = 0;
+
                 if (nombre==null || nombre.isEmpty()) {
                     enviarTexto(ex,400,"{\"error\":\"nombre requerido\"}");
                     return;
@@ -96,12 +100,31 @@ public class WebServer {
                         TipoZona.valueOf(tipo),
                         NivelDeAfectacion.valueOf(nivel),
                         evac,
-                        new ArrayList<>(),
-                        new ArrayList<>(),
-                        new ArrayList<>(),
+                        new ArrayList<>(),   // personas
+                        new ArrayList<>(),   // recursos
+                        new ArrayList<>(),   // equipos
                         lat,
                         lng
                 );
+
+                // crear N personas asociadas a la ubicación
+                if (personasIniciales > 0) {
+                    for (int i = 1; i <= personasIniciales; i++) {
+                        String idP = "P" + System.nanoTime() + "_" + i;
+                        Persona p = new Persona(
+                                idP,
+                                "Persona " + i + " de " + nombre,
+                                EstadoPersona.EN_PELIGRO,
+                                u
+                        );
+                        u.getPersonas().add(p);
+                    }
+                    // mantener la evacuación interna de la ubicación alineada con la cantidad
+                    if (u.getEvacuacion() != null) {
+                        u.getEvacuacion().setCantidadPersonas(personasIniciales);
+                    }
+                }
+
                 registrarUbicacion(u);
                 sistema.agregarUbicacion(u);
                 guardarSistemaEnJson();
@@ -389,8 +412,7 @@ public class WebServer {
                 }
 
                 // ✅ Registramos en mapa + árbol de distribución
-                sistema.registrarRecurso(u, rec);
-
+                sistema.getMapaRecursos().agregarRecurso(u, rec);
                 guardarSistemaEnJson();
                 try {
                     enviarTexto(ex,200,"{\"ok\":true}");
