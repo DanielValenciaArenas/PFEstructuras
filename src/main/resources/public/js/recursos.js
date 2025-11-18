@@ -10,33 +10,36 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Referencias a elementos del DOM (coinciden con recursos.html)
-    const formularioRecurso   = document.getElementById("fr");
-    const selectTipo          = document.getElementById("tipo");
-    const inputCantidad       = document.getElementById("cant");
-    const selectUbicacionRec  = document.getElementById("ubic");
+    // ================== REFERENCIAS A ELEMENTOS (compatibles con tus IDs viejos y nuevos) ==================
+    // Form recurso
+    const formularioRecurso  = document.getElementById("fr")           || document.getElementById("formRecurso");
+    const selectTipo         = document.getElementById("tipo")         || document.getElementById("tipoRecurso");
+    const inputCantidad      = document.getElementById("cant")         || document.getElementById("cantidadRecurso");
+    const selectUbicacionRec = document.getElementById("ubic")         || document.getElementById("ubicacionRecurso");
 
-    const formularioEquipo    = document.getElementById("fe");
-    const inputNombreEquipo   = document.getElementById("nom");
-    const inputTipoEquipo     = document.getElementById("tip");
-    const inputMiembros       = document.getElementById("miem");
-    const selectUbicacionEq   = document.getElementById("ubi");
+    // Form equipo (esta pantalla realmente no lo usa, pero mantengo las refs por si existiera)
+    const formularioEquipo   = document.getElementById("fe")           || null;
+    const inputNombreEquipo  = document.getElementById("nom")          || null;
+    const inputTipoEquipo    = document.getElementById("tip")          || null;
+    const inputMiembros      = document.getElementById("miem")         || null;
+    const selectUbicacionEq  = document.getElementById("ubi")          || null;
 
-    const tablaRecursosBody   = document.getElementById("tb");
-    const tablaEquiposBody    = document.getElementById("te");
-    const divOk               = document.getElementById("ok");
+    // Tablas (tbody)
+    const tablaRecursosBody  = document.getElementById("tb")           || document.getElementById("tablaRecursos");
+    const tablaEquiposBody   = document.getElementById("te")           || document.getElementById("tablaEquipos");
+    const divOk              = document.getElementById("ok")           || document.getElementById("msgOk");
 
     // 🔹 NUEVOS CAMPOS OPCIONALES (si existen en el HTML)
-    const inputNombreRecurso      = document.getElementById("nombreRecurso");
-    const inputFechaVencimiento   = document.getElementById("fechaVencimiento");
-    const inputTipoMedicamento    = document.getElementById("tipoMedicamento");
+    const inputNombreRecurso    = document.getElementById("nombreRecurso");
+    const inputFechaVencimiento = document.getElementById("fechaVencimiento");
+    const inputTipoMedicamento  = document.getElementById("tipoMedicamento");
 
     // 🔴 NUEVOS ELEMENTOS PARA ASIGNAR EQUIPOS EXISTENTES (opcional)
     const formularioAsignarEquipo = document.getElementById("formAsignarEquipo"); // <form ...>
     const selectEquipoExistente   = document.getElementById("equipoExistente");   // <select ...>
     const selectUbicacionAsignar  = document.getElementById("ubicacionEquipo");   // <select ...>
 
-    // Mostrar mensaje "Guardado correctamente" por un momento
+    // ================== UTILIDADES ==================
     function mostrarOK() {
         if (!divOk) return;
         divOk.style.display = "block";
@@ -47,21 +50,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // =============== MOSTRAR / OCULTAR CAMPOS EXTRA SEGÚN TIPO ===============
     function actualizarCamposTipo() {
-        // Si no existen los inputs en el HTML, no hacemos nada
-        if (!inputFechaVencimiento || !inputTipoMedicamento) return;
+        if (!selectTipo || !inputFechaVencimiento || !inputTipoMedicamento) return;
 
         if (selectTipo.value === "ALIMENTO") {
-            // Mostrar fecha de vencimiento, ocultar tipo de medicamento
             inputFechaVencimiento.style.display = "inline-block";
             inputTipoMedicamento.style.display  = "none";
             inputTipoMedicamento.value = "";
         } else if (selectTipo.value === "MEDICINA") {
-            // Mostrar tipo de medicamento, ocultar fecha
             inputTipoMedicamento.style.display  = "inline-block";
             inputFechaVencimiento.style.display = "none";
             inputFechaVencimiento.value = "";
         } else {
-            // Otro tipo: ocultar ambos
             inputFechaVencimiento.style.display = "none";
             inputTipoMedicamento.style.display  = "none";
             inputFechaVencimiento.value = "";
@@ -83,16 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const data = await resp.json(); // [{nombre, tipoZona, nivelAfectacion, latitud, longitud}, ...]
+            const data = await resp.json(); // [{nombre,...}]
 
-            // Limpiar selects y dejar el placeholder
             if (selectUbicacionRec) {
                 selectUbicacionRec.innerHTML = '<option value="">Selecciona ubicación</option>';
             }
             if (selectUbicacionEq) {
                 selectUbicacionEq.innerHTML  = '<option value="">Selecciona ubicación</option>';
             }
-            // 🔴 NUEVO: select de ubicación para asignar equipo
             if (selectUbicacionAsignar) {
                 selectUbicacionAsignar.innerHTML = '<option value="">Selecciona ubicación</option>';
             }
@@ -104,15 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     op1.textContent = u.nombre;
                     selectUbicacionRec.appendChild(op1);
                 }
-
                 if (selectUbicacionEq) {
                     const op2 = document.createElement("option");
                     op2.value = u.nombre;
                     op2.textContent = u.nombre;
                     selectUbicacionEq.appendChild(op2);
                 }
-
-                // 🔴 NUEVO: misma lista para el select de asignación
                 if (selectUbicacionAsignar) {
                     const op3 = document.createElement("option");
                     op3.value = u.nombre;
@@ -127,26 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Formatea la columna de "Cantidad" agregando información extra:
-    //  - ALIMENTO: fecha de vencimiento
-    //  - MEDICINA: tipo de medicamento
+    // Formatea cantidad + datos extra
     function formatearCantidadYExtras(recurso) {
         let texto = `${recurso.cantidad}`;
-
-        // Estos campos los debe enviar el backend si están disponibles:
-        //  - recurso.vencimiento (String, ej: "2025-12-31")
-        //  - recurso.medicamento (String, ej: "Analgesico")
         if (recurso.tipo === "ALIMENTO" && recurso.vencimiento) {
             texto += ` (vence: ${recurso.vencimiento})`;
         } else if (recurso.tipo === "MEDICINA" && recurso.medicamento) {
             texto += ` (tipo: ${recurso.medicamento})`;
         }
-
         return texto;
     }
 
     // =============== LISTAR RECURSOS ===============
     async function listarRecursos() {
+        if (!tablaRecursosBody) return;
         try {
             const respuesta = await fetch("/api/recursos");
             if (!respuesta.ok) {
@@ -155,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const data = await respuesta.json(); // [{tipo,cantidad,ubicacion,vencimiento,medicamento,...}, ...]
+            const data = await respuesta.json();
 
             if (!data || data.length === 0) {
                 tablaRecursosBody.innerHTML =
@@ -170,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 return `
                     <tr>
-                        <td>${tipo}</td>
+                        <td>${r.nombre ? `${r.nombre} (${tipo})` : tipo}</td>
                         <td>${cantidadConExtras}</td>
                         <td>${ubic}</td>
                     </tr>
@@ -188,12 +176,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // =============== LISTAR EQUIPOS ===============
     async function listarEquipos() {
+        if (!tablaEquiposBody && !selectEquipoExistente) return;
+
         try {
             const respuesta = await fetch("/api/equipos");
             if (!respuesta.ok) {
-                tablaEquiposBody.innerHTML =
-                    '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
-                // 🔴 También limpiamos el combo de equipos existentes si existe
+                if (tablaEquiposBody) {
+                    tablaEquiposBody.innerHTML =
+                        '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
+                }
                 if (selectEquipoExistente) {
                     selectEquipoExistente.innerHTML =
                         '<option value="">No se pudieron cargar los equipos</option>';
@@ -204,8 +195,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await respuesta.json(); // [{nombre,tipo,miembros,ubicacion}, ...]
 
             if (!data || data.length === 0) {
-                tablaEquiposBody.innerHTML =
-                    '<tr><td colspan="4" class="muted center">Sin equipos</td></tr>';
+                if (tablaEquiposBody) {
+                    tablaEquiposBody.innerHTML =
+                        '<tr><td colspan="4" class="muted center">Sin equipos</td></tr>';
+                }
                 if (selectEquipoExistente) {
                     selectEquipoExistente.innerHTML =
                         '<option value="">No hay equipos registrados</option>';
@@ -213,28 +206,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const filas = data.map(e => {
-                const nombre = e.nombre || "(sin nombre)";
-                const tipo   = e.tipo   || "(sin tipo)";
-                const miembros = e.miembros ?? "-";
-                const ubic   = e.ubicacion || "Sin ubicación";
+            if (tablaEquiposBody) {
+                const filas = data.map(e => {
+                    const nombre   = e.nombre   || "(sin nombre)";
+                    const tipo     = e.tipo     || "(sin tipo)";
+                    const miembros = e.miembros ?? "-";
+                    const ubic     = e.ubicacion || "Sin ubicación";
+                    return `
+                        <tr>
+                            <td>${nombre}</td>
+                            <td>${tipo}</td>
+                            <td>${miembros}</td>
+                            <td>${ubic}</td>
+                        </tr>
+                    `;
+                });
+                tablaEquiposBody.innerHTML = filas.join("");
+            }
 
-                return `
-                    <tr>
-                        <td>${nombre}</td>
-                        <td>${tipo}</td>
-                        <td>${miembros}</td>
-                        <td>${ubic}</td>
-                    </tr>
-                `;
-            });
-
-            tablaEquiposBody.innerHTML = filas.join("");
-
-            // 🔴 NUEVO: llenar combo de equipos existentes para ASIGNAR
+            // 🔴 LLENAR combo de equipos existentes
             if (selectEquipoExistente) {
                 selectEquipoExistente.innerHTML =
-                    '<option value="">Selecciona un equipo</option>';
+                    '<option value="">Selecciona equipo</option>';
                 data.forEach(e => {
                     const opt = document.createElement("option");
                     opt.value = e.nombre;
@@ -245,9 +238,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("Error al listar equipos:", err);
-            tablaEquiposBody.innerHTML =
-                '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
-
+            if (tablaEquiposBody) {
+                tablaEquiposBody.innerHTML =
+                    '<tr><td colspan="4" class="muted center">Error al cargar equipos</td></tr>';
+            }
             if (selectEquipoExistente) {
                 selectEquipoExistente.innerHTML =
                     '<option value="">Error al cargar equipos</option>';
@@ -256,112 +250,107 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =============== ENVIAR FORMULARIO RECURSO ===============
-    formularioRecurso.addEventListener("submit", async (evento) => {
-        evento.preventDefault();
+    if (formularioRecurso && selectTipo && inputCantidad && selectUbicacionRec) {
+        formularioRecurso.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
 
-        const tipo = selectTipo.value;
-        const cantidad = Number(inputCantidad.value);
-        const ubicacion = selectUbicacionRec.value; // viene del select
+            const tipo      = selectTipo.value;
+            const cantidad  = Number(inputCantidad.value);
+            const ubicacion = selectUbicacionRec.value;
 
-        if (!ubicacion || !tipo || !cantidad || cantidad <= 0) {
-            alert("Por favor completa correctamente los datos del recurso.");
-            return;
-        }
-
-        // Cuerpo base
-        const body = {
-            tipo: tipo,
-            cantidad: cantidad,
-            ubicacion: ubicacion
-        };
-
-        // 🔹 Nombre del recurso (si el input existe)
-        if (inputNombreRecurso) {
-            body.nombre = inputNombreRecurso.value.trim();
-        }
-
-        // 🔹 Datos extra según tipo
-        if (tipo === "ALIMENTO" && inputFechaVencimiento && inputFechaVencimiento.value) {
-            body.vencimiento = inputFechaVencimiento.value; // ej: "2025-12-31"
-        }
-        if (tipo === "MEDICINA" && inputTipoMedicamento && inputTipoMedicamento.value.trim()) {
-            body.medicamento = inputTipoMedicamento.value.trim(); // ej: "Analgésico"
-        }
-
-        try {
-            const respuesta = await fetch("/api/recursos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            });
-
-            if (!respuesta.ok) {
-                const texto = await respuesta.text();
-                alert("Datos inválidos al crear recurso: " + texto);
+            if (!ubicacion || !tipo || !cantidad || cantidad <= 0) {
+                alert("Por favor completa correctamente los datos del recurso.");
                 return;
             }
 
-            formularioRecurso.reset();
-            actualizarCamposTipo(); // volver a ocultar/mostrar campos extra
-            mostrarOK();
-            listarRecursos();
+            const body = {
+                tipo: tipo,
+                cantidad: cantidad,
+                ubicacion: ubicacion
+            };
 
-        } catch (err) {
-            console.error("Error al crear recurso:", err);
-            alert("Ocurrió un error al comunicarse con el servidor.");
-        }
-    });
+            if (inputNombreRecurso) {
+                body.nombre = inputNombreRecurso.value.trim();
+            }
+            if (tipo === "ALIMENTO" && inputFechaVencimiento && inputFechaVencimiento.value) {
+                body.vencimiento = inputFechaVencimiento.value;
+            }
+            if (tipo === "MEDICINA" && inputTipoMedicamento && inputTipoMedicamento.value.trim()) {
+                body.medicamento = inputTipoMedicamento.value.trim();
+            }
 
-    // =============== ENVIAR FORMULARIO EQUIPO (CREAR EQUIPO) ===============
-    formularioEquipo.addEventListener("submit", async (evento) => {
-        evento.preventDefault();
+            try {
+                const respuesta = await fetch("/api/recursos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
 
-        const nombre = inputNombreEquipo.value.trim();
-        const tipo   = inputTipoEquipo.value.trim();
-        const miembros = Number(inputMiembros.value);
-        const ubicacion = selectUbicacionEq.value; // viene del select
+                if (!respuesta.ok) {
+                    const texto = await respuesta.text();
+                    alert("Datos inválidos al crear recurso: " + texto);
+                    return;
+                }
 
-        if (!nombre || !tipo || !ubicacion || !miembros || miembros <= 0) {
-            alert("Por favor completa correctamente los datos del equipo.");
-            return;
-        }
+                formularioRecurso.reset();
+                actualizarCamposTipo();
+                mostrarOK();
+                listarRecursos();
 
-        const body = {
-            nombre: nombre,
-            tipo: tipo,
-            miembros: miembros,
-            ubicacion: ubicacion
-        };
+            } catch (err) {
+                console.error("Error al crear recurso:", err);
+                alert("Ocurrió un error al comunicarse con el servidor.");
+            }
+        });
+    }
 
-        try {
-            const respuesta = await fetch("/api/equipos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            });
+    // =============== ENVIAR FORMULARIO EQUIPO (solo si existiera en esta página) ===============
+    if (formularioEquipo && inputNombreEquipo && inputTipoEquipo && inputMiembros && selectUbicacionEq) {
+        formularioEquipo.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
 
-            if (!respuesta.ok) {
-                const texto = await respuesta.text();
-                alert("Datos inválidos al crear equipo: " + texto);
+            const nombre   = inputNombreEquipo.value.trim();
+            const tipo     = inputTipoEquipo.value.trim();
+            const miembros = Number(inputMiembros.value);
+            const ubicacion = selectUbicacionEq.value;
+
+            if (!nombre || !tipo || !ubicacion || !miembros || miembros <= 0) {
+                alert("Por favor completa correctamente los datos del equipo.");
                 return;
             }
 
-            formularioEquipo.reset();
-            mostrarOK();
-            listarEquipos();
+            const body = { nombre, tipo, miembros, ubicacion };
 
-        } catch (err) {
-            console.error("Error al crear equipo:", err);
-            alert("Ocurrió un error al comunicarse con el servidor.");
-        }
-    });
+            try {
+                const respuesta = await fetch("/api/equipos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
 
-    // =============== 🔴 ENVIAR FORMULARIO ASIGNAR EQUIPO EXISTENTE ===============
+                if (!respuesta.ok) {
+                    const texto = await respuesta.text();
+                    alert("Datos inválidos al crear equipo: " + texto);
+                    return;
+                }
+
+                formularioEquipo.reset();
+                mostrarOK();
+                listarEquipos();
+
+            } catch (err) {
+                console.error("Error al crear equipo:", err);
+                alert("Ocurrió un error al comunicarse con el servidor.");
+            }
+        });
+    }
+
+    // =============== ASIGNAR EQUIPO EXISTENTE ===============
     if (formularioAsignarEquipo && selectEquipoExistente && selectUbicacionAsignar) {
         formularioAsignarEquipo.addEventListener("submit", async (evento) => {
             evento.preventDefault();
 
-            const nombreEquipo   = selectEquipoExistente.value;
+            const nombreEquipo    = selectEquipoExistente.value;
             const nombreUbicacion = selectUbicacionAsignar.value;
 
             if (!nombreEquipo) {
@@ -391,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 formularioAsignarEquipo.reset();
                 mostrarOK();
-                listarEquipos(); // para actualizar la columna "Ubicación" en la tabla
+                listarEquipos();
 
             } catch (err) {
                 console.error("Error al asignar equipo:", err);
