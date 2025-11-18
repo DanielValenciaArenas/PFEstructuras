@@ -268,7 +268,7 @@ public class WebServer {
                     return;
                 }
 
-                // GET general (para recursos.js)
+                // GET general (para recursos.js y distribucion.js)
                 List<String> json=new ArrayList<>();
                 for(Recurso r: sistema.getMapaRecursos().obtenerTodosLosRecursos()){
 
@@ -290,9 +290,11 @@ public class WebServer {
 
                     String nombre = esc(r.getNombre() != null ? r.getNombre() : "");
                     String nomUbi = r.getUbicacion()!=null ? esc(r.getUbicacion().getNombre()) : "Sin ubicación";
+                    String idRec  = esc(r.getIdRecurso() != null ? r.getIdRecurso() : "");
 
                     StringBuilder sb = new StringBuilder();
                     sb.append("{")
+                            .append("\"id\":\"").append(idRec).append("\",")
                             .append("\"tipo\":\"").append(tipo).append("\",")
                             .append("\"nombre\":\"").append(nombre).append("\",")
                             .append("\"cantidad\":").append(r.getCantidad()).append(",")
@@ -386,7 +388,9 @@ public class WebServer {
                     );
                 }
 
-                sistema.getMapaRecursos().agregarRecurso(u, rec);
+                // ✅ Registramos en mapa + árbol de distribución
+                sistema.registrarRecurso(u, rec);
+
                 guardarSistemaEnJson();
                 try {
                     enviarTexto(ex,200,"{\"ok\":true}");
@@ -400,6 +404,50 @@ public class WebServer {
                 enviarTexto(ex,405,"{}");
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        });
+
+        // 🔹 NUEVO ENDPOINT: DISTRIBUCIÓN PRIORITARIA DE RECURSOS
+        server.createContext("/api/recursos/distribuirPrioridad", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
+
+            if (!"POST".equals(ex.getRequestMethod())) {
+                try {
+                    enviarTexto(ex,405,"{}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            try {
+                Map<String,String> m = tinyJson(cuerpo(ex));
+                String origen        = trimOrNull(m.get("origen"));
+                String idRecurso     = trimOrNull(m.get("idRecurso"));
+                int cantidadPorZona  = (int)parseDoubleSafe(m.getOrDefault("cantidadPorZona","0"),0);
+
+                // Llamamos a la lógica de SistemaGestionDesastres (usa MapaRecursos + ArbolDistribuido)
+                List<String> log = sistema.distribuirRecursoPrioritario(origen, idRecurso, cantidadPorZona);
+                guardarSistemaEnJson();
+
+                // Convertir lista de mensajes a JSON simple: ["msg1","msg2",...]
+                StringBuilder sb = new StringBuilder("[");
+                for (int i = 0; i < log.size(); i++) {
+                    if (i > 0) sb.append(",");
+                    sb.append("\"").append(esc(log.get(i))).append("\"");
+                }
+                sb.append("]");
+
+                enviarTexto(ex,200,sb.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    String msg = "[\"Error interno en la distribución: " + esc(e.getMessage()) + "\"]";
+                    enviarTexto(ex,500,msg);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         });
 

@@ -1,6 +1,14 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
 public class ArbolDistribuido {
+    public NodoDistribucion getRaiz() {
+        return raiz;
+    }
+
+    public void setRaiz(NodoDistribucion raiz) {
+        this.raiz = raiz;
+    }
+
     private NodoDistribucion raiz;
 
     public ArbolDistribuido() {
