@@ -43,30 +43,6 @@
   ],
   "rutas": [
     {
-      "id": "R104175488034200",
-      "origenNombre": "Granada",
-      "destinoNombre": "El bosque",
-      "distancia": 18.0
-    },
-    {
-      "id": "R104136594194900",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "Granada",
-      "distancia": 25.0
-    },
-    {
-      "id": "R104105974959000",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "Alamos",
-      "distancia": 8.0
-    },
-    {
-      "id": "R104092939371200",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "El bosque",
-      "distancia": 20.0
-    },
-    {
       "id": "R2",
       "origenNombre": "Refugio B",
       "destinoNombre": "Centro C",
@@ -83,111 +59,9 @@
       "origenNombre": "Ciudad A",
       "destinoNombre": "Refugio B",
       "distancia": 2.5
-    },
-    {
-      "id": "R12041261827500",
-      "origenNombre": "El bosque",
-      "destinoNombre": "Alamos",
-      "distancia": 12.0
     }
   ],
   "recursos": [
-    {
-      "id": "RA104203078120700-P104559685081700",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684717300",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559682101400",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA81086998329300",
-      "nombre": "Atun",
-      "cantidad": 7,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-13"
-    },
-    {
-      "id": "RA16173423774900",
-      "nombre": "ALIMENTO",
-      "cantidad": 10,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-12-16"
-    },
-    {
-      "id": "RA101297023823300",
-      "nombre": "Atun",
-      "cantidad": 500,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA101314092427300",
-      "nombre": "Soda",
-      "cantidad": 200,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-28"
-    },
-    {
-      "id": "RA104203078120700-P104559681606800",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684277200",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375342621400",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534144892500",
-      "nombre": "pildoras",
-      "cantidad": 66,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
-      "tipo": "MEDICINA",
-      "extra": "General"
-    },
     {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
@@ -197,26 +71,26 @@
       "extra": "General"
     },
     {
-      "id": "RA104203078120700-P104559683778100",
+      "id": "RA104203078120700-P104559683273600",
       "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Alamos",
+      "cantidad": 16,
+      "nombreUbicacion": "El bosque",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RA104203078120700-P105375342896100",
+      "id": "RA104203078120700",
       "nombre": "Atun",
-      "cantidad": 50,
-      "nombreUbicacion": "Alamos",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RM105509827738900-P105534145030800",
+      "id": "RM105509827738900-P105534145105500",
       "nombre": "pildoras",
-      "cantidad": 200,
-      "nombreUbicacion": "Alamos",
+      "cantidad": 68,
+      "nombreUbicacion": "El bosque",
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
@@ -275,38 +149,6 @@
       "nombreUbicacion": "Ciudad A",
       "tipo": "MEDICINA",
       "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559685639000",
-      "nombre": "Atun",
-      "cantidad": 40,
-      "nombreUbicacion": "Granada",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375319172300",
-      "nombre": "Atun",
-      "cantidad": 33,
-      "nombreUbicacion": "Granada",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534144587700",
-      "nombre": "pildoras",
-      "cantidad": 133,
-      "nombreUbicacion": "Granada",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559685475500",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "__SIN_UBICACION__",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
     },
     {
       "id": "RA104203078120700-P104559682041700",
@@ -405,34 +247,90 @@
       "extra": "calmante"
     },
     {
-      "id": "RM105509827738900",
-      "nombre": "pildoras",
-      "cantidad": 200,
-      "nombreUbicacion": "Bodega Opalo",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559683273600",
+      "id": "RA104203078120700-P104559685081700",
       "nombre": "Atun",
       "cantidad": 16,
-      "nombreUbicacion": "El bosque",
+      "nombreUbicacion": "Refugio B",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RA104203078120700",
+      "id": "RA104203078120700-P104559684717300",
       "nombre": "Atun",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 16,
+      "nombreUbicacion": "Refugio B",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RM105509827738900-P105534145105500",
+      "id": "RA104203078120700-P104559682101400",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA81086998329300",
+      "nombre": "Atun",
+      "cantidad": 7,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-13"
+    },
+    {
+      "id": "RA16173423774900",
+      "nombre": "ALIMENTO",
+      "cantidad": 10,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-12-16"
+    },
+    {
+      "id": "RA101297023823300",
+      "nombre": "Atun",
+      "cantidad": 500,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA101314092427300",
+      "nombre": "Soda",
+      "cantidad": 200,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-28"
+    },
+    {
+      "id": "RA104203078120700-P104559681606800",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P104559684277200",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P105375342621400",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534144892500",
       "nombre": "pildoras",
-      "cantidad": 68,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 66,
+      "nombreUbicacion": "Refugio B",
       "tipo": "MEDICINA",
       "extra": "calmante"
     }
@@ -472,8 +370,7 @@
       "id": "EV17768977227791",
       "prioridad": 3,
       "cantidadPersonas": 4,
-      "estado": "PENDIENTE",
-      "nombreUbicacion": "Alamos"
+      "estado": "PENDIENTE"
     },
     {
       "id": "EV15730057916500",
@@ -486,8 +383,7 @@
       "id": "EV49972945098300",
       "prioridad": 1,
       "cantidadPersonas": 13,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "Alamos"
+      "estado": "COMPLETADA"
     }
   ]
 }
