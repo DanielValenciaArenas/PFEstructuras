@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * Servidor HTTP ligero para exponer interfaces HTML y APIs.
- * Login con dos cuentas demo (admin/oper).
+ * Login con cuentas demo (admin/oper) y usuarios registrados en runtime.
  */
 public class WebServer {
 
@@ -25,6 +25,16 @@ public class WebServer {
     private final List<EquipoRescate> equiposSinUbicacion = new ArrayList<>();
     private Ubicacion ubicacionBodegaEquipos;
     private static final String NOMBRE_BODEGA_EQUIPOS = "__SIN_UBICACION__";
+
+    // 🔹 Usuarios registrados dinámicamente (además de los demo)
+    private final Map<String, UsuarioRegistrado> usuariosRegistrados = new HashMap<>();
+
+    private static class UsuarioRegistrado {
+        String usuario;
+        String nombre;
+        String rol;        // "ADMINISTRADOR" o "OPERADOR"
+        String contrasena;
+    }
 
     // ======== Cuentas demo =========
     private static final String ADMIN_USER = "admin";
@@ -739,6 +749,65 @@ public class WebServer {
             }
         });
 
+        // ---------- REGISTRO DE USUARIOS ----------
+        server.createContext("/api/registro", ex -> {
+            Headers h = ex.getResponseHeaders();
+            h.add("Content-Type","application/json; charset=utf-8");
+
+            if (!"POST".equals(ex.getRequestMethod())) {
+                try {
+                    enviarTexto(ex,405,"{}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            try {
+                Map<String,String> m = tinyJson(cuerpo(ex));
+                String usuario = trimOrNull(m.get("usuario"));
+                String contrasena = trimOrNull(m.get("contrasena"));
+                String nombre = trimOrNull(m.get("nombre"));
+                String rol = trimOrNull(m.get("rol"));
+
+                if (usuario == null || contrasena == null || nombre == null || rol == null) {
+                    enviarTexto(ex,400,"{\"ok\":false,\"error\":\"Datos incompletos\"}");
+                    return;
+                }
+
+                rol = rol.toUpperCase(Locale.ROOT);
+                if (!"ADMINISTRADOR".equals(rol) && !"OPERADOR".equals(rol)) {
+                    enviarTexto(ex,400,"{\"ok\":false,\"error\":\"Rol inválido\"}");
+                    return;
+                }
+
+                // Evitar duplicados con usuarios ya registrados o demo
+                if (usuariosRegistrados.containsKey(usuario)
+                        || ADMIN_USER.equals(usuario)
+                        || OPER_USER.equals(usuario)) {
+                    enviarTexto(ex,400,"{\"ok\":false,\"error\":\"Ese usuario ya existe\"}");
+                    return;
+                }
+
+                UsuarioRegistrado ur = new UsuarioRegistrado();
+                ur.usuario = usuario;
+                ur.nombre = nombre;
+                ur.rol = rol;
+                ur.contrasena = contrasena;
+
+                usuariosRegistrados.put(usuario, ur);
+
+                enviarTexto(ex,200,"{\"ok\":true}");
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    enviarTexto(ex,500,"{\"ok\":false,\"error\":\"Error interno\"}");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
         // ---------- LOGIN ----------
         server.createContext("/api/login", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
@@ -754,6 +823,32 @@ public class WebServer {
             String usr = trimOrNull(m.get("usuario"));
             String pwd = trimOrNull(m.get("contrasena"));
 
+            if (usr == null || pwd == null) {
+                try {
+                    enviarTexto(ex,401,"{\"ok\":false}");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            // 1️⃣ Primero, probar con usuarios registrados dinámicamente
+            UsuarioRegistrado ur = usuariosRegistrados.get(usr);
+            if (ur != null && ur.contrasena.equals(pwd)) {
+                String json = String.format(
+                        "{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}",
+                        esc(ur.rol),
+                        esc(ur.nombre)
+                );
+                try {
+                    enviarTexto(ex,200,json);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            // 2️⃣ Si no coincide, usar las cuentas demo hardcodeadas
             if (ADMIN_USER.equals(usr) && ADMIN_PASS.equals(pwd)) {
                 try {
                     enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", ADMIN_ROLE, ADMIN_NAME));
