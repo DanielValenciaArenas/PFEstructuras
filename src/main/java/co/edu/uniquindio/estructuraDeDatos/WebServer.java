@@ -389,8 +389,7 @@ public class WebServer {
                 }
 
                 // ✅ Registramos en mapa + árbol de distribución
-                sistema.registrarRecurso(u, rec);
-
+                sistema.getMapaRecursos().agregarRecurso(u, rec);
                 guardarSistemaEnJson();
                 try {
                     enviarTexto(ex,200,"{\"ok\":true}");
