@@ -1,38 +1,6 @@
 {
   "ubicaciones": [
     {
-      "id": "U104126335336400",
-      "nombre": "Granada",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 4.5443454031202455,
-      "longitud": -75.6739944620823
-    },
-    {
-      "id": "U104070285828800",
-      "nombre": "Bodega Opalo",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "LEVE",
-      "latitud": 4.539625669957919,
-      "longitud": -75.66773234789825
-    },
-    {
-      "id": "U_BODEGA_EQUIPOS",
-      "nombre": "__SIN_UBICACION__",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "LEVE",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
-    },
-    {
       "id": "U2",
       "nombre": "Refugio B",
       "tipoZona": "REFUGIO",
@@ -56,6 +24,8 @@
       "latitud": 2.0,
       "longitud": 2.0
     },
+
+
     {
       "id": "U2",
       "nombre": "Refugio B",
@@ -63,46 +33,6 @@
       "nivelAfectacion": "LEVE",
       "latitud": 1.0,
       "longitud": 1.0
-    },
-    {
-      "id": "U1",
-      "nombre": "Ciudad A",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U1",
-      "nombre": "Ciudad A",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U2",
-      "nombre": "Refugio B",
-      "tipoZona": "REFUGIO",
-      "nivelAfectacion": "LEVE",
-      "latitud": 1.0,
-      "longitud": 1.0
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
-    },
-    {
-      "id": "U11955740345200",
-      "nombre": "Alamos",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 4.54077464711482,
-      "longitud": -75.67336713492051
     },
     {
       "id": "U11988680639200",
@@ -111,54 +41,6 @@
       "nivelAfectacion": "LEVE",
       "latitud": 4.539470543182852,
       "longitud": -75.67751995090067
-    },
-    {
-      "id": "U1",
-      "nombre": "Ciudad A",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U2",
-      "nombre": "Refugio B",
-      "tipoZona": "REFUGIO",
-      "nivelAfectacion": "LEVE",
-      "latitud": 1.0,
-      "longitud": 1.0
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
-    },
-    {
-      "id": "U1",
-      "nombre": "Ciudad A",
-      "tipoZona": "CIUDAD",
-      "nivelAfectacion": "MODERADO",
-      "latitud": 0.0,
-      "longitud": 0.0
-    },
-    {
-      "id": "U2",
-      "nombre": "Refugio B",
-      "tipoZona": "REFUGIO",
-      "nivelAfectacion": "LEVE",
-      "latitud": 1.0,
-      "longitud": 1.0
-    },
-    {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
     }
   ],
   "rutas": [
@@ -193,30 +75,6 @@
       "distancia": 3.0
     },
     {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
-    },
-    {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
-    },
-    {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
-    },
-    {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
-    },
-    {
       "id": "R3",
       "origenNombre": "Ciudad A",
       "destinoNombre": "Centro C",
@@ -228,54 +86,7 @@
       "destinoNombre": "Refugio B",
       "distancia": 2.5
     },
-    {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
-    },
-    {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
-    },
-    {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
-    },
-    {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
-      "id": "R1",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Refugio B",
-      "distancia": 2.5
-    },
-    {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
+
     {
       "id": "R12041261827500",
       "origenNombre": "El bosque",
@@ -383,8 +194,8 @@
     {
       "id": "RM16138741810600",
       "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
       "tipo": "MEDICINA",
       "extra": "General"
     },
@@ -635,21 +446,14 @@
       "nombre": "Los capos",
       "tipo": "bomberos",
       "miembros": 8,
-      "nombreUbicacion": "Alamos"
-    },
-    {
-      "id": "EQ83455292153900",
-      "nombre": "Los mejores",
-      "tipo": "Policias",
-      "miembros": 8,
       "nombreUbicacion": "El bosque"
     },
     {
-      "id": "EQ80888514951000",
-      "nombre": "Los mejores",
+      "id": "EQ16552362510000",
+      "nombre": "Yasuri",
       "tipo": "Policias",
-      "miembros": 8,
-      "nombreUbicacion": "Refugio B"
+      "miembros": 4,
+      "nombreUbicacion": "El bosque"
     }
   ],
   "evacuaciones": [
