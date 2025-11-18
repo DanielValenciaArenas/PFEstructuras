@@ -24,8 +24,6 @@
       "latitud": 2.0,
       "longitud": 2.0
     },
-
-
     {
       "id": "U11955740345200",
       "nombre": "Alamos",
@@ -62,7 +60,6 @@
       "destinoNombre": "Refugio B",
       "distancia": 2.5
     },
-
     {
       "id": "R12041261827500",
       "origenNombre": "El bosque",
@@ -71,6 +68,22 @@
     }
   ],
   "recursos": [
+    {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "General"
+    },
+    {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 15,
+      "nombreUbicacion": "Alamos",
+      "tipo": "MEDICINA",
+      "extra": "General"
+    },
     {
       "id": "RA81086998329300",
       "nombre": "Atun",
@@ -86,22 +99,6 @@
       "nombreUbicacion": "Refugio B",
       "tipo": "ALIMENTO",
       "extra": "2025-12-16"
-    },
-    {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
-      "tipo": "MEDICINA",
-      "extra": "General"
-    },
-    {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "General"
     }
   ],
   "equipos": [
@@ -134,6 +131,13 @@
       "cantidadPersonas": 3,
       "estado": "COMPLETADA",
       "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EV17768977227791",
+      "prioridad": 3,
+      "cantidadPersonas": 4,
+      "estado": "PENDIENTE",
+      "nombreUbicacion": "Alamos"
     },
     {
       "id": "EV15730057916500",
