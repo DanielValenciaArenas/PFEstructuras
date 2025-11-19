@@ -63,6 +63,10 @@ public class SistemaGestionDesastres {
         if (r != null) grafo.agregarRuta(r);
     }
 
+    public List<Ubicacion> getUbicaciones() {
+        return grafo.obtenerTodasLasUbicaciones();
+    }
+
     // =============================
     // EVACUACIONES
     // =============================
@@ -81,11 +85,11 @@ public class SistemaGestionDesastres {
                 .count();
     }
 
+    /** Elimina una evacuación por id de la cola de prioridad. */
     public boolean eliminarEvacuacionPorId(String id) {
         if (id == null) return false;
         return colaEvacuaciones.eliminarPorId(id);
     }
-
 
     // =============================
     // RUTAS / SIMULACIONES
@@ -111,16 +115,12 @@ public class SistemaGestionDesastres {
         return mapaRecursos;
     }
 
-    public List<Usuario> getUsuarios() {
-        return usuarios;
-    }
-
-    public List<Ubicacion> getUbicaciones() {
-        return grafo.obtenerTodasLasUbicaciones();
-    }
-
     public ArbolDistribuido getArbolDistribucion() {
         return arbolDistribucion;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
     }
 
     // =============================
@@ -288,6 +288,7 @@ public class SistemaGestionDesastres {
             int peso;
         }
 
+        // Usamos un mapa por ID de ubicación para evitar duplicados
         Map<String, DestinoPeso> destinosMap = new LinkedHashMap<>();
         int sumaPesos = 0;
 
@@ -296,13 +297,14 @@ public class SistemaGestionDesastres {
             if (u == origen) continue;
             if (NOMBRE_BODEGA_EQUIPOS.equals(u.getNombre())) continue;
 
-            // Evitar duplicados
+            // Evitar duplicados: si ya vimos esta id, la ignoramos
             if (destinosMap.containsKey(u.getIdUbicacion())) continue;
 
             int prio = prioridadPorNivel(u.getNivelAfectacion());
             if (prio <= 0) continue;
 
             int numPersonas = (u.getPersonas() != null) ? u.getPersonas().size() : 0;
+            // si no hay personas, usamos 1 para que la zona no quede fuera
             int peso = prio * (numPersonas > 0 ? numPersonas : 1);
 
             DestinoPeso d = new DestinoPeso();

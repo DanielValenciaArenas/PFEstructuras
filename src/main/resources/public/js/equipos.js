@@ -2,6 +2,7 @@
 // Pantalla "Equipos de rescate":
 //  - Crea equipos SIN ubicación inicial
 //  - Lista todos los equipos y muestra su ubicación actual (si tienen)
+//  - 🔴 Ahora también permite eliminar equipos
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -17,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const resp = await fetch("/api/equipos");
             if (!resp.ok) {
                 tablaEquipos.innerHTML =
-                    '<tr><td colspan="4" class="muted center">No se pudieron cargar los equipos</td></tr>';
+                    '<tr><td colspan="5" class="muted center">No se pudieron cargar los equipos</td></tr>';
                 return;
             }
 
@@ -25,23 +26,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!data || data.length === 0) {
                 tablaEquipos.innerHTML =
-                    '<tr><td colspan="4" class="muted center">No hay equipos registrados</td></tr>';
+                    '<tr><td colspan="5" class="muted center">No hay equipos registrados</td></tr>';
                 return;
             }
 
+            // 🔴 CAMBIO: agrego una columna con botón "Eliminar"
             tablaEquipos.innerHTML = data.map(e => `
                 <tr>
                     <td>${e.nombre}</td>
                     <td>${e.tipo}</td>
                     <td>${e.miembros}</td>
                     <td>${e.ubicacion || "Sin ubicación"}</td>
+                    <td>
+                        <button
+                            class="btn btn-danger btn-sm btn-eliminar-equipo"
+                            data-nombre="${e.nombre}">
+                            Eliminar
+                        </button>
+                    </td>
                 </tr>
             `).join("");
 
         } catch (err) {
             console.error("Error cargando equipos:", err);
             tablaEquipos.innerHTML =
-                '<tr><td colspan="4" class="muted center">Error cargando equipos</td></tr>';
+                '<tr><td colspan="5" class="muted center">Error cargando equipos</td></tr>';
         }
     }
 
@@ -86,6 +95,40 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Error de comunicación con el servidor.");
         }
     });
+
+    // ------- 🔴 Eliminar equipo (delegación de eventos en la tabla) -------
+    if (tablaEquipos) {
+        tablaEquipos.addEventListener("click", async (ev) => {
+            const btn = ev.target.closest(".btn-eliminar-equipo");
+            if (!btn) return;
+
+            const nombre = btn.dataset.nombre;
+            if (!nombre) return;
+
+            const ok = confirm(`¿Seguro que deseas eliminar el equipo "${nombre}"?`);
+            if (!ok) return;
+
+            try {
+                const resp = await fetch(
+                    `/api/equipos/eliminar?nombre=${encodeURIComponent(nombre)}`,
+                    { method: "DELETE" }
+                );
+
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    alert("No se pudo eliminar el equipo. Detalle: " + txt);
+                    return;
+                }
+
+                // Recargar la tabla
+                listarEquipos();
+
+            } catch (err) {
+                console.error("Error eliminando equipo:", err);
+                alert("Error de comunicación con el servidor.");
+            }
+        });
+    }
 
     // Inicio
     listarEquipos();

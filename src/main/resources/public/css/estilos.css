@@ -362,6 +362,21 @@ body {
     color: var(--ink);
     font-weight: 600;
 }
+.btn-logout {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+}
 
 .status {
   padding:3px 10px;
