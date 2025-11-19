@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Iniciar sesión — PFEstructuras</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="shell">
+<header class="top">
+    <div class="brand">PFEstructuras</div>
+</header>
+
+<main class="container">
+    <div class="card card-center" style="max-width:420px">
+        <h2>Iniciar sesión</h2>
+        <p class="muted">Usa las credenciales proporcionadas por el admin.</p>
+
+        <form id="frmLogin" class="mt">
+            <div class="row">
+                <input id="txtUsuario" placeholder="Usuario" required>
+            </div>
+            <div class="row">
+                <input id="txtClave" type="password" placeholder="Contraseña" required>
+            </div>
+            <div class="row">
+                <button class="btn" type="submit">Entrar</button>
+            </div>
+        </form>
+
+        <div id="msg" class="pill mt" style="display:none"></div>
+
+        <hr class="mt">
+
+        <h3>Registrarse</h3>
+        <p class="muted">Crea una cuenta como administrador u operador.</p>
+
+        <form id="frmRegistro" class="mt">
+            <div class="row">
+                <input id="regNombre" placeholder="Nombre completo" required>
+            </div>
+            <div class="row">
+                <input id="regUsuario" placeholder="Usuario" required>
+            </div>
+            <div class="row">
+                <select id="regRol" required>
+                    <option value="">Tipo de usuario…</option>
+                    <option value="ADMINISTRADOR">Administrador</option>
+                    <option value="OPERADOR">Operador</option>
+                </select>
+            </div>
+            <div class="row">
+                <input id="regClave" type="password" placeholder="Contraseña" required>
+            </div>
+            <div class="row">
+                <button class="btn" type="submit">Crear cuenta</button>
+            </div>
+        </form>
+
+        <div id="msgReg" class="pill mt" style="display:none"></div>
+
+        <details class="mt">
+            <summary>¿Necesitas datos de prueba?</summary>
+            <div class="mt-8">
+                <ul>
+                    <li>Administrador: <b>admin</b> / <b>admin123</b></li>
+                    <li>Operador: <b>oper</b> / <b>oper123</b></li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</main>
+
+<script src="/public/js/auth.js"></script>
+<script>
+    if (Auth.isLogged()) {
+        location.replace("/public/dashboard.html");
+    }
+
+    // LOGIN
+    document.getElementById("frmLogin").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+
+        const usuario = document.getElementById("txtUsuario").value.trim();
+        const contrasena = document.getElementById("txtClave").value.trim();
+        const ok = await Auth.login(usuario, contrasena);
+
+        const box = document.getElementById("msg");
+
+        if (!ok) {
+            box.textContent = "Usuario o contraseña inválidos";
+            box.style.display = "inline-block";
+            return;
+        }
+
+    });
+
+    // REGISTRO
+    document.getElementById("frmRegistro").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+
+        const nombre = document.getElementById("regNombre").value.trim();
+        const usuario = document.getElementById("regUsuario").value.trim();
+        const rol = document.getElementById("regRol").value;
+        const contrasena = document.getElementById("regClave").value.trim();
+
+        const box = document.getElementById("msgReg");
+        box.style.display = "none";
+
+        if (!nombre || !usuario || !rol || !contrasena) {
+            box.textContent = "Por favor completa todos los campos.";
+            box.style.display = "inline-block";
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/registro", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ nombre, usuario, rol, contrasena })
+            });
+
+            const txt = await res.text();
+            let data = null;
+            try { data = JSON.parse(txt); } catch {}
+
+            if (!res.ok || !data || !data.ok) {
+                box.textContent = data && data.error
+                    ? data.error
+                    : "No se pudo registrar el usuario.";
+                box.style.display = "inline-block";
+                return;
+            }
+
+            box.textContent = "Usuario registrado correctamente. Ya puedes iniciar sesión.";
+            box.style.display = "inline-block";
+            document.getElementById("frmRegistro").reset();
+
+        } catch (err) {
+            box.textContent = "Error de conexión con el servidor.";
+            box.style.display = "inline-block";
+        }
+    });
+</script>
+</body>
+</html>

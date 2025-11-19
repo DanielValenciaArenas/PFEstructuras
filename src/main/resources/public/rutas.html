@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>PFEstructuras — Rutas</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="shell">
+
+<header class="top">
+    <div class="brand">PFEstructuras — Rutas</div>
+    <div class="user">
+        <span id="who"></span>
+        <button id="btnLogout" class="btn outline">Salir</button>
+    </div>
+</header>
+
+<main class="container">
+    <section class="card">
+        <h2>Ruta más corta</h2>
+        <p>
+            Selecciona una <strong>ubicación de origen</strong> y una
+            <strong>ubicación de destino</strong>. El sistema calculará la
+            ruta más corta usando las rutas registradas en el mapa interactivo.
+        </p>
+
+        <form id="formRutaCorta" class="form-grid">
+            <div class="campo">
+                <label for="origen">Origen</label>
+                <select id="origen" required>
+                    <option value="">Cargando ubicaciones...</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="destino">Destino</label>
+                <select id="destino" required>
+                    <option value="">Cargando ubicaciones...</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <button type="submit" class="btn">Calcular ruta más corta</button>
+            </div>
+        </form>
+
+        <h3>Resultado</h3>
+        <pre id="resultado" class="resultado">
+Seleccione origen y destino, luego pulse "Calcular ruta más corta".
+        </pre>
+    </section>
+</main>
+
+<footer class="foot">
+    © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/rutas.js"></script>
+</body>
+</html>

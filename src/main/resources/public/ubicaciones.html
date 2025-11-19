@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>PFEstructuras — Ubicaciones</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="shell">
+
+<header class="top">
+    <div class="brand">PFEstructuras — Ubicaciones</div>
+    <div class="user">
+        <span id="who"></span>
+        <button id="btnLogout" class="btn outline">Salir</button>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h2>Ubicaciones registradas</h2>
+        <p>
+            Aquí se muestran las <strong>ubicaciones</strong> creadas en el
+            <strong>mapa interactivo</strong>, junto con información extra:
+            recursos, equipos de rescate y personas asociadas.
+        </p>
+        <p>
+            Desde esta pantalla <strong>no se crean ubicaciones</strong>. Toda
+            la creación y edición de ubicaciones y rutas se hace en el
+            <strong>Mapa Interactivo</strong>.
+        </p>
+        <p>
+            Desde aquí también puedes <strong>eliminar una ubicación</strong>
+            usando el botón correspondiente en cada tarjeta. Al eliminarla,
+            se eliminan también sus rutas y datos asociados en el sistema.
+        </p>
+
+        <div id="listaUbicaciones" class="lista-ubicaciones"></div>
+    </section>
+
+</main>
+
+<footer class="foot">
+    © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/ubicaciones.js"></script>
+</body>
+</html>

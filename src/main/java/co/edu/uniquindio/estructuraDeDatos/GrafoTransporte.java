@@ -1,83 +1,231 @@
 package co.edu.uniquindio.estructuraDeDatos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GrafoTransporte {
-    private Map<Ubicacion, List<Ruta>> adyacencia;
 
-    public GrafoTransporte() {
-        adyacencia = new HashMap<>();
+    private NodoUbicacion primero;
+
+    // Agregar una ubicación (nodo) al grafo
+    public void agregarUbicacion(Ubicacion u) {
+        if (u == null || buscarNodo(u) != null) return;
+        NodoUbicacion nuevo = new NodoUbicacion(u);
+        nuevo.siguiente = primero;
+        primero = nuevo;
     }
 
-    // Agregar una ubicación (nodo)
-    public void agregarUbicacion(Ubicacion ubicacion) {
-        if (!adyacencia.containsKey(ubicacion)) {
-            adyacencia.put(ubicacion, new ArrayList<>());
+    // Agregar una ruta (arista) al grafo
+    public void agregarRuta(Ruta r) {
+        if (r == null) return;
+
+        // Asegurar que origen y destino están en el grafo
+        agregarUbicacion(r.getOrigen());
+        agregarUbicacion(r.getDestino());
+
+        NodoUbicacion nodoOrigen = buscarNodo(r.getOrigen());
+        if (nodoOrigen == null) return;
+
+        NodoRuta nueva = new NodoRuta(r);
+        nueva.siguiente = nodoOrigen.primeraRuta;
+        nodoOrigen.primeraRuta = nueva;
+    }
+
+    // Buscar un nodo de ubicación dentro del grafo
+    private NodoUbicacion buscarNodo(Ubicacion u) {
+        NodoUbicacion aux = primero;
+        while (aux != null) {
+            if (aux.ubicacion.equals(u)) return aux;
+            aux = aux.siguiente;
+        }
+        return null;
+    }
+
+    // Eliminar una ubicación del grafo y todas las rutas que la usen
+    public void eliminarUbicacion(Ubicacion u) {
+        if (u == null || primero == null) return;
+
+        // Eliminar el nodo de la lista de ubicaciones
+        if (primero.ubicacion.equals(u)) {
+            primero = primero.siguiente;
+        } else {
+            NodoUbicacion ant = primero;
+            NodoUbicacion act = primero.siguiente;
+            while (act != null) {
+                if (act.ubicacion.equals(u)) {
+                    ant.siguiente = act.siguiente;
+                    break;
+                }
+                ant = act;
+                act = act.siguiente;
+            }
+        }
+
+        // Eliminar todas las rutas que apunten a esa ubicación
+        NodoUbicacion aux = primero;
+        while (aux != null) {
+            NodoRuta rAct = aux.primeraRuta;
+            NodoRuta antR = null;
+
+            while (rAct != null) {
+                boolean tocaBorrar =
+                        rAct.ruta.getOrigen().equals(u) ||
+                                rAct.ruta.getDestino().equals(u);
+
+                if (tocaBorrar) {
+                    if (antR == null) {
+                        aux.primeraRuta = rAct.siguiente;
+                    } else {
+                        antR.siguiente = rAct.siguiente;
+                    }
+                    rAct = (antR == null) ? aux.primeraRuta : antR.siguiente;
+                } else {
+                    antR = rAct;
+                    rAct = rAct.siguiente;
+                }
+            }
+
+            aux = aux.siguiente;
         }
     }
 
-    // Agregar ruta (arista dirigida)
-    public void agregarRuta(Ruta ruta) {
-        adyacencia.get(ruta.getOrigen()).add(ruta);
-    }
-
-    // Buscar camino más corto (DIJKSTRA)
+    // Calculo del camino más corto entre origen y destino usando algoritmo de Dijkstra
     public List<Ubicacion> buscarCaminoDijkstra(Ubicacion origen, Ubicacion destino) {
 
-        Map<Ubicacion, Double> distancias = new HashMap<>();
-        Map<Ubicacion, Ubicacion> nodosCamino = new HashMap<>();
-        Set<Ubicacion> noVisitados = new HashSet<>(adyacencia.keySet());
+        if (origen == null || destino == null) return null;
 
-        for (Ubicacion ubicacion : adyacencia.keySet()) {
-            distancias.put(ubicacion, Double.MAX_VALUE);
+        Map<Ubicacion, EstadoNodo> tabla = new HashMap<>();
+
+        NodoUbicacion aux = primero;
+        while (aux != null) {
+            tabla.put(aux.ubicacion, new EstadoNodo());
+            aux = aux.siguiente;
         }
-        distancias.put(origen, 0.0);
 
-        while (!noVisitados.isEmpty()) {
+        if (!tabla.containsKey(origen) || !tabla.containsKey(destino))
+            return null;
 
+        tabla.get(origen).distancia = 0;
+
+        while (true) {
             Ubicacion actual = null;
+            double mejor = Double.MAX_VALUE;
 
-            double minDistancia = Double.MAX_VALUE;
-            for (Ubicacion ubicacion : noVisitados) {
-                if (distancias.get(ubicacion) < minDistancia) {
-                    minDistancia = distancias.get(ubicacion);
-                    actual = ubicacion;
+            for (Ubicacion u : tabla.keySet()) {
+                EstadoNodo e = tabla.get(u);
+                if (!e.visitado && e.distancia < mejor) {
+                    mejor = e.distancia;
+                    actual = u;
                 }
             }
 
             if (actual == null) break;
-            noVisitados.remove(actual);
+            tabla.get(actual).visitado = true;
+            if (actual.equals(destino)) break;
 
-            for (Ruta ruta : adyacencia.get(actual)) {
-                Ubicacion vecino = ruta.getDestino();
-                double nuevaDistancia = distancias.get(actual) + ruta.getDistancia();
-                if (nuevaDistancia < distancias.get(vecino)) {
-                    distancias.put(vecino, nuevaDistancia);
-                    nodosCamino.put(vecino, actual);
+            NodoUbicacion nodoActual = buscarNodo(actual);
+            if (nodoActual == null) continue;
+
+            NodoRuta rutaAux = nodoActual.primeraRuta;
+
+            while (rutaAux != null) {
+                Ubicacion vecino = rutaAux.ruta.getDestino();
+                double peso = rutaAux.ruta.getDistancia();
+
+                EstadoNodo eActual = tabla.get(actual);
+                EstadoNodo eVecino = tabla.get(vecino);
+
+                double nuevo = eActual.distancia + peso;
+
+                if (nuevo < eVecino.distancia) {
+                    eVecino.distancia = nuevo;
+                    eVecino.anterior = actual;
                 }
+
+                rutaAux = rutaAux.siguiente;
             }
         }
+
+        if (tabla.get(destino).distancia == Double.MAX_VALUE)
+            return null;
 
         List<Ubicacion> camino = new ArrayList<>();
         Ubicacion paso = destino;
+
         while (paso != null) {
             camino.add(0, paso);
-            paso = nodosCamino.get(paso);
+            paso = tabla.get(paso).anterior;
         }
 
-        if (camino.get(0).equals(origen)) return camino;
-        else return null;
+        return camino;
     }
 
-    // Obtener vecinos de una ubicación
-    public List<Ubicacion> obtenerVecinos(Ubicacion ubicacion) {
-        List<Ubicacion> vecinos = new ArrayList<>();
-        if (adyacencia.containsKey(ubicacion)) {
-            for (Ruta ruta : adyacencia.get(ubicacion)) {
-                vecinos.add(ruta.getDestino());
+    // Lista de TODAS las rutas del grafo
+    public List<Ruta> obtenerTodasLasRutas() {
+        List<Ruta> todas = new ArrayList<>();
+        NodoUbicacion actual = primero;
+        while (actual != null) {
+            NodoRuta rutaActual = actual.primeraRuta;
+
+            while (rutaActual != null) {
+                todas.add(rutaActual.ruta); // agregamos la Ruta real
+                rutaActual = rutaActual.siguiente;
             }
+
+            actual = actual.siguiente;
         }
-        return vecinos;
+
+        return todas;
     }
 
+    // Lista de rutas que salen desde una ubicación
+    public List<Ruta> obtenerRutasDesde(Ubicacion ubicacion) {
+        List<Ruta> rutas = new ArrayList<>();
+        NodoUbicacion actual = primero;
+
+        while (actual != null) {
+            if (actual.ubicacion.equals(ubicacion)) {
+
+                NodoRuta rutaActual = actual.primeraRuta;
+
+                while (rutaActual != null) {
+                    rutas.add(rutaActual.ruta);
+                    rutaActual = rutaActual.siguiente;
+                }
+
+                break;
+            }
+            actual = actual.siguiente;
+        }
+
+        return rutas;
+    }
+
+    // Obtener todas las ubicaciones
+    public List<Ubicacion> obtenerTodasLasUbicaciones() {
+        List<Ubicacion> lista = new ArrayList<>();
+
+        NodoUbicacion actual = primero;
+        while (actual != null) {
+            lista.add(actual.ubicacion);
+            actual = actual.siguiente;
+        }
+
+        return lista;
+    }
+
+    // Guardar estado de cada nodo en Dijkstra
+    private static class EstadoNodo {
+        double distancia;
+        boolean visitado;
+        Ubicacion anterior;
+
+        EstadoNodo() {
+            this.distancia = Double.MAX_VALUE;
+            this.visitado = false;
+            this.anterior = null;
+        }
+    }
 }

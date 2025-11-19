@@ -24,11 +24,8 @@ public class EquipoRescate {
     public int getMiembros() { return miembros; }
     public void setMiembros(int miembros) { this.miembros = miembros; }
     public Ubicacion getUbicacion() { return ubicacion; }
+    public void setUbicacion(Ubicacion ubicacion) { this.ubicacion = ubicacion; }
 
-    public void setUbicacion(Ubicacion ubicacion) {
-        this.ubicacion = ubicacion;
-    }
+    public void asignarUbicacion(Ubicacion u) { this.ubicacion = u; }
 
-    public void asignarUbicacion(Ubicacion u) {}
-    public void atenderEmergencia(Ubicacion u) {}
 }

@@ -6,14 +6,14 @@ public class Ruta {
     private Ubicacion origen;
     private Ubicacion destino;
 
-    public Ruta(String idRuta, double distancia, double tiempo, Ubicacion origen, Ubicacion destino) {
+    public Ruta(String idRuta, Ubicacion origen, Ubicacion destino, double distancia) {
         this.idRuta = idRuta;
-        this.distancia = distancia;
         this.origen = origen;
         this.destino = destino;
+        this.distancia = distancia;
     }
 
-    //Getters y Setters
+    // Getters y Setters
     public String getIdRuta() { return idRuta; }
     public void setIdRuta(String idRuta) { this.idRuta = idRuta; }
     public double getDistancia() { return distancia; }

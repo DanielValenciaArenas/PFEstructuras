@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="/public/css/estilos.css">
+
+    <script src="/public/js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<script>
+    renderHeader("Dashboard");
+    requireRole(["ADMINISTRADOR", "OPERADOR"]);
+</script>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="profile">
+            <div class="avatar"></div>
+            <h2 id="sidebarRol" class="name"></h2>
+            <p class="email">sistema@desastres.com</p>
+        </div>
+
+        <nav class="menu">
+            <a class="menu-item active" href="/public/dashboard.html">Dashboard</a>
+            <a class="menu-item" href="/public/ubicaciones.html">Ubicaciones</a>
+            <a class="menu-item" href="/public/recursos.html">Recursos</a>
+            <a class="menu-item" href="/public/evacuaciones.html">Evacuaciones</a>
+            <a class="menu-item" href="/public/rutas.html">Rutas</a>
+            <a class="menu-item" href="/public/mapaInteractivo.html">Mapa Interactivo</a>
+            <a class="menu-item" href="/public/distribucion.html">distribucion</a>
+            <a class="menu-item" id="menuUsuarios" href="/public/usuarios.html">Usuarios</a>
+            <a class="menu-item" href="/public/transferencias.html">Transferencias</a>
+            <a class="menu-item" href="/public/equipos.html">Equipos</a>
+
+            <a class="menu-item" id="btnLogoutSidebar" style="color:#dc2626; font-weight:bold; cursor:pointer;">
+                Salir
+            </a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <header class="top-header">
+            <h1>Dashboard General</h1>
+            <button class="btn-pdf" id="exportPdfBtn">Exportar PDF</button>
+            <button class="btn-logout" id="btnLogout">Salir</button>
+        </header>
+        <section class="cards-row">
+            <div class="stat-card"><h3>Leve</h3><div id="lev" class="stat"></div></div>
+            <div class="stat-card"><h3>Moderado</h3><div id="mod" class="stat"></div></div>
+            <div class="stat-card"><h3>Grave</h3><div id="gra" class="stat"></div></div>
+            <div class="stat-card"><h3>Recursos</h3><div id="rec" class="stat"></div></div>
+            <div class="stat-card"><h3>Equipos</h3><div id="eq" class="stat"></div></div>
+            <div class="stat-card"><h3>Pendientes</h3><div id="pen" class="stat"></div></div>
+        </section>
+        <section class="charts-row">
+            <div class="chart-card">
+                <h3>Ubicaciones por nivel</h3>
+                <canvas id="chartUbicaciones"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>Recursos totales</h3>
+                <canvas id="chartRecursos"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>Actividad de evacuaciones</h3>
+                <canvas id="chartEvacuaciones"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const ses = Auth.getSession();
+    document.getElementById("sidebarRol").textContent = ses.rol;
+
+    // Operador
+    if (ses.rol === "OPERADOR") {
+        const pdfBtn = document.getElementById("exportPdfBtn");
+        if (pdfBtn) pdfBtn.style.display = "none";
+
+        const usuarios = document.getElementById("menuUsuarios");
+        if (usuarios) usuarios.style.display = "none";
+    }
+
+    //  Botón salir
+    const logoutBtn = document.getElementById("btnLogout");
+    if (logoutBtn) {
+        logoutBtn.onclick = () => Auth.logout();
+    }
+
+    // Botón salir
+    const logoutSidebar = document.getElementById("btnLogoutSidebar");
+    if (logoutSidebar) {
+        logoutSidebar.onclick = () => Auth.logout();
+    }
+</script>
+
+<script src="/public/js/dashboard.js"></script>
+
+</body>
+</html>

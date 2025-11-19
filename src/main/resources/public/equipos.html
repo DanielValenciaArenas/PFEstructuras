@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>PFEstructuras — Equipos de rescate</title>
+  <link rel="stylesheet" href="/public/css/estilos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="shell">
+
+<header class="top">
+  <div class="brand">PFEstructuras — Equipos de rescate</div>
+  <div class="user">
+    <span id="who"></span>
+    <button id="btnLogout" class="btn outline">Salir</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>Crear equipo de rescate</h2>
+    <p>
+      Aquí registras los <strong>equipos de rescate</strong> que luego podrás
+      <strong>asignar a las ubicaciones</strong> desde la pantalla de
+      <em>Recursos</em>.
+    </p>
+
+    <form id="formEquipo" class="row">
+      <input id="nombreEquipo"
+             placeholder="Nombre del equipo (Ej: USAR 1)"
+             required>
+
+      <input id="tipoEquipo"
+             placeholder="Tipo (Bomberos, USAR, Defensa Civil...)"
+             required>
+
+      <input id="miembrosEquipo"
+             type="number"
+             min="1"
+             placeholder="Número de miembros"
+             required>
+
+      <button class="btn" type="submit">Guardar equipo</button>
+    </form>
+  </section>
+
+  <section class="card mt">
+    <h2>Equipos registrados</h2>
+    <p>
+      Estos son los equipos actualmente registrados en el sistema.
+      Podrás <strong>asignarlos o reasignarlos</strong> a ubicaciones
+      desde la pantalla de <em>Recursos</em>.
+    </p>
+
+    <table class="mt">
+      <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Miembros</th>
+        <th>Ubicación actual</th>
+      </tr>
+      </thead>
+      <tbody id="tablaEquipos">
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer class="foot">
+  © Proyecto Estructura de Datos
+</footer>
+
+<script src="/public/js/auth.js"></script>
+<script src="/public/js/equipos.js"></script>
+</body>
+</html>

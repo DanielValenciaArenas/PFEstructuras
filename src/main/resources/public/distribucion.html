@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Distribución de recursos</title>
+    <link rel="stylesheet" href="/public/css/estilos.css">
+    <script src="/public/js/auth.js"></script>
+</head>
+<body>
+
+<script>
+    renderHeader('Distribución prioritaria de recursos');
+    requireRole(['ADMIN','OPERADOR']);
+</script>
+
+<main class="container">
+
+    <section class="card">
+        <h2>Distribuir recursos según prioridad de zonas</h2>
+        <p class="muted">
+            Selecciona la <strong>bodega/stock</strong> como origen, el recurso almacenado allí
+            y la cantidad total a repartir. El sistema lo distribuirá a todas las zonas
+            según nivel de afectación y número de personas.
+        </p>
+
+        <form id="formDistribuir" class="row">
+            <select id="ubicacionOrigen" required>
+                <option value="">Ubicación origen (bodega)</option>
+            </select>
+
+            <select id="recursoOrigen" required>
+                <option value="">Recurso en origen</option>
+            </select>
+
+            <input id="cantidadPorZona" type="number" min="1"
+                   placeholder="Cantidad total a distribuir" required>
+
+            <button class="btn">Distribuir</button>
+        </form>
+
+        <h3 class="mt">Resultado de la distribución</h3>
+        <pre id="logDistribucion" style="min-height:80px;"></pre>
+    </section>
+
+</main>
+
+<script src="/public/js/distribucion.js"></script>
+
+</body>
+</html>
