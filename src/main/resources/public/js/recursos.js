@@ -6,18 +6,16 @@
 //  - Listar recursos (incluyendo vencimiento / tipo medicamento)
 //  - Listar equipos
 //  - Cargar ubicaciones reales en los selects (coherencia con otras interfaces)
-//  - 🔴 NUEVO: Asignar equipos EXISTENTES a ubicaciones (si existe el formulario en el HTML)
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ================== REFERENCIAS A ELEMENTOS (compatibles con tus IDs viejos y nuevos) ==================
     // Form recurso
     const formularioRecurso  = document.getElementById("fr")           || document.getElementById("formRecurso");
     const selectTipo         = document.getElementById("tipo")         || document.getElementById("tipoRecurso");
     const inputCantidad      = document.getElementById("cant")         || document.getElementById("cantidadRecurso");
     const selectUbicacionRec = document.getElementById("ubic")         || document.getElementById("ubicacionRecurso");
 
-    // Form equipo (esta pantalla realmente no lo usa, pero mantengo las refs por si existiera)
+    // Form equipo
     const formularioEquipo   = document.getElementById("fe")           || null;
     const inputNombreEquipo  = document.getElementById("nom")          || null;
     const inputTipoEquipo    = document.getElementById("tip")          || null;
@@ -29,17 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const tablaEquiposBody   = document.getElementById("te")           || document.getElementById("tablaEquipos");
     const divOk              = document.getElementById("ok")           || document.getElementById("msgOk");
 
-    // 🔹 NUEVOS CAMPOS OPCIONALES (si existen en el HTML)
     const inputNombreRecurso    = document.getElementById("nombreRecurso");
     const inputFechaVencimiento = document.getElementById("fechaVencimiento");
     const inputTipoMedicamento  = document.getElementById("tipoMedicamento");
 
-    // 🔴 NUEVOS ELEMENTOS PARA ASIGNAR EQUIPOS EXISTENTES (opcional)
     const formularioAsignarEquipo = document.getElementById("formAsignarEquipo"); // <form ...>
     const selectEquipoExistente   = document.getElementById("equipoExistente");   // <select ...>
     const selectUbicacionAsignar  = document.getElementById("ubicacionEquipo");   // <select ...>
 
-    // ================== UTILIDADES ==================
     function mostrarOK() {
         if (!divOk) return;
         divOk.style.display = "block";
@@ -48,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1500);
     }
 
-    // =============== MOSTRAR / OCULTAR CAMPOS EXTRA SEGÚN TIPO ===============
     function actualizarCamposTipo() {
         if (!selectTipo || !inputFechaVencimiento || !inputTipoMedicamento) return;
 
@@ -73,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectTipo.addEventListener("change", actualizarCamposTipo);
     }
 
-    // =============== CARGAR UBICACIONES EN LOS SELECTS ===============
     async function cargarUbicacionesEnSelects() {
         try {
             const resp = await fetch("/api/ubicaciones");
@@ -132,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return texto;
     }
 
-    // =============== LISTAR RECURSOS ===============
     async function listarRecursos() {
         if (!tablaRecursosBody) return;
         try {
@@ -174,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // =============== LISTAR EQUIPOS ===============
     async function listarEquipos() {
         if (!tablaEquiposBody && !selectEquipoExistente) return;
 
@@ -224,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 tablaEquiposBody.innerHTML = filas.join("");
             }
 
-            // 🔴 LLENAR combo de equipos existentes
             if (selectEquipoExistente) {
                 selectEquipoExistente.innerHTML =
                     '<option value="">Selecciona equipo</option>';
@@ -249,7 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // =============== ENVIAR FORMULARIO RECURSO ===============
     if (formularioRecurso && selectTipo && inputCantidad && selectUbicacionRec) {
         formularioRecurso.addEventListener("submit", async (evento) => {
             evento.preventDefault();
@@ -304,7 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // =============== ENVIAR FORMULARIO EQUIPO (solo si existiera en esta página) ===============
     if (formularioEquipo && inputNombreEquipo && inputTipoEquipo && inputMiembros && selectUbicacionEq) {
         formularioEquipo.addEventListener("submit", async (evento) => {
             evento.preventDefault();
@@ -345,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // =============== ASIGNAR EQUIPO EXISTENTE ===============
+    //  ASIGNAR EQUIPO EXISTENTE
     if (formularioAsignarEquipo && selectEquipoExistente && selectUbicacionAsignar) {
         formularioAsignarEquipo.addEventListener("submit", async (evento) => {
             evento.preventDefault();
@@ -389,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // =============== INICIO ===============
+
     cargarUbicacionesEnSelects();
     listarRecursos();
     listarEquipos();

@@ -1,12 +1,10 @@
 // /public/js/dashboard.js
-// Requiere Chart.js (ya lo incluyes en tu HTML) y jsPDF (idem)
-// Este archivo sustituye la lógica random por datos reales desde las APIs del servidor.
+// Requiere Chart.js
 
 (async function () {
     // utilidades
     const $ = id => document.getElementById(id);
 
-    // Guardar referencias de canvas (si no existen, no crash)
     const canvasUbic = $('chartUbicaciones');
     const canvasRec  = $('chartRecursos');
     const canvasEvac = $('chartEvacuaciones');
@@ -22,11 +20,11 @@
 
     // Carga todos los datos necesarios
     async function obtenerDatos() {
-        const resumen = await fetchJson('/api/resumen');           // {ubicaciones:{leve,moderado,grave}, recursos, equipos, pendientes}
-        const ubicaciones = await fetchJson('/api/ubicaciones');  // lista de ubicaciones
-        const recursos = await fetchJson('/api/recursos');        // lista de recursos (puede ser por ubicación o total)
-        const equipos = await fetchJson('/api/equipos');          // lista equipos
-        const evacuaciones = await fetchJson('/api/evacuaciones');// lista evacuaciones
+        const resumen = await fetchJson('/api/resumen');
+        const ubicaciones = await fetchJson('/api/ubicaciones');
+        const recursos = await fetchJson('/api/recursos');
+        const equipos = await fetchJson('/api/equipos');
+        const evacuaciones = await fetchJson('/api/evacuaciones');
         return { resumen, ubicaciones, recursos, equipos, evacuaciones };
     }
 
@@ -56,7 +54,6 @@
 
     // Construye dataset para recursos: sumar cantidades por tipo
     function datosGraficoRecursos(recursosList) {
-        // recursosList: [{tipo,cantidad,ubicacion,...}, ...] según /api/recursos
         const counts = {};
         (recursosList || []).forEach(r => {
             const t = (r.tipo || 'OTRO').toUpperCase();
@@ -86,7 +83,7 @@
         };
     }
 
-    // Crear/actualizar charts Chart.js de forma segura
+    // Crear/actualizar charts Chart.js
     function crearOModificarChart(elCanvas, tipo, datos, opciones, referencia){
         if(!elCanvas) return null;
         if(referencia && referencia.destroy) referencia.destroy();
@@ -97,7 +94,6 @@
         });
     }
 
-    // Exportar PDF con jsPDF incluyendo miniaturas de los charts
     async function exportarPDF(resumen, datosExtras) {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p','pt','a4');
@@ -123,7 +119,6 @@
         pdf.text(` • Recursos totales (items): ${resumen.recursos}`, margen+8, y); y+=14;
         pdf.text(` • Equipos de rescate: ${resumen.equipos}`, margen+8, y); y+=18;
 
-        // Agregar imágenes de charts si existen (tomadas desde Chart.toBase64Image())
         try {
             if (chartUbic) {
                 const imgU = chartUbic.toBase64Image();
@@ -164,13 +159,11 @@
                 scales: { y: { beginAtZero:true, ticks:{precision:0} } }
             }, chartUbic);
 
-            // Recursos -> doughnut (proporcional)
             chartRec = crearOModificarChart(canvasRec, 'doughnut', datosGraficoRecursos(recursos), {
                 maintainAspectRatio: false,
                 plugins: { legend: { position: 'bottom' } }
             }, chartRec);
 
-            // Evacuaciones -> pie
             chartEv = crearOModificarChart(canvasEvac, 'pie', datosGraficoEvacuaciones(evacuaciones), {
                 maintainAspectRatio: false,
                 plugins: { legend: { position: 'bottom' } }
@@ -190,7 +183,6 @@
         }
     }
 
-    // Ejecutar
     init();
 
 })();

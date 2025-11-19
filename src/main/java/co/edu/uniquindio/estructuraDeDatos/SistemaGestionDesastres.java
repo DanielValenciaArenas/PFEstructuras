@@ -25,10 +25,8 @@ public class SistemaGestionDesastres {
         this.usuarios = usuarios;
     }
 
-    // =============================
-    // USUARIOS
-    // =============================
 
+    // USUARIOS
     public void registrarUsuario(Usuario nuevoUsuario) {
         for (Usuario usuario : usuarios) {
             if (usuario.getUsuario().equals(nuevoUsuario.getUsuario())) {
@@ -51,10 +49,8 @@ public class SistemaGestionDesastres {
         return null;
     }
 
-    // =============================
-    // UBICACIONES Y RUTAS
-    // =============================
 
+    // UBICACIONES Y RUTAS
     public void agregarUbicacion(Ubicacion u) {
         if (u != null) grafo.agregarUbicacion(u);
     }
@@ -67,10 +63,8 @@ public class SistemaGestionDesastres {
         return grafo.obtenerTodasLasUbicaciones();
     }
 
-    // =============================
-    // EVACUACIONES
-    // =============================
 
+    // EVACUACIONES
     public void registrarEvacuacion(Evacuacion e) {
         if (e != null) colaEvacuaciones.insertar(e);
     }
@@ -85,16 +79,14 @@ public class SistemaGestionDesastres {
                 .count();
     }
 
-    /** Elimina una evacuación por id de la cola de prioridad. */
+    //Elimina una evacuación por id de la cola de prioridad
     public boolean eliminarEvacuacionPorId(String id) {
         if (id == null) return false;
         return colaEvacuaciones.eliminarPorId(id);
     }
 
-    // =============================
-    // RUTAS / SIMULACIONES
-    // =============================
 
+    // RUTAS / SIMULACIONES
     public SimulacionRuta simularRuta(Ubicacion origen, Ubicacion destino) {
         var camino = grafo.buscarCaminoDijkstra(origen, destino);
         if (camino == null) return null;
@@ -103,10 +95,8 @@ public class SistemaGestionDesastres {
         return sim;
     }
 
-    // =============================
-    // GETTERS DE COMPONENTES
-    // =============================
 
+    // GETTERS DE COMPONENTES
     public GrafoTransporte getGrafo() {
         return grafo;
     }
@@ -123,10 +113,8 @@ public class SistemaGestionDesastres {
         return usuarios;
     }
 
-    // =============================
-    // MÉTRICAS
-    // =============================
 
+    // MÉTRICAS
     public long contarUbicacionesPorNivel(NivelDeAfectacion nivel) {
         return grafo.obtenerTodasLasUbicaciones().stream()
                 .filter(u -> u.getNivelAfectacion() == nivel)
@@ -143,15 +131,8 @@ public class SistemaGestionDesastres {
         return mapaRecursos.obtenerTodosLosRecursos().size();
     }
 
-    // =========================================================
-    //  LÓGICA DE RECURSOS + ÁRBOL DE DISTRIBUCIÓN
-    // =========================================================
 
-    /**
-     * Registra un recurso en el sistema:
-     *  - Lo agrega al MapaRecursos (para consultas por ubicación)
-     *  - Lo inserta en el ArbolDistribuido (para representar la distribución)
-     */
+    //  LÓGICA DE RECURSOS + ÁRBOL DE DISTRIBUCIÓN
     public void registrarRecurso(Ubicacion ubicacion, Recurso recurso) {
         if (ubicacion == null || recurso == null) return;
 
@@ -164,10 +145,8 @@ public class SistemaGestionDesastres {
         }
     }
 
-    /**
-     * Asigna una prioridad numérica según el nivel de afectación.
-     * GRAVE > MODERADO > LEVE
-     */
+
+     //Asigna una prioridad numérica según el nivel de afectación.
     private int prioridadPorNivel(NivelDeAfectacion nivel) {
         if (nivel == null) return 0;
         switch (nivel) {
@@ -178,9 +157,7 @@ public class SistemaGestionDesastres {
         }
     }
 
-    /**
-     * Distancia "geográfica" aproximada usando latitud y longitud.
-     */
+     //Distancia "geográfica" aproximada usando latitud y longitud.
     private double distanciaGeografica(Ubicacion a, Ubicacion b) {
         if (a == null || b == null) return Double.MAX_VALUE;
         double dx = a.getLatitud() - b.getLatitud();
@@ -188,11 +165,7 @@ public class SistemaGestionDesastres {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    /**
-     * Devuelve las zonas ordenadas:
-     *  1) Primero por nivel de afectación (GRAVE > MODERADO > LEVE)
-     *  2) Después por proximidad a una ubicación origen (más cerca primero)
-     */
+    //Devuelve las zonas ordenadas
     private List<Ubicacion> ordenarZonasPorPrioridadYProximidad(Ubicacion origen) {
         List<Ubicacion> zonas = new ArrayList<>(grafo.obtenerTodasLasUbicaciones());
         zonas.remove(origen); // no queremos distribuir a la misma zona origen
@@ -215,9 +188,7 @@ public class SistemaGestionDesastres {
         return zonas;
     }
 
-    /**
-     * Busca un recurso por ID dentro de una ubicación específica usando el MapaRecursos.
-     */
+     //Busca un recurso por ID dentro de una ubicación específica usando el MapaRecursos.
     private Recurso buscarRecursoEnUbicacion(Ubicacion ubicacion, String idRecurso) {
         if (ubicacion == null || idRecurso == null) return null;
         for (Recurso r : mapaRecursos.obtenerRecursos(ubicacion)) {
@@ -228,14 +199,7 @@ public class SistemaGestionDesastres {
         return null;
     }
 
-    /**
-     * Distribuye un recurso desde una ubicación origen (bodega/stock) hacia
-     * otras zonas, de forma proporcional a:
-     *  - Nivel de afectación (GRAVE > MODERADO > LEVE)
-     *  - Número de personas en la zona
-     *
-     * Cada zona se procesa UNA sola vez (sin repetir).
-     */
+    //Distribuye un recurso desde una ubicación origen (bodega/stock) hacia otras zonas
     public List<String> distribuirRecursoPrioritario(String nombreUbicacionOrigen,
                                                      String idRecurso,
                                                      int cantidadSolicitada) {

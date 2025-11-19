@@ -52,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Crear tarjeta HTML para una ubicación
     function crearTarjetaUbicacion(ubicacion, recursos, personas, equipos) {
         const div = document.createElement("div");
         div.className = "card";
@@ -68,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const color = colorNivel(ubicacion.nivelAfectacion);
 
-        // Recursos: texto simple
         let textoRecursos;
         if (!recursos || recursos.length === 0) {
             textoRecursos = "<em>No hay recursos registrados en esta ubicación.</em>";
@@ -92,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
             textoEquipos += "</ul>";
         }
 
-        // Personas (código original: lista de nombres)
         let textoPersonas;
         if (!personas || personas.length === 0) {
             textoPersonas = "<em>No hay personas registradas en esta ubicación.</em>";
@@ -104,8 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
             textoPersonas += "</ul>";
         }
 
-        // 🔵 NUEVO: mostrar SOLO el número de personas (contador),
-        // dejando el código anterior intacto pero sobrescribiendo el texto final.
         const numPersonas = (personas && personas.length) ? personas.length : 0;
         if (numPersonas === 0) {
             textoPersonas = "<em>No hay personas registradas en esta ubicación.</em>";
@@ -149,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            // El WebServer espera el nombre en la QUERY, no en el body
             const resp = await fetch(`/api/ubicaciones?nombre=${encodeURIComponent(nombreUbicacion)}`, {
                 method: "DELETE"
             });
@@ -167,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Cargar todo y pintar
     async function cargarUbicaciones() {
         contenedor.innerHTML = "Cargando ubicaciones...";
 
@@ -210,7 +203,5 @@ document.addEventListener("DOMContentLoaded", () => {
             contenedor.innerHTML = "Ocurrió un error al cargar la información de ubicaciones.";
         }
     }
-
-    // Iniciar
     cargarUbicaciones();
 });
