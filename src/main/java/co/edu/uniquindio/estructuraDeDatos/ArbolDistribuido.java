@@ -15,7 +15,7 @@ public class ArbolDistribuido {
         this.raiz = null;
     }
 
-    // === INSERTAR ZONA (si no existe) y asignar recurso ===
+    // Insertar ubicacion (si no existe) y asignar recurso
     public void insertar(Ubicacion ubicacion, Recurso recurso) {
         raiz = insertarRecursivo(raiz, ubicacion, recurso);
     }
@@ -38,7 +38,7 @@ public class ArbolDistribuido {
         return nodo;
     }
 
-    // === BUSCAR UBICACIÓN (por ID de zona) ===
+    // Buscar una ubicacion por su ID
     public NodoDistribucion buscarZona(String idUbicacion) {
         return buscarRecursivo(raiz, idUbicacion);
     }
@@ -53,7 +53,7 @@ public class ArbolDistribuido {
         return buscarRecursivo(nodo.getDerecho(), idUbicacion);
     }
 
-    // === ELIMINAR ===
+    // Eliminar recurso del arbol
     public void eliminarZona(String idRecurso) {
         raiz = eliminarRecursivo(raiz, idRecurso);
     }
@@ -71,19 +71,19 @@ public class ArbolDistribuido {
         } else if (cmp > 0) {
             nodo.setDerecho(eliminarRecursivo(nodo.getDerecho(), idRecurso));
         } else {
-            // === CASO 1: sin hijos ===
+            // CASO 1: sin hijos ===
             if (nodo.getIzquierdo() == null && nodo.getDerecho() == null) {
                 return null;
             }
 
-            // === CASO 2: un solo hijo ===
+            // CASO 2: un solo hijo
             else if (nodo.getIzquierdo() == null) {
                 return nodo.getDerecho();
             } else if (nodo.getDerecho() == null) {
                 return nodo.getIzquierdo();
             }
 
-            // === CASO 3: dos hijos ===
+            // CASO 3: dos hijos
             else {
                 NodoDistribucion sucesor = encontrarMenor(nodo.getDerecho());
                 nodo.setRecurso(sucesor.getRecurso());
@@ -102,7 +102,7 @@ public class ArbolDistribuido {
     }
 
 
-    // === MOVER RECURSO ===
+    // Mover recurso de la ubicacion
     public void moverRecurso(String idRecurso, Ubicacion nuevaUbicacion) {
         if (idRecurso == null || idRecurso.isEmpty() || nuevaUbicacion == null) {
             System.out.println("Datos inválidos para mover el recurso");
@@ -115,13 +115,8 @@ public class ArbolDistribuido {
             return;
         }
 
-        // Eliminar el recurso de la ubicación actual
         nodo.getUbicacion().eliminarRecurso(idRecurso);
-
-        // Cambiar la ubicación
         nodo.setUbicacion(nuevaUbicacion);
-
-        // Agregar el recurso a la nueva ubicación
         nuevaUbicacion.agregarRecurso(nodo.getRecurso());
 
         System.out.println("Recurso " + nodo.getRecurso().getNombre() +
@@ -145,7 +140,7 @@ public class ArbolDistribuido {
         return buscarRecursoRecursivo(nodo.getDerecho(), idRecurso);
     }
 
-    // === VISUALIZACIÓN ===
+    // Visualizacion
     public void mostrarDistribucion() {
         System.out.println("\nDistribución de recursos por zonas:");
         recorrerInorden(raiz);

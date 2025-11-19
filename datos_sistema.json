@@ -194,6 +194,78 @@
   ],
   "recursos": [
     {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "General"
+    },
+    {
+      "id": "RA104203078120700-P104559683273600",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700",
+      "nombre": "Atun",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500",
+      "nombre": "pildoras",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189835419700",
+      "nombre": "pildoras",
+      "cantidad": 40,
+      "nombreUbicacion": "Libertadores",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189866680000",
+      "nombre": "pildoras",
+      "cantidad": 7,
+      "nombreUbicacion": "San Jose",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RA104203078120700-P104559684717300-P2928122340708",
+      "nombre": "Atun",
+      "cantidad": 2,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA101297023823300-P2956066751291",
+      "nombre": "Atun",
+      "cantidad": 85,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM3001843855416",
+      "nombre": "acetaminofen",
+      "cantidad": 100,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
       "id": "RA104203078120700-P104559681862100",
       "nombre": "Atun",
       "cantidad": 32,
@@ -258,102 +330,6 @@
       "extra": "calmante"
     },
     {
-      "id": "RA104203078120700-P104559682041700",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA92616138026300-P101235602148900",
-      "nombre": "Atun",
-      "cantidad": 10,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA92616138026300-P101235602487500",
-      "nombre": "Atun",
-      "cantidad": 10,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA92616138026300",
-      "nombre": "Atun",
-      "cantidad": 10,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA92616138026300-P101235570005500",
-      "nombre": "Atun",
-      "cantidad": 10,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA92616138026300-P101235602630400",
-      "nombre": "Atun",
-      "cantidad": 10,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559644268300",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684780000",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684088200",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559685293800",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375342394300",
-      "nombre": "Atun",
-      "cantidad": 50,
-      "nombreUbicacion": "Centro C",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534144829000",
-      "nombre": "pildoras",
-      "cantidad": 200,
-      "nombreUbicacion": "Centro C",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
       "id": "RM105509827738900-P105534145105500-P18189866253500",
       "nombre": "pildoras",
       "cantidad": 2,
@@ -362,52 +338,60 @@
       "extra": "calmante"
     },
     {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "General"
-    },
-    {
-      "id": "RA104203078120700-P104559683273600",
+      "id": "RA104203078120700-P104559681862100",
       "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RA104203078120700",
+      "id": "RA104203078120700-P104559682153700",
       "nombre": "Atun",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RM105509827738900-P105534145105500",
+      "id": "RA104203078120700-P104559684912900",
+      "nombre": "Atun",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P104559684640500",
+      "nombre": "Atun",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534144892500",
       "nombre": "pildoras",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 66,
+      "nombreUbicacion": "Refugio B",
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
     {
-      "id": "RM105509827738900-P105534145105500-P18189866680000",
-      "nombre": "pildoras",
-      "cantidad": 7,
-      "nombreUbicacion": "San Jose",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
+      "id": "RA104203078120700-P104559684717300-P2928122375291",
+      "nombre": "Atun",
+      "cantidad": 3,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
     },
     {
-      "id": "RM105509827738900-P105534145105500-P18189835419700",
-      "nombre": "pildoras",
-      "cantidad": 40,
-      "nombreUbicacion": "Libertadores",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
+      "id": "RA101297023823300-P2956066803125",
+      "nombre": "Atun",
+      "cantidad": 45,
+      "nombreUbicacion": "Refugio B",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
     },
     {
       "id": "RA104203078120700-P104559685081700",
@@ -420,7 +404,7 @@
     {
       "id": "RA104203078120700-P104559684717300",
       "nombre": "Atun",
-      "cantidad": 16,
+      "cantidad": 6,
       "nombreUbicacion": "Refugio B",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
@@ -452,7 +436,7 @@
     {
       "id": "RA101297023823300",
       "nombre": "Atun",
-      "cantidad": 500,
+      "cantidad": 200,
       "nombreUbicacion": "Refugio B",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
@@ -496,22 +480,62 @@
       "nombreUbicacion": "Refugio B",
       "tipo": "MEDICINA",
       "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189835419700",
+      "nombre": "pildoras",
+      "cantidad": 40,
+      "nombreUbicacion": "Libertadores",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "General"
+    },
+    {
+      "id": "RA104203078120700-P104559683273600",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700",
+      "nombre": "Atun",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500",
+      "nombre": "pildoras",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
     }
   ],
   "equipos": [
-    {
-      "id": "EQ16470256995600",
-      "nombre": "Los capos",
-      "tipo": "bomberos",
-      "miembros": 8,
-      "nombreUbicacion": "San Jose"
-    },
     {
       "id": "EQ16552362510000",
       "nombre": "Yasuri",
       "tipo": "Policias",
       "miembros": 4,
       "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EQ16470256995600",
+      "nombre": "Los capos",
+      "tipo": "bomberos",
+      "miembros": 8,
+      "nombreUbicacion": "San Jose"
     }
   ],
   "evacuaciones": [

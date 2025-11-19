@@ -1,8 +1,8 @@
 // equipos.js
 // Pantalla "Equipos de rescate":
 //  - Crea equipos SIN ubicación inicial
-//  - Lista todos los equipos y muestra su ubicación actual (si tienen)
-//  - 🔴 Ahora también permite eliminar equipos
+//  - Lista todos los equipos y muestra su ubicación actual
+//  - también permite eliminar equipos
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputMiembros  = document.getElementById("miembrosEquipo");
     const tablaEquipos   = document.getElementById("tablaEquipos");
 
-    // ------- Listar equipos -------
     async function listarEquipos() {
         try {
             const resp = await fetch("/api/equipos");
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const data = await resp.json(); // [{nombre,tipo,miembros,ubicacion}, ...]
+            const data = await resp.json();
 
             if (!data || data.length === 0) {
                 tablaEquipos.innerHTML =
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // 🔴 CAMBIO: agrego una columna con botón "Eliminar"
             tablaEquipos.innerHTML = data.map(e => `
                 <tr>
                     <td>${e.nombre}</td>
@@ -54,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ------- Crear equipo (sin ubicación) -------
     formEquipo.addEventListener("submit", async (ev) => {
         ev.preventDefault();
 
@@ -71,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
             nombre: nombre,
             tipo: tipo,
             miembros: miembros
-            // OJO: aquí YA NO enviamos ubicación
         };
 
         try {
@@ -96,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ------- 🔴 Eliminar equipo (delegación de eventos en la tabla) -------
     if (tablaEquipos) {
         tablaEquipos.addEventListener("click", async (ev) => {
             const btn = ev.target.closest(".btn-eliminar-equipo");

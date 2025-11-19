@@ -8,7 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // ----- Crear grafo y estructuras principales -----
+        // Crear grafo y estructuras principales
         GrafoTransporte grafo = new GrafoTransporte();
         ColaPrioridadEvacuacion cola = new ColaPrioridadEvacuacion();
         MapaRecursos mapa = new MapaRecursos();
@@ -17,13 +17,13 @@ public class Main {
 
         SistemaGestionDesastres sistema = new SistemaGestionDesastres(grafo, cola, mapa, arbol, usuarios);
 
-        // ===== Usuarios (para probar Operador también) =====
+        // Usuarios (para probar Operador también)
         OperadorEmergencia op = new OperadorEmergencia("O1","Oscar","oscar","123", RolUsuario.OPERADOR);
         Administrador admin = new Administrador("A1","Ana","ana","123", RolUsuario.ADMINISTRADOR);
         usuarios.add(op);
         usuarios.add(admin);
 
-        // ----- Crear ubicaciones -----
+        // Crear ubicaciones
         Ubicacion ciudad = new Ubicacion("U1", "Ciudad Central", TipoZona.CIUDAD,
                 NivelDeAfectacion.GRAVE, null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 0.0, 0.0);
 
@@ -37,7 +37,7 @@ public class Main {
         sistema.agregarUbicacion(refugio);
         sistema.agregarUbicacion(centroAyuda);
 
-        // ----- Crear rutas -----
+        // Crear rutas
         Ruta r1 = new Ruta("R1", ciudad, refugio, 10);
         Ruta r2 = new Ruta("R2", ciudad, centroAyuda, 5);
         Ruta r3 = new Ruta("R3", centroAyuda, refugio, 3);
@@ -46,7 +46,7 @@ public class Main {
         sistema.agregarRuta(r2);
         sistema.agregarRuta(r3);
 
-        // ----- Probar Dijkstra -----
+        // Probar Dijkstra
         System.out.println("\n===> CAMINO MÍNIMO Ciudad -> Refugio");
         var camino = grafo.buscarCaminoDijkstra(ciudad, refugio);
         if (camino != null) {
@@ -55,7 +55,7 @@ public class Main {
             System.out.println("No se encontró camino");
         }
 
-        // ----- Crear personas y agregarlas a Ciudad -----
+        // Crear personas y agregarlas a Ciudad
         Persona p1 = new Persona("P1", "Ana", EstadoPersona.EN_PELIGRO, ciudad);
         Persona p2 = new Persona("P2", "Luis", EstadoPersona.EN_PELIGRO, ciudad);
         ciudad.agregarPersona(p1);
@@ -64,7 +64,7 @@ public class Main {
         System.out.println("\n===> Personas en Ciudad:");
         ciudad.getPersonas().forEach(p -> System.out.println(" - " + p.getNombre()));
 
-        // ----- Crear y asignar recursos (MAPA + ÁRBOL) -----
+        // Crear y asignar recursos (MAPA y ÁRBOL)
         Recurso alimento = new RecursoAlimento("R01", "Agua Potable", 100, ciudad, LocalDate.of(2025, 12, 31));
         mapa.agregarRecurso(ciudad, alimento);
         arbol.insertar(ciudad, alimento);
@@ -79,7 +79,7 @@ public class Main {
         System.out.println("\n===> Distribución inicial (Árbol):");
         arbol.mostrarDistribucion();
 
-        // ----- Crear y asignar equipo de rescate -----
+        // Crear y asignar equipo de rescate
         EquipoRescate equipo1 = new EquipoRescate("E1", "Bomberos", 5, null);
         equipo1.setNombre("Bomberos U1"); // opcional, ya que tu clase tiene 'nombre' aparte del 'tipo'
         ciudad.asignarEquipo(equipo1);
@@ -87,7 +87,7 @@ public class Main {
         System.out.println("\n===> Equipos asignados a Ciudad:");
         ciudad.getEquiposDeRescate().forEach(e -> System.out.println(" - " + e.getTipo()));
 
-        // ----- Crear evacuaciones y probar cola de prioridad -----
+        // Crear evacuaciones y probar cola de prioridad
         Evacuacion e1 = new Evacuacion("EV1", 5, 30, EstadoEvacuacion.PENDIENTE, ciudad);
         Evacuacion e2 = new Evacuacion("EV2", 8, 10, EstadoEvacuacion.PENDIENTE, refugio);
         Evacuacion e3 = new Evacuacion("EV3", 3, 50, EstadoEvacuacion.PENDIENTE, centroAyuda);
@@ -105,21 +105,21 @@ public class Main {
             System.out.println("Atendiendo " + evac.getIdEvacuacion() + " (prioridad " + evac.getPrioridad() + ")");
         }
 
-        // ----- Simulación de ruta desde el sistema -----
+        // Simulación de ruta desde el sistema
         System.out.println("\n===> Simulación de ruta Ciudad -> Refugio");
         SimulacionRuta sim = sistema.simularRuta(ciudad, refugio);
         if (sim != null) {
             sim.getUbicaciones().forEach(u -> System.out.println(" - " + u.getNombre()));
         }
 
-        // ======== BLOQUE EXTRA: PRUEBAS DEL OPERADOR ========
+        // PRUEBAS DEL OPERADOR
 
-        // 1) Monitorear/actualizar estado de ubicaciones
+        // Monitorear/actualizar estado de ubicaciones
         System.out.println("\n===> [Operador] Monitoreo / Actualización de estado");
         op.actualizarEstadoUbicacion(ciudad, NivelDeAfectacion.GRAVE);
         op.actualizarEstadoUbicacion(refugio, NivelDeAfectacion.MODERADO);
 
-        // 2) Priorizar y coordinar evacuaciones (usando Operador)
+        // Priorizar y coordinar evacuaciones
         System.out.println("\n===> [Operador] Priorizar y coordinar evacuaciones");
         Evacuacion e4 = new Evacuacion("EV4", 9, 20, EstadoEvacuacion.PENDIENTE, ciudad);
         Evacuacion e5 = new Evacuacion("EV5", 6, 15, EstadoEvacuacion.PENDIENTE, centroAyuda);
@@ -128,20 +128,20 @@ public class Main {
 
         System.out.println("Cola actual:");
         cola.mostrarCola();
-        op.coordinarEvacuacion(cola); // atiende EV4
-        op.coordinarEvacuacion(cola); // atiende EV5
+        op.coordinarEvacuacion(cola);
+        op.coordinarEvacuacion(cola);
 
-        // 3) Coordinar distribución de recursos (parcial y total)
+        // Coordinar distribución de recursos
         System.out.println("\n===> [Operador] Distribución de recursos");
         System.out.println("Antes:");
         imprimirRecursosPorUbicacion(mapa, ciudad);
         imprimirRecursosPorUbicacion(mapa, centroAyuda);
         imprimirRecursosPorUbicacion(mapa, refugio);
 
-        // Transferencia PARCIAL: mover 30 de R01 (Agua Potable) de Ciudad -> Refugio
+        // Transferencia PARCIAL: mover 30 de Agua Potable de Ciudad -> Refugio
         op.coordinarDistribucionRecursos(mapa, arbol, ciudad, refugio, "R01", 30);
 
-        // Transferencia TOTAL: mover 50 de M01 (Botiquín) de Centro de Ayuda -> Refugio
+        // Transferencia TOTAL: mover 50 de Botiquín de Centro de Ayuda -> Refugio
         op.coordinarDistribucionRecursos(mapa, arbol, centroAyuda, refugio, "M01", 50);
 
         System.out.println("\nDespués:");
