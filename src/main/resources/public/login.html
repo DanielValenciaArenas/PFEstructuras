@@ -16,7 +16,6 @@
         <h2>Iniciar sesión</h2>
         <p class="muted">Usa las credenciales proporcionadas por el admin.</p>
 
-        <!-- LOGIN -->
         <form id="frmLogin" class="mt">
             <div class="row">
                 <input id="txtUsuario" placeholder="Usuario" required>
@@ -31,7 +30,6 @@
 
         <div id="msg" class="pill mt" style="display:none"></div>
 
-        <!-- REGISTRO -->
         <hr class="mt">
 
         <h3>Registrarse</h3>
@@ -75,7 +73,6 @@
 
 <script src="/public/js/auth.js"></script>
 <script>
-    // ✔ Si ya hay sesión → ir directo al dashboard
     if (Auth.isLogged()) {
         location.replace("/public/dashboard.html");
     }
@@ -96,7 +93,6 @@
             return;
         }
 
-        // ✔ NO redirigimos aquí. Auth.login() lo hace.
     });
 
     // REGISTRO

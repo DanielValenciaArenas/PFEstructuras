@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mapa Interactivo - Sistema Gestión de Desastres</title>
 
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
@@ -65,7 +64,6 @@
 <div id="sidebar">
     <h2>Mapa Interactivo</h2>
 
-    <!-- =================== CREAR UBICACIÓN =================== -->
     <h3>Crear nueva ubicación</h3>
     <small class="small">Haz clic en el mapa para seleccionar latitud y longitud</small>
 
@@ -93,14 +91,12 @@
         <label>Longitud:</label>
         <input type="text" id="lng" readonly>
 
-        <!-- 🔵 NUEVO: cantidad de personas -->
         <label>Cantidad de personas:</label>
         <input type="number" id="personas" min="0" value="0">
 
         <button type="submit">Crear ubicación</button>
     </form>
 
-    <!-- =================== CREAR RUTA =================== -->
     <h3 class="titulo-seccion">Crear nueva ruta</h3>
     <small class="small">Las rutas se crean entre ubicaciones ya registradas</small>
 
@@ -121,7 +117,6 @@
         <button type="submit">Crear ruta</button>
     </form>
 
-    <!-- =================== LISTAS =================== -->
     <h3 class="titulo-seccion">Ubicaciones existentes</h3>
     <div id="listaUbicaciones"></div>
 
@@ -129,7 +124,6 @@
     <div id="listaRutas"></div>
 </div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
@@ -139,19 +133,15 @@
 
     const selectOrigenRuta = document.getElementById('origenRuta');
     const selectDestinoRuta = document.getElementById('destinoRuta');
-
-    // Crear mapa centrado (ajusta las coordenadas si quieres)
     const map = L.map('map').setView([4.535, -75.675], 13);
 
     // Capa base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         .addTo(map);
 
-    // Capas para poder limpiar y dibujar
     const capaUbicaciones = L.layerGroup().addTo(map);
     const capaRutas = L.layerGroup().addTo(map);
 
-    // === colores por nivel de afectación ===
     function colorPorAfectacion(nivel) {
         switch (nivel) {
             case "LEVE": return "green";
@@ -161,13 +151,11 @@
         }
     }
 
-    // === click en el mapa: asigna lat/lng al formulario de ubicación ===
     map.on('click', e => {
         document.getElementById('lat').value = e.latlng.lat;
         document.getElementById('lng').value = e.latlng.lng;
     });
 
-    // =================== CREAR UBICACIÓN ===================
     document.getElementById('crearUbicacionForm').addEventListener('submit', async e => {
     e.preventDefault();
 
@@ -180,7 +168,7 @@
         nivelAfectacion: document.getElementById('afectacion').value,
         latitud: parseFloat(document.getElementById('lat').value),
         longitud: parseFloat(document.getElementById('lng').value),
-        personas: personas            //  NUEVO
+        personas: personas
     };
 
     if (!nueva.nombre || isNaN(nueva.latitud) || isNaN(nueva.longitud)) {
@@ -207,7 +195,6 @@
 });
 
 
-    // =================== CREAR RUTA ===================
     document.getElementById('crearRutaForm').addEventListener('submit', async e => {
         e.preventDefault();
 
@@ -249,12 +236,10 @@
         }
     });
 
-    // =================== CARGAR UBICACIONES ===================
     async function cargarUbicaciones() {
         capaUbicaciones.clearLayers();
         listaUbicaciones.innerHTML = "";
 
-        // También vaciamos los selects de rutas y dejamos solo el placeholder
         selectOrigenRuta.innerHTML = '<option value="">Selecciona origen</option>';
         selectDestinoRuta.innerHTML = '<option value="">Selecciona destino</option>';
 
@@ -264,7 +249,6 @@
         data.forEach(u => {
             const color = colorPorAfectacion(u.nivelAfectacion);
 
-            // Marcador circular
             L.circleMarker([u.latitud, u.longitud], {
                 radius: 10,
                 color: color,
@@ -279,7 +263,6 @@
                 (${u.latitud.toFixed(4)}, ${u.longitud.toFixed(4)})
             `);
 
-            // Panel lateral: lista de ubicaciones
             const div = document.createElement("div");
             div.className = "ubicacion-item";
             div.innerHTML = `
@@ -289,7 +272,6 @@
             `;
             listaUbicaciones.appendChild(div);
 
-            // Agregar opción a los selects de rutas
             const optO = document.createElement("option");
             optO.value = u.nombre;
             optO.textContent = u.nombre;
@@ -302,7 +284,6 @@
         });
     }
 
-    // =================== CARGAR RUTAS ===================
     async function cargarRutas() {
         capaRutas.clearLayers();
         listaRutas.innerHTML = "";
@@ -311,7 +292,6 @@
         const data = await r.json();
 
         data.forEach(rt => {
-            // Dibujar la línea en el mapa
             const linea = L.polyline([
                 [rt.latOrigen, rt.lngOrigen],
                 [rt.latDestino, rt.lngDestino]
@@ -320,7 +300,6 @@
                 weight: 5
             }).addTo(capaRutas);
 
-            // Popup con info
             linea.bindPopup(`
                 <b>Ruta</b><br>
                 Origen: ${rt.origen}<br>
@@ -328,7 +307,6 @@
                 Distancia: ${rt.distancia} km
             `);
 
-            // Resumen en el panel lateral
             const div = document.createElement("div");
             div.className = "ruta-item";
             div.innerHTML = `
@@ -339,7 +317,6 @@
         });
     }
 
-    // =================== INICIO ===================
     cargarUbicaciones();
     cargarRutas();
 </script>
