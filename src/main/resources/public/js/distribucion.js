@@ -1,6 +1,5 @@
 // distribucion.js
-// Maneja la distribución prioritaria de recursos usando
-// el endpoint /api/recursos/distribuirPrioridad
+// Maneja la distribución prioritaria de recursos usando el endpoint /api/recursos/distribuirPrioridad
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -9,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputCantidadZona     = document.getElementById("cantidadPorZona");
     const logDistribucion       = document.getElementById("logDistribucion");
 
-    // Guardamos todos los recursos para poder filtrarlos por ubicación
     let recursosGlobal = [];
 
     function setLog(texto) {
@@ -17,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
         logDistribucion.textContent = texto;
     }
 
-    // ================= CARGAR UBICACIONES =================
     async function cargarUbicaciones() {
         try {
             const resp = await fetch("/api/ubicaciones");
@@ -45,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ================= CARGAR RECURSOS =================
     async function cargarRecursos() {
         try {
             const resp = await fetch("/api/recursos");
@@ -64,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Mostrar solo recursos de la ubicación origen seleccionada
     function actualizarRecursosParaOrigen() {
         if (!selectUbicacionOrigen || !selectRecursoOrigen) return;
 
@@ -97,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectUbicacionOrigen.addEventListener("change", actualizarRecursosParaOrigen);
     }
 
-    // ================= ENVIAR DISTRIBUCIÓN =================
     const formDistribuir = document.getElementById("formDistribuir");
     if (formDistribuir && selectUbicacionOrigen && selectRecursoOrigen && inputCantidadZona) {
         formDistribuir.addEventListener("submit", async (e) => {
@@ -127,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({
                         origen: origen,
                         idRecurso: idRecurso,
-                        cantidadPorZona: cantTotal   // el backend ahora lo interpreta como cantidad total
+                        cantidadPorZona: cantTotal
                     })
                 });
 
@@ -144,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     setLog(mensajes.join("\n"));
                 }
 
-                // Volver a cargar recursos para reflejar cantidades actualizadas
                 await cargarRecursos();
                 actualizarRecursosParaOrigen();
 
@@ -155,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= INICIO =================
     (async () => {
         await cargarUbicaciones();
         await cargarRecursos();

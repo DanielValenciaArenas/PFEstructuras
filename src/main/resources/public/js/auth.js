@@ -36,7 +36,6 @@ const Auth = (() => {
             rol: data.rol
         }));
 
-        // 🔥 Redirigir correctamente al dashboard
         setTimeout(() => {
             location.replace("/public/dashboard.html");
         }, 20);

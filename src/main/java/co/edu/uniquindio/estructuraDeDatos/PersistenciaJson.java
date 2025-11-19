@@ -7,27 +7,14 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
 
-/**
- * Clase de persistencia para guardar y cargar el estado completo del sistema
- * en un archivo JSON (datos_sistema.json).
- *
- * Guarda:
- *  - Ubicaciones (incluye latitud, longitud y personas)
- *  - Rutas
- *  - Recursos (alimento y medicina con sus campos específicos)
- *  - Equipos de rescate
- *  - Evacuaciones
- */
+ //Clase de persistencia para guardar y cargar el estado completo del sistema
 public class PersistenciaJson {
 
     private static final String ARCHIVO = "datos_sistema.json";
 
-    // Gson para convertir objetos <-> JSON
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
-
-    // ===================== DTOs internos para el JSON =====================
 
     private static class EstadoSistema {
         List<UbicacionJ> ubicaciones = new ArrayList<>();
@@ -44,14 +31,13 @@ public class PersistenciaJson {
         String nivelAfectacion;
         double latitud;
         double longitud;
-        // 🔵 NUEVO: personas asociadas a esta ubicación
         List<PersonaJ> personas;
     }
 
     private static class PersonaJ {
         String id;
         String nombre;
-        String estado; // EN_PELIGRO, A_SALVO, etc.
+        String estado;
     }
 
     private static class RutaJ {
@@ -61,18 +47,13 @@ public class PersistenciaJson {
         double distancia;
     }
 
-    /**
-     * tipo:
-     *  - "ALIMENTO": extra = fecha vencimiento (yyyy-MM-dd)
-     *  - "MEDICINA": extra = tipoMedicamento
-     *  - "GEN": extra = null
-     */
+
     private static class RecursoJ {
         String id;
         String nombre;
         int cantidad;
         String nombreUbicacion;
-        String tipo;   // ALIMENTO, MEDICINA, GEN
+        String tipo;
         String extra;  // fecha o tipoMedicamento
     }
 
@@ -92,14 +73,12 @@ public class PersistenciaJson {
         String nombreUbicacion;
     }
 
-    // ===================== MÉTODO GUARDAR =====================
 
     public static void guardar(SistemaGestionDesastres sistema) {
         try (Writer writer = new FileWriter(ARCHIVO)) {
 
             EstadoSistema estado = new EstadoSistema();
 
-            // ----- UBICACIONES (+ PERSONAS) -----
             for (Ubicacion u : sistema.getGrafo().obtenerTodasLasUbicaciones()) {
                 UbicacionJ uj = new UbicacionJ();
                 uj.id = u.getIdUbicacion();
@@ -109,12 +88,10 @@ public class PersistenciaJson {
                 uj.latitud = u.getLatitud();
                 uj.longitud = u.getLongitud();
 
-                // 🔵 NUEVO: serializar personas asociadas a la ubicación
                 if (u.getPersonas() != null && !u.getPersonas().isEmpty()) {
                     uj.personas = new ArrayList<>();
                     for (Persona p : u.getPersonas()) {
                         PersonaJ pj = new PersonaJ();
-                        // Ajusta estos getters si tienen otro nombre en tu clase Persona
                         pj.id = p.getIdPersona();
                         pj.nombre = p.getNombre();
                         pj.estado = (p.getEstado() != null) ? p.getEstado().name() : "EN_PELIGRO";
@@ -125,7 +102,7 @@ public class PersistenciaJson {
                 estado.ubicaciones.add(uj);
             }
 
-            // ----- RUTAS -----
+            //  RUTAS
             for (Ruta r : sistema.getGrafo().obtenerTodasLasRutas()) {
                 RutaJ rj = new RutaJ();
                 rj.id = r.getIdRuta();
@@ -135,7 +112,7 @@ public class PersistenciaJson {
                 estado.rutas.add(rj);
             }
 
-            // ----- RECURSOS -----
+            //  RECURSOS
             for (Recurso r : sistema.getMapaRecursos().obtenerTodosLosRecursos()) {
                 RecursoJ rj = new RecursoJ();
                 rj.id = r.getIdRecurso();
@@ -161,7 +138,7 @@ public class PersistenciaJson {
                 estado.recursos.add(rj);
             }
 
-            // ----- EQUIPOS DE RESCATE -----
+            //  EQUIPOS DE RESCATE
             // Los equipos están asociados a las ubicaciones
             Set<EquipoRescate> equipos = new HashSet<>();
             for (Ubicacion u : sistema.getGrafo().obtenerTodasLasUbicaciones()) {
@@ -182,7 +159,7 @@ public class PersistenciaJson {
                 estado.equipos.add(ej);
             }
 
-            // ----- EVACUACIONES -----
+            //  EVACUACIONES
             for (Evacuacion e : sistema.getColaEvacuaciones().listarTodas()) {
                 EvacuacionJ ej = new EvacuacionJ();
                 ej.id = e.getIdEvacuacion();
@@ -195,7 +172,7 @@ public class PersistenciaJson {
                 estado.evacuaciones.add(ej);
             }
 
-            // ----- Escribir JSON al archivo -----
+            //  Escribir JSON al archivo
             gson.toJson(estado, writer);
             System.out.println(" Estado del sistema guardado en " + ARCHIVO);
 
@@ -203,8 +180,6 @@ public class PersistenciaJson {
             System.err.println("Error guardando JSON: " + e.getMessage());
         }
     }
-
-    // ===================== MÉTODO CARGAR =====================
 
     public static void cargar(SistemaGestionDesastres sistema) {
         File f = new File(ARCHIVO);
@@ -223,9 +198,7 @@ public class PersistenciaJson {
             // Mapa para ubicar ubicaciones por nombre
             Map<String, Ubicacion> ubicPorNombre = new HashMap<>();
 
-            // ----- UBICACIONES (+ PERSONAS) -----
             for (UbicacionJ uj : estado.ubicaciones) {
-                // Evacuación neutra dummy, luego se usan las reales en cola
                 Evacuacion evacDummy = new Evacuacion(
                         "E0", 0, 0, EstadoEvacuacion.PENDIENTE, null
                 );
@@ -243,7 +216,6 @@ public class PersistenciaJson {
                         uj.longitud
                 );
 
-                // 🔵 NUEVO: reconstruir personas si vienen en el JSON
                 if (uj.personas != null) {
                     for (PersonaJ pj : uj.personas) {
                         String idP = (pj.id != null && !pj.id.isBlank())
@@ -272,7 +244,7 @@ public class PersistenciaJson {
                 ubicPorNombre.put(u.getNombre(), u);
             }
 
-            // ----- RUTAS -----
+            //  RUTAS
             if (estado.rutas != null) {
                 for (RutaJ rj : estado.rutas) {
                     Ubicacion origen = ubicPorNombre.get(rj.origenNombre);
@@ -284,7 +256,7 @@ public class PersistenciaJson {
                 }
             }
 
-            // ----- RECURSOS -----
+            //  RECURSOS
             if (estado.recursos != null) {
                 for (RecursoJ rj : estado.recursos) {
                     Ubicacion u = (rj.nombreUbicacion != null)
@@ -317,7 +289,7 @@ public class PersistenciaJson {
                 }
             }
 
-            // ----- EQUIPOS DE RESCATE -----
+            //  EQUIPOS DE RESCATE
             if (estado.equipos != null) {
                 for (EquipoJ ej : estado.equipos) {
                     Ubicacion u = (ej.nombreUbicacion != null)
@@ -335,7 +307,7 @@ public class PersistenciaJson {
                 }
             }
 
-            // ----- EVACUACIONES -----
+            //  EVACUACIONES
             if (estado.evacuaciones != null) {
                 for (EvacuacionJ ej : estado.evacuaciones) {
                     Ubicacion u = (ej.nombreUbicacion != null)

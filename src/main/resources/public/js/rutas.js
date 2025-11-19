@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const formRutaCorta  = document.getElementById("formRutaCorta");
     const areaResultado  = document.getElementById("resultado");
 
-    // Cargar ubicaciones disponibles desde el backend
     async function cargarUbicaciones() {
         try {
             const respuesta = await fetch("/api/ubicaciones");
@@ -19,11 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const ubicaciones = await respuesta.json();
 
-            // Limpiar selects
             selectOrigen.innerHTML  = '<option value="">Seleccione origen...</option>';
             selectDestino.innerHTML = '<option value="">Seleccione destino...</option>';
 
-            // Llenar selects con los nombres de las ubicaciones
             ubicaciones.forEach(u => {
                 const opcionOrigen = document.createElement("option");
                 opcionOrigen.value = u.nombre;
@@ -73,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // El backend devuelve un texto simple, lo mostramos tal cual
             areaResultado.textContent = texto;
 
         } catch (e) {
@@ -82,6 +78,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Inicializar: cargar ubicaciones al abrir la página
     cargarUbicaciones();
 });
