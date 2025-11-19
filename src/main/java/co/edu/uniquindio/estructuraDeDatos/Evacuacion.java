@@ -21,65 +21,53 @@ public class Evacuacion implements Comparable<Evacuacion> {
         this.ubicacion = ubicacion;
     }
 
-    // ========================
-    //    GETTERS y SETTERS
-    // ========================
+   // Getters y Setters
     public String getIdEvacuacion() {
         return idEvacuacion;
     }
-
     public void setIdEvacuacion(String idEvacuacion) {
         this.idEvacuacion = idEvacuacion;
     }
-
     public int getPrioridad() {
         return prioridad;
     }
-
     public void setPrioridad(int prioridad) {
         this.prioridad = prioridad;
     }
-
     public int getCantidadPersonas() {
         return cantidadPersonas;
     }
-
     public void setCantidadPersonas(int cantidadPersonas) {
         this.cantidadPersonas = cantidadPersonas;
     }
-
     public EstadoEvacuacion getEstado() {
         return estado;
     }
-
     public void setEstado(EstadoEvacuacion estado) {
         this.estado = estado;
     }
-
     public Ubicacion getUbicacion() {
         return ubicacion;
     }
-
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
     }
 
-    // ========================
-    //        MÉTODOS
-    // ========================
-
+    // Cambiar estado evacuacion para Iniciar
     public void iniciarEvacuacion() {
         if (estado == EstadoEvacuacion.PENDIENTE) {
             estado = EstadoEvacuacion.EN_PROCESO;
         }
     }
 
+    // Cambiar estado evaucacion para Completar
     public void completarEvacuacion() {
         if (estado == EstadoEvacuacion.EN_PROCESO) {
             estado = EstadoEvacuacion.COMPLETADA;
         }
     }
 
+    // Actualizar Prioridad de evacuacion
     public void actualizarPrioridad(int nuevaPrioridad) {
         if (nuevaPrioridad >= 0) {
             this.prioridad = nuevaPrioridad;

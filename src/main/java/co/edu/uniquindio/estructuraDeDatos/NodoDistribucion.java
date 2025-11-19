@@ -24,6 +24,4 @@ public class NodoDistribucion {
     public void setDerecho(NodoDistribucion derecho) {this.derecho = derecho;}
 
 
-
-
 }

@@ -12,31 +12,29 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 
-/**
- * Servidor HTTP ligero para exponer interfaces HTML y APIs.
- * Login con cuentas demo (admin/oper) y usuarios registrados en runtime.
- */
+// Servidor HTTP  para exponer interfaces HTML y APIs
+
 public class WebServer {
 
     private final SistemaGestionDesastres sistema;
     private final Map<String, Ubicacion> ubicacionesPorNombre = new LinkedHashMap<>();
 
-    // 🔹 Equipos que todavía no tienen ubicación asignada (se guardan en una "bodega" oculta)
+    // Equipos que todavía no tienen ubicación asignada (se guardan en una "bodega" oculta)
     private final List<EquipoRescate> equiposSinUbicacion = new ArrayList<>();
     private Ubicacion ubicacionBodegaEquipos;
     private static final String NOMBRE_BODEGA_EQUIPOS = "__SIN_UBICACION__";
 
-    // 🔹 Usuarios registrados dinámicamente (además de los demo)
+    // Usuarios registrados dinámicamente (además de los demo)
     private final Map<String, UsuarioRegistrado> usuariosRegistrados = new HashMap<>();
 
     private static class UsuarioRegistrado {
         String usuario;
         String nombre;
-        String rol;        // "ADMINISTRADOR" o "OPERADOR"
+        String rol;
         String contrasena;
     }
 
-    // ======== Cuentas demo =========
+    // Cuentas demo
     private static final String ADMIN_USER = "admin";
     private static final String ADMIN_PASS = "admin123";
     private static final String ADMIN_ROLE = "ADMINISTRADOR";
@@ -46,7 +44,6 @@ public class WebServer {
     private static final String OPER_PASS = "oper123";
     private static final String OPER_ROLE = "OPERADOR";
     private static final String OPER_NAME = "Oscar Operador";
-    // ===============================
 
     public WebServer(SistemaGestionDesastres sistema) {
         this.sistema = sistema;
@@ -54,18 +51,18 @@ public class WebServer {
 
     public void start(int port) throws Exception {
 
-        // Si el grafo viene vacío (no había JSON o estaba vacío) cargamos la demo.
+        // Si el grafo viene vacío (no había JSON o estaba vacío) cargar la demo.
         // Si ya hay ubicaciones (cargadas desde PersistenciaJson.cargar),
-        // solo sincronizamos el mapa interno ubicacionesPorNombre y la bodega de equipos.
+        // Sincronizar el mapa interno ubicacionesPorNombre y la bodega de equipos.
         if (sistema.getGrafo().obtenerTodasLasUbicaciones().isEmpty()) {
-            cargarDemo(); // ubicaciones + rutas básicas
+            cargarDemo();
         } else {
             sincronizarUbicacionesDesdeSistema();
         }
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
-        // ---------- estáticos ----------
+        // estáticos
         server.createContext("/", ex -> enviarArchivo(ex, "public/index.html", "text/html; charset=utf-8"));
         server.createContext("/public/", ex -> {
             String path = ex.getRequestURI().getPath();
@@ -73,7 +70,7 @@ public class WebServer {
             enviarArchivo(ex, path, mime(path));
         });
 
-        // ---------- UBICACIONES ----------
+        // UBICACIONES
         server.createContext("/api/ubicaciones", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type", "application/json; charset=utf-8");
@@ -94,7 +91,7 @@ public class WebServer {
                 double lat = parseDoubleSafe(m.get("latitud"), 0);
                 double lng = parseDoubleSafe(m.get("longitud"), 0);
 
-                //  cantidad de personas iniciales
+                // Cantidad de personas iniciales
                 int personasIniciales = (int) parseDoubleSafe(m.getOrDefault("personas", "0"), 0);
                 if (personasIniciales < 0) personasIniciales = 0;
 
@@ -110,14 +107,14 @@ public class WebServer {
                         TipoZona.valueOf(tipo),
                         NivelDeAfectacion.valueOf(nivel),
                         evac,
-                        new ArrayList<>(),   // personas
-                        new ArrayList<>(),   // recursos
-                        new ArrayList<>(),   // equipos
+                        new ArrayList<>(),   // Lista para personas
+                        new ArrayList<>(),   // Lista para recursos
+                        new ArrayList<>(),   // Lista para equipos
                         lat,
                         lng
                 );
 
-                // crear N personas asociadas a la ubicación
+                // Crear N personas asociadas a la ubicación
                 if (personasIniciales > 0) {
                     for (int i = 1; i <= personasIniciales; i++) {
                         String idP = "P" + System.nanoTime() + "_" + i;
@@ -129,7 +126,7 @@ public class WebServer {
                         );
                         u.getPersonas().add(p);
                     }
-                    // mantener la evacuación interna de la ubicación alineada con la cantidad
+                    // Mantener evacuación alineada con la cantidad
                     if (u.getEvacuacion() != null) {
                         u.getEvacuacion().setCantidadPersonas(personasIniciales);
                     }
@@ -152,7 +149,7 @@ public class WebServer {
                     return;
                 }
 
-                // Buscar coincidencia real (ignorando mayúsculas y espacios)
+                // Buscar coincidencias (ignorando mayúsculas y espacios)
                 Ubicacion u = null;
                 for (Map.Entry<String, Ubicacion> entry : ubicacionesPorNombre.entrySet()) {
                     if (entry.getKey().trim().equalsIgnoreCase(nombre.trim())) {
@@ -169,7 +166,7 @@ public class WebServer {
                 // Eliminar del mapa interno
                 ubicacionesPorNombre.remove(u.getNombre());
 
-                // Eliminar del grafo (incluye rutas asociadas)
+                // Eliminar del grafo (con rutas asociadas)
                 sistema.getGrafo().eliminarUbicacion(u);
 
                 // Guardar cambios en JSON
@@ -182,7 +179,7 @@ public class WebServer {
             enviarTexto(ex,405,"{}");
         });
 
-        // ---------- RUTAS ----------
+        // RUTAS
         server.createContext("/api/rutas", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type", "application/json; charset=utf-8");
@@ -212,7 +209,7 @@ public class WebServer {
                 // Intentar leer distancia del JSON, si viene
                 double dist = parseDoubleSafe(m.get("distancia"), -1);
 
-                // Si no viene o es <= 0, calcular con lat/lng (distancia real aprox.)
+                // Si no viene o es <= 0, calcular con lat/lng (distancia real aprox)
                 if (dist <= 0) {
                     dist = distanciaKm(o, d);
                 }
@@ -270,12 +267,11 @@ public class WebServer {
             }
         });
 
-        // ---------- RECURSOS ----------
+        // RECURSOS
         server.createContext("/api/recursos", ex -> {
             Headers h = ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String method = ex.getRequestMethod();
 
-            // ===== GET =====
             if ("GET".equals(method)) {
                 String ubic = query(ex.getRequestURI().getQuery()).get("ubicacion");
 
@@ -351,7 +347,7 @@ public class WebServer {
                 return;
             }
 
-            // ===== POST =====
+
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
 
@@ -377,10 +373,8 @@ public class WebServer {
                 if (tipo.equalsIgnoreCase("ALIMENTO")) {
                     LocalDate fecha;
                     if (vencStr != null && !vencStr.isBlank()) {
-                        // Se espera formato yyyy-MM-dd
                         fecha = LocalDate.parse(vencStr);
                     } else {
-                        // Por defecto, 30 días después de hoy
                         fecha = LocalDate.now().plusDays(30);
                     }
                     String nombreFinal = (nombre != null && !nombre.isBlank())
@@ -421,7 +415,6 @@ public class WebServer {
                     );
                 }
 
-                // ✅ Registramos en mapa + árbol de distribución
                 sistema.getMapaRecursos().agregarRecurso(u, rec);
                 guardarSistemaEnJson();
                 try {
@@ -439,7 +432,7 @@ public class WebServer {
             }
         });
 
-        // 🔹 NUEVO ENDPOINT: DISTRIBUCIÓN PRIORITARIA DE RECURSOS
+
         server.createContext("/api/recursos/distribuirPrioridad", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
@@ -459,11 +452,9 @@ public class WebServer {
                 String idRecurso     = trimOrNull(m.get("idRecurso"));
                 int cantidadPorZona  = (int)parseDoubleSafe(m.getOrDefault("cantidadPorZona","0"),0);
 
-                // Llamamos a la lógica de SistemaGestionDesastres (usa MapaRecursos + ArbolDistribuido)
                 List<String> log = sistema.distribuirRecursoPrioritario(origen, idRecurso, cantidadPorZona);
                 guardarSistemaEnJson();
 
-                // Convertir lista de mensajes a JSON simple: ["msg1","msg2",...]
                 StringBuilder sb = new StringBuilder("[");
                 for (int i = 0; i < log.size(); i++) {
                     if (i > 0) sb.append(",");
@@ -506,12 +497,11 @@ public class WebServer {
             }
         });
 
-        // ---------- EQUIPOS ----------
+        // EQUIPOS
         server.createContext("/api/equipos", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String method=ex.getRequestMethod();
 
-            // LISTAR TODOS LOS EQUIPOS (con y sin ubicación)
             if ("GET".equals(method)) {
                 List<String> items=new ArrayList<>();
 
@@ -523,7 +513,7 @@ public class WebServer {
                     ));
                 }
 
-                // Equipos asociados a ubicaciones reales
+                // Equipos asociados a ubicaciones
                 for(Ubicacion u: ubicacionesPorNombre.values()){
                     if (u.getEquiposDeRescate() != null) {
                         for(EquipoRescate e: u.getEquiposDeRescate()){
@@ -542,7 +532,7 @@ public class WebServer {
                 return;
             }
 
-            // CREAR EQUIPO SIN UBICACIÓN (se guarda en bodega oculta)
+
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 String nombre=trimOrNull(m.get("nombre"));
@@ -561,8 +551,8 @@ public class WebServer {
                 Ubicacion bodega = obtenerUbicacionBodegaEquipos();
                 EquipoRescate eq=new EquipoRescate("EQ"+System.nanoTime(),tipo,miembros,bodega);
                 eq.setNombre(nombre);
-                bodega.asignarEquipo(eq);      // queda persistido dentro de la bodega
-                equiposSinUbicacion.add(eq);   // lista auxiliar para la API
+                bodega.asignarEquipo(eq);
+                equiposSinUbicacion.add(eq);
 
                 guardarSistemaEnJson();
                 try {
@@ -580,7 +570,7 @@ public class WebServer {
             }
         });
 
-        // 🔹 Asignar / reasignar equipo a una ubicación REAL
+
         server.createContext("/api/equipos/asignar", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
@@ -622,7 +612,7 @@ public class WebServer {
                 }
             }
 
-            // Si no estaba ahí, buscar en cada ubicación (reasignación)
+            // Si no estaba ahí, buscar en cada ubicación (reasignar)
             if (encontrado == null) {
                 for (Ubicacion u : ubicacionesPorNombre.values()) {
                     if (u.getEquiposDeRescate() == null) continue;
@@ -651,7 +641,7 @@ public class WebServer {
             try { enviarTexto(ex,200,"{\"ok\":true}"); } catch (IOException e) { e.printStackTrace(); }
         });
 
-        // 🔹 Eliminar equipo por nombre (tanto en bodega como en ubicaciones reales)
+        // Eliminar equipo por nombre (tanto en bodega como en ubicaciones reales)
         server.createContext("/api/equipos/eliminar", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
@@ -670,7 +660,6 @@ public class WebServer {
 
             boolean borrado = false;
 
-            // 1) Lista sin ubicación + bodega
             Iterator<EquipoRescate> itSin = equiposSinUbicacion.iterator();
             while (itSin.hasNext()) {
                 EquipoRescate e = itSin.next();
@@ -685,7 +674,6 @@ public class WebServer {
                 }
             }
 
-            // 2) Equipos dentro de ubicaciones reales
             if (!borrado) {
                 for (Ubicacion u : ubicacionesPorNombre.values()) {
                     if (u.getEquiposDeRescate() == null) continue;
@@ -711,7 +699,7 @@ public class WebServer {
             try { enviarTexto(ex,200,"{\"ok\":true}"); } catch (IOException e) { e.printStackTrace(); }
         });
 
-        // ---------- PERSONAS ----------
+        // PERSONAS
         server.createContext("/api/personas", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type", "application/json; charset=utf-8");
@@ -749,7 +737,7 @@ public class WebServer {
             }
         });
 
-        // ---------- REGISTRO DE USUARIOS ----------
+        // REGISTRO DE USUARIOS
         server.createContext("/api/registro", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
@@ -781,7 +769,7 @@ public class WebServer {
                     return;
                 }
 
-                // Evitar duplicados con usuarios ya registrados o demo
+                // Evitar duplicados con usuarios ya registrados
                 if (usuariosRegistrados.containsKey(usuario)
                         || ADMIN_USER.equals(usuario)
                         || OPER_USER.equals(usuario)) {
@@ -808,7 +796,7 @@ public class WebServer {
             }
         });
 
-        // ---------- LOGIN ----------
+        // LOGIN
         server.createContext("/api/login", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             if (!"POST".equals(ex.getRequestMethod())) {
@@ -832,7 +820,6 @@ public class WebServer {
                 return;
             }
 
-            // 1️⃣ Primero, probar con usuarios registrados dinámicamente
             UsuarioRegistrado ur = usuariosRegistrados.get(usr);
             if (ur != null && ur.contrasena.equals(pwd)) {
                 String json = String.format(
@@ -848,7 +835,6 @@ public class WebServer {
                 return;
             }
 
-            // 2️⃣ Si no coincide, usar las cuentas demo hardcodeadas
             if (ADMIN_USER.equals(usr) && ADMIN_PASS.equals(pwd)) {
                 try {
                     enviarTexto(ex,200,String.format("{\"ok\":true,\"rol\":\"%s\",\"nombre\":\"%s\"}", ADMIN_ROLE, ADMIN_NAME));
@@ -872,7 +858,7 @@ public class WebServer {
             }
         });
 
-        // ---------- RESUMEN ----------
+        // RESUMEN
         server.createContext("/api/resumen", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String json = String.format(
@@ -888,13 +874,12 @@ public class WebServer {
             }
         });
 
-        // ---------- EVACUACIONES ----------
+        // EVACUACIONES
         server.createContext("/api/evacuaciones", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
             String method = ex.getRequestMethod();
 
-            // ===== GET =====
             if ("GET".equals(method)) {
                 List<String> arr = new ArrayList<>();
                 for (Evacuacion e : sistema.getColaEvacuaciones().listarTodas()) {
@@ -909,7 +894,6 @@ public class WebServer {
                 return;
             }
 
-            // ===== POST (crear evacuación) =====
             if ("POST".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 Ubicacion u = ubicacionesPorNombre.get(trimOrNull(m.get("ubicacion")));
@@ -930,7 +914,6 @@ public class WebServer {
                 return;
             }
 
-            // ===== PUT (actualizar estado) =====
             if ("PUT".equals(method)) {
                 Map<String,String> m=tinyJson(cuerpo(ex));
                 String id = trimOrNull(m.get("id"));
@@ -944,7 +927,6 @@ public class WebServer {
                 return;
             }
 
-            // ===== DELETE (eliminar por id) =====
             if ("DELETE".equals(method)) {
                 Map<String,String> q = query(ex.getRequestURI().getQuery());
                 String id = trimOrNull(q.get("id"));
@@ -967,7 +949,7 @@ public class WebServer {
             enviarTexto(ex,405,"{}");
         });
 
-        // 🔹 NUEVO: endpoint para PLANIFICAR una evacuación
+
         server.createContext("/api/evacuaciones/planificar", ex -> {
             Headers h = ex.getResponseHeaders();
             h.add("Content-Type","application/json; charset=utf-8");
@@ -995,7 +977,6 @@ public class WebServer {
                 return;
             }
 
-            // La marcamos EN_PROCESO para que el front pueda mostrarla como planificada
             seleccionada.setEstado(EstadoEvacuacion.EN_PROCESO);
             guardarSistemaEnJson();
 
@@ -1019,7 +1000,7 @@ public class WebServer {
             }
         });
 
-        // ---------- USUARIOS ----------
+        // USUARIOS
         server.createContext("/api/usuarios", ex -> {
             Headers h=ex.getResponseHeaders(); h.add("Content-Type","application/json; charset=utf-8");
             String json = String.format(
@@ -1035,7 +1016,7 @@ public class WebServer {
             }
         });
 
-        // ---------- PING ----------
+        // PING
         server.createContext("/api/ping", ex -> {
             ex.getResponseHeaders().add("Content-Type","application/json; charset=utf-8");
             try {
@@ -1046,10 +1027,10 @@ public class WebServer {
         });
 
         server.start();
-        System.out.println("🌐 Servidor web activo en http://localhost:" + port);
+        System.out.println("Servidor web activo en http://localhost:" + port);
     }
 
-    // ================== Helpers / utilidades ==================
+    // Helpers / utilidades
 
     private void sincronizarUbicacionesDesdeSistema() {
         equiposSinUbicacion.clear();
@@ -1069,7 +1050,6 @@ public class WebServer {
     }
 
     private void cargarDemo() {
-        // Evacuación neutra
         Evacuacion evac = new Evacuacion("E0",0,0,EstadoEvacuacion.PENDIENTE,null);
         Ubicacion a=new Ubicacion("U1","Ciudad A",TipoZona.CIUDAD,       NivelDeAfectacion.MODERADO,evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>(), 0.0, 0.0);
         Ubicacion b=new Ubicacion("U2","Refugio B",TipoZona.REFUGIO,     NivelDeAfectacion.LEVE,     evac,new ArrayList<>(),new ArrayList<>(),new ArrayList<>(), 1.0, 1.0);
@@ -1096,7 +1076,6 @@ public class WebServer {
                     0.0,
                     0.0
             );
-            // No la registramos en ubicacionesPorNombre para que no salga en el mapa
             sistema.agregarUbicacion(ubicacionBodegaEquipos);
         }
         return ubicacionBodegaEquipos;
@@ -1134,13 +1113,13 @@ public class WebServer {
         return "["+String.join(",",items)+"]";
     }
 
-    // --- distancia real aproximada entre dos ubicaciones (Haversine) ---
+    // Distancia real aproximada entre dos ubicaciones
     private static double distanciaKm(Ubicacion o, Ubicacion d) {
         return distanciaKm(o.getLatitud(), o.getLongitud(), d.getLatitud(), d.getLongitud());
     }
 
     private static double distanciaKm(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371.0; // radio aproximado de la Tierra en km
+        double R = 6371.0;
         double rad = Math.PI / 180.0;
 
         double dLat = (lat2 - lat1) * rad;
@@ -1159,7 +1138,7 @@ public class WebServer {
         PersistenciaJson.guardar(sistema);
     }
 
-    // ---- IO helpers ----
+    // IO helpers
     private static String cuerpo(HttpExchange ex) throws IOException {
         return new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
     }
@@ -1194,7 +1173,7 @@ public class WebServer {
         return "text/plain; charset=utf-8";
     }
 
-    // ---- util JSON/query simple ----
+    // util JSON/query simple
     private static Map<String,String> tinyJson(String json){
         Map<String,String> map=new HashMap<>();
         if(json==null) return map;
