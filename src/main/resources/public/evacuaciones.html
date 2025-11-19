@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Evacuaciones — Sistema Gestión de Desastres (Ultra Modern)</title>
 
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
     <style>
-        /* ---------- FUENTES Y BASE ---------- */
+
         :root{
           --glass-bg: rgba(255,255,255,0.06);
           --panel-bg: rgba(255,255,255,0.9);
@@ -26,7 +25,6 @@
           background: linear-gradient(180deg,#0f172a 0%, #0b1220 60%);
           -webkit-font-smoothing:antialiased;
         }
-        /* ---------- CONTENEDOR PRINCIPAL ---------- */
         .app {
           display:grid;
           grid-template-columns:420px 1fr;
@@ -36,7 +34,6 @@
           box-sizing:border-box;
         }
 
-        /* ---------- PANEL LATERAL (glass) ---------- */
         .panel {
           border-radius:16px;
           padding:20px;
@@ -62,7 +59,6 @@
         }
         .brand h1 {margin:0;font-size:18px;letter-spacing:0.3px}
 
-        /* ---------- SECCION DE UBICACIONES ---------- */
         .card {
           background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
           border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.04);
@@ -84,15 +80,14 @@
         }
         .loc:hover { transform: translateY(-4px); box-shadow:0 12px 28px rgba(2,6,23,0.5)}
         .loc .bubble { width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#07112b}
-        .lvl1{ background: linear-gradient(135deg,#bbf7d0,#86efac) } /* bajo */
-        .lvl3{ background: linear-gradient(135deg,#ffedd5,#ffc58a) } /* medio */
-        .lvl5{ background: linear-gradient(135deg,#ffd6d6,#ff8a8a) } /* alto */
+        .lvl1{ background: linear-gradient(135deg,#bbf7d0,#86efac) }
+        .lvl3{ background: linear-gradient(135deg,#ffedd5,#ffc58a) }
+        .lvl5{ background: linear-gradient(135deg,#ffd6d6,#ff8a8a) }
 
         .loc .meta {flex:1}
         .loc .meta b{display:block;font-size:15px;color:#f8fafc}
         .loc .meta span{color:var(--muted);font-size:13px}
 
-        /* ---------- COLA PRIORIDAD (VISUAL) ---------- */
         .cola-wrap {
           display:flex; flex-direction:column; gap:10px;
         }
@@ -117,7 +112,7 @@
         .dot-mid  { background: #ffa94d }
         .dot-low  { background: #63e6be }
 
-        /* ---------- BOTONES ACCIÓN (GRAN) ---------- */
+
         .cta {
           display:flex; gap:12px; margin-top:8px;
         }
@@ -131,7 +126,6 @@
         }
         .btn:active { transform: translateY(2px) }
 
-        /* ---------- PANEL DERECHO (workspace) ---------- */
         .workspace {
           padding:18px;
           display:flex;flex-direction:column; gap:18px;
@@ -143,7 +137,6 @@
         }
         .title-big { font-size:20px; font-weight:800; letter-spacing:0.3px }
 
-        /* Mapa */
         #map {
           height: 56vh;
           border-radius:16px;
@@ -151,7 +144,6 @@
           box-shadow: 0 20px 60px rgba(2,6,23,0.6)
         }
 
-        /* TRANSFER RESULT */
         .transfer {
           display:flex; gap:14px; align-items:center; padding:14px; border-radius:12px;
           background:linear-gradient(90deg, rgba(124,58,237,0.06), rgba(124,58,237,0.03));
@@ -159,7 +151,6 @@
         }
         .transfer .big { font-size:18px; font-weight:800 }
 
-        /* columnas de listas */
         .lists-row {
           display:flex;
           gap:20px;
@@ -171,7 +162,6 @@
           color:#ffffff;
         }
 
-        /* tarjetas de evac */
         .evac-card {
           padding:10px;
           border:1px solid rgba(255,255,255,0.12);
@@ -212,7 +202,6 @@
           color:white;
         }
 
-        /* responsive */
         @media (max-width:1050px){
           .app{
             grid-template-columns: 1fr;
@@ -231,14 +220,11 @@
 <body>
 
 <div class="app">
-    <!-- PANEL LATERAL -->
     <aside class="panel" aria-label="Panel lateral de evacuaciones">
         <div class="brand">
             <div class="logo">ED</div>
             <h1>Evacuaciones — Ultra Modern</h1>
         </div>
-
-        <!-- Ubicaciones -->
         <div class="card">
             <h2>Ubicaciones</h2>
             <div class="small">Zona afectada y refugios (traído del servidor)</div>
@@ -247,8 +233,6 @@
                 Haz clic en una ubicación para seleccionarla en el mapa.
             </div>
         </div>
-
-        <!-- Cola prioridad -->
         <div class="card cola-wrap">
             <div class="cola-title">
                 <h2>Cola de Prioridad</h2>
@@ -261,8 +245,6 @@
                 Las tarjetas muestran las evacuaciones en cola. Puedes eliminarlas o planificarlas.
             </div>
         </div>
-
-        <!-- Planificación -->
         <div class="card">
             <h2>Planificación</h2>
             <div style="display:flex;gap:8px;margin-top:8px;">
@@ -285,7 +267,6 @@
         </div>
     </aside>
 
-    <!-- WORKSPACE -->
     <main class="workspace">
         <div class="topbar">
             <div>
@@ -302,16 +283,13 @@
 
         <div id="map"></div>
 
-        <!-- LISTADO DE EVACUACIONES -->
         <div class="lists-row">
 
-            <!-- COLUMNA IZQUIERDA: COLA (ya está arriba) y PLANIFICADAS -->
             <div style="flex:1;">
                 <h3 style="margin-top:12px;">Evacuaciones Planificadas</h3>
                 <div id="evacPlan"></div>
             </div>
 
-            <!-- COLUMNA DERECHA: COMPLETADAS -->
             <div style="flex:1;">
                 <h3 style="margin-top:12px;">Evacuaciones Completadas</h3>
                 <div id="evacDone"></div>
@@ -329,36 +307,25 @@
     </main>
 </div>
 
-<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-    /*
-      Evacuaciones — Frontend
-      Usa:
-        - GET /api/ubicaciones
-        - GET /api/evacuaciones
-        - POST /api/evacuaciones
-        - PUT /api/evacuaciones
-        - DELETE /api/evacuaciones?id=...
-        - POST /api/evacuaciones/planificar
-    */
 
-    // ====== ESTADO GLOBAL ======
-    let ubicaciones = [];         // ubicaciones del servidor
-    let listaEvacuaciones = [];   // todas las evacuaciones
-    let cola = [];                // estado PENDIENTE
-    let planificadas = [];        // estado EN_PROCESO
-    let completadas = [];         // estado COMPLETADA
+
+    let ubicaciones = [];
+    let listaEvacuaciones = [];
+    let cola = [];
+    let planificadas = [];
+    let completadas = [];
 
     let map, layerGroup;
 
-    // ====== MAPA ======
+
     map = L.map('map', {zoomControl:true}).setView([4.535, -75.675], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     layerGroup = L.layerGroup().addTo(map);
 
-    // ====== DOM refs ======
+
     const elLocations = document.getElementById('locations');
     const elQueue = document.getElementById('queue');
     const selOrigen = document.getElementById('selectOrigen');
@@ -372,7 +339,7 @@
     const elEvacPlan = document.getElementById('evacPlan');
     const elEvacDone = document.getElementById('evacDone');
 
-    // ====== UTIL ======
+
     function textoEstado(e) {
         if (e === 'PENDIENTE') return 'Pendiente (en cola)';
         if (e === 'EN_PROCESO') return 'Planificada';
@@ -452,7 +419,6 @@
     }
 
 
-    // ---------- RENDER UBICACIONES + MAPA ----------
     function renderLocations(){
       elLocations.innerHTML = '';
       layerGroup.clearLayers();
@@ -469,7 +435,6 @@
                 const div = document.createElement('div');
         div.className = 'loc';
 
-        // número inicial (placeholder) mientras se carga el real desde /api/personas
         const personas = u.personas ?? u.cantidadPersonas ?? 0;
 
         div.innerHTML = `
@@ -522,14 +487,11 @@
           );
           layerGroup.addLayer(marker);
 
-          // 🔵 NUEVO: sincronizar el número de personas con /api/personas
           sincronizarPersonasUbicacion(u, div, marker);
         }
       });
     }
 
-
-    // ---------- RENDER COLA (PENDIENTES) ----------
     function renderQueue() {
       elQueue.innerHTML = '';
 
@@ -603,7 +565,7 @@
       });
     }
 
-    // ---------- RENDER PLANIFICADAS (EN_PROCESO) ----------
+
     function renderPlanificadas() {
       elEvacPlan.innerHTML = '';
 
@@ -689,7 +651,7 @@
       });
     }
 
-    // ---------- RENDER COMPLETADAS ----------
+
     function renderCompletadas() {
       elEvacDone.innerHTML = '';
 
@@ -748,7 +710,6 @@
       });
     }
 
-    // ---------- Render global ----------
     function renderAll() {
       renderLocations();
       renderQueue();
@@ -756,7 +717,6 @@
       renderCompletadas();
     }
 
-    // ---------- Añadir evacuación manual ----------
     btnManual.addEventListener('click', async () => {
       const ubic = prompt('Nombre de la ubicación a evacuar (exacto):');
       if (!ubic) return;
@@ -788,7 +748,7 @@
       }
     });
 
-    // ---------- Planificar (usa endpoint backend) ----------
+
     btnPlan.addEventListener('click', async () => {
       btnPlan.disabled = true;
       btnPlan.textContent = 'Ejecutando...';
@@ -816,13 +776,11 @@
       }
     });
 
-    // ---------- Refresh manual ----------
     btnRefresh.addEventListener('click', async () => {
       await Promise.all([cargarUbicaciones(), cargarEvacuaciones()]);
       renderAll();
     });
 
-    // ---------- Refresh periódico de la cola ----------
     setInterval(async () => {
       try {
         await cargarEvacuaciones();

@@ -13,7 +13,6 @@
 </script>
 
 <main class="container">
-    <!-- AGREGAR RECURSO -->
     <section class="card">
         <h2>Agregar recurso</h2>
         <form id="formRecurso" class="row">
@@ -26,43 +25,35 @@
 
             <input id="cantidadRecurso" type="number" min="1" placeholder="Cantidad" required>
 
-            <!-- 🔴 Es un SELECT de ubicaciones existentes, se llena desde recursos.js -->
             <select id="ubicacionRecurso" required>
                 <option value="">Selecciona ubicación</option>
-                <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
             </select>
 
-            <!-- Solo para alimento -->
             <input id="fechaVencimiento" type="date" placeholder="Fecha de vencimiento">
 
-            <!-- Solo para medicina -->
             <input id="tipoMedicamento" placeholder="Tipo de medicamento (ej. analgésico)">
 
             <button class="btn">Agregar recurso</button>
         </form>
     </section>
 
-    <!-- ASIGNAR EQUIPO EXISTENTE A UNA UBICACIÓN -->
     <section class="card mt">
         <h2>Asignar equipo de rescate existente</h2>
         <p>Primero se crean los equipos en otra interfaz (por ejemplo, Equipos). Aquí solo se asignan a una ubicación.</p>
         <form id="formAsignarEquipo" class="row">
             <select id="equipoExistente">
                 <option value="">Selecciona equipo</option>
-                <!-- Se llena desde /api/equipos en recursos.js -->
             </select>
 
-            <!-- 🔴 SELECT de ubicaciones existentes para asignar -->
             <select id="ubicacionEquipo" required>
                 <option value="">Selecciona ubicación</option>
-                <!-- opciones reales se llenan desde recursos.js con /api/ubicaciones -->
+
             </select>
 
             <button class="btn">Asignar equipo</button>
         </form>
     </section>
 
-    <!-- RESUMEN -->
     <section class="card mt">
         <h2>Resumen</h2>
         <div id="msgOk" class="success" style="display:none">Guardado correctamente</div>
@@ -92,7 +83,6 @@
             <tbody id="tablaEquipos"></tbody>
         </table>
 
-        <!-- 🔹 Acceso directo al módulo de distribución -->
         <div class="mt">
             <a href="/distribucion.html" class="btn">Ir a distribución prioritaria de recursos</a>
         </div>

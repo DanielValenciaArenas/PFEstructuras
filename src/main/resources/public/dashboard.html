@@ -20,12 +20,9 @@
 
 <div class="layout">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="profile">
             <div class="avatar"></div>
-
-            <!-- Rol dinámico -->
             <h2 id="sidebarRol" class="name"></h2>
             <p class="email">sistema@desastres.com</p>
         </div>
@@ -38,34 +35,20 @@
             <a class="menu-item" href="/public/rutas.html">Rutas</a>
             <a class="menu-item" href="/public/mapaInteractivo.html">Mapa Interactivo</a>
             <a class="menu-item" href="/public/distribucion.html">distribucion</a>
-
-
-            <!-- Solo ADMIN -->
             <a class="menu-item" id="menuUsuarios" href="/public/usuarios.html">Usuarios</a>
-
             <a class="menu-item" href="/public/transferencias.html">Transferencias</a>
-
-            <!-- 🔥 Botón salir en el sidebar (opcional, puedes quitarlo) -->
             <a class="menu-item" id="btnLogoutSidebar" style="color:#dc2626; font-weight:bold; cursor:pointer;">
                 Salir
             </a>
         </nav>
     </aside>
-
-    <!-- MAIN CONTENT -->
     <main class="content">
 
         <header class="top-header">
             <h1>Dashboard General</h1>
-
-            <!-- Botón PDF (solo admin) -->
             <button class="btn-pdf" id="exportPdfBtn">Exportar PDF</button>
-
-            <!-- 🔥 Botón SALIR principal -->
             <button class="btn-logout" id="btnLogout">Salir</button>
         </header>
-
-        <!-- TARJETAS SUPERIORES -->
         <section class="cards-row">
             <div class="stat-card"><h3>Leve</h3><div id="lev" class="stat"></div></div>
             <div class="stat-card"><h3>Moderado</h3><div id="mod" class="stat"></div></div>
@@ -74,8 +57,6 @@
             <div class="stat-card"><h3>Equipos</h3><div id="eq" class="stat"></div></div>
             <div class="stat-card"><h3>Pendientes</h3><div id="pen" class="stat"></div></div>
         </section>
-
-        <!-- GRÁFICOS -->
         <section class="charts-row">
             <div class="chart-card">
                 <h3>Ubicaciones por nivel</h3>
@@ -101,7 +82,7 @@
     const ses = Auth.getSession();
     document.getElementById("sidebarRol").textContent = ses.rol;
 
-    // Operador → ocultar PDF y Usuarios
+    // Operador
     if (ses.rol === "OPERADOR") {
         const pdfBtn = document.getElementById("exportPdfBtn");
         if (pdfBtn) pdfBtn.style.display = "none";
@@ -110,13 +91,13 @@
         if (usuarios) usuarios.style.display = "none";
     }
 
-    // 🔥 Botón salir (header)
+    //  Botón salir
     const logoutBtn = document.getElementById("btnLogout");
     if (logoutBtn) {
         logoutBtn.onclick = () => Auth.logout();
     }
 
-    // 🔥 Botón salir (sidebar)
+    // Botón salir
     const logoutSidebar = document.getElementById("btnLogoutSidebar");
     if (logoutSidebar) {
         logoutSidebar.onclick = () => Auth.logout();
