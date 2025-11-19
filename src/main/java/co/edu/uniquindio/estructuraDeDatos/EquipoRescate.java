@@ -28,7 +28,4 @@ public class EquipoRescate {
 
     public void asignarUbicacion(Ubicacion u) { this.ubicacion = u; }
 
-    public void atenderEmergencia(Ubicacion u) {
-        System.out.println("El Equipo " + nombre + " con id  (" + idEquipo + ") atiende emergencia en " + (u!=null?u.getNombre():"?"));
-    }
 }

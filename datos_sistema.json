@@ -194,6 +194,14 @@
   ],
   "recursos": [
     {
+      "id": "RM105509827738900-P105534145105500-P18189866680000",
+      "nombre": "pildoras",
+      "cantidad": 7,
+      "nombreUbicacion": "San Jose",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
       "id": "RA104203078120700-P104559685081700",
       "nombre": "Atun",
       "cantidad": 16,
@@ -278,54 +286,6 @@
       "nombre": "pildoras",
       "cantidad": 66,
       "nombreUbicacion": "Refugio B",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RM105509827738900-P105534145105500-P18189835419700",
-      "nombre": "pildoras",
-      "cantidad": 40,
-      "nombreUbicacion": "Libertadores",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 25,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "General"
-    },
-    {
-      "id": "RA104203078120700-P104559683273600",
-      "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "El bosque",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700",
-      "nombre": "Atun",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534145105500",
-      "nombre": "pildoras",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RM105509827738900-P105534145105500-P18189866680000",
-      "nombre": "pildoras",
-      "cantidad": 7,
-      "nombreUbicacion": "San Jose",
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
@@ -496,22 +456,62 @@
       "nombreUbicacion": "Ciudad A",
       "tipo": "MEDICINA",
       "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189835419700",
+      "nombre": "pildoras",
+      "cantidad": 40,
+      "nombreUbicacion": "Libertadores",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM16138741810600",
+      "nombre": "MEDICINA",
+      "cantidad": 25,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "General"
+    },
+    {
+      "id": "RA104203078120700-P104559683273600",
+      "nombre": "Atun",
+      "cantidad": 16,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700",
+      "nombre": "Atun",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500",
+      "nombre": "pildoras",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
     }
   ],
   "equipos": [
-    {
-      "id": "EQ16470256995600",
-      "nombre": "Los capos",
-      "tipo": "bomberos",
-      "miembros": 8,
-      "nombreUbicacion": "San Jose"
-    },
     {
       "id": "EQ16552362510000",
       "nombre": "Yasuri",
       "tipo": "Policias",
       "miembros": 4,
       "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EQ16470256995600",
+      "nombre": "Los capos",
+      "tipo": "bomberos",
+      "miembros": 8,
+      "nombreUbicacion": "San Jose"
     }
   ],
   "evacuaciones": [

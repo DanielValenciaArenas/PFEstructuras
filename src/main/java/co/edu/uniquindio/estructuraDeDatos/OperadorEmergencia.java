@@ -8,6 +8,7 @@ public class OperadorEmergencia extends Usuario {
         super(idUsuario, nombre, usuario, contrasena, rol);
     }
 
+    // Actualizar estado de una ubicacion
     public void actualizarEstadoUbicacion(Ubicacion u, NivelDeAfectacion nivel) {
         if (u == null || nivel == null) {
             System.out.println("Error: ubicación o nivel nulos");
@@ -30,7 +31,7 @@ public class OperadorEmergencia extends Usuario {
         System.out.println("Operador " + getNombre() + ": evacuación priorizada → " + e);
     }
 
-    // Versión 2: generar evacuación automática basada en nivel de afectación
+    // Versión (2): generar evacuación automática basada en nivel de afectación
     public void priorizarEvacuacionAutomatica(ColaPrioridadEvacuacion cola, Ubicacion zona) {
         if (cola == null || zona == null) {
             System.out.println("Error: cola o zona nula");
@@ -59,7 +60,7 @@ public class OperadorEmergencia extends Usuario {
     }
 
 
-    // 3) Ejecutar la siguiente evacuación (del tope de la cola)
+    // Ejecutar la evacuación que este al tope de la cola
     public void coordinarEvacuacion(ColaPrioridadEvacuacion cola) {
         if (cola == null || cola.estaVacia()) {
             System.out.println("No hay evacuaciones pendientes.");
@@ -75,8 +76,7 @@ public class OperadorEmergencia extends Usuario {
     }
 
 
-    // 4) Coordinar distribución manual de recursos
-
+    // Coordinar distribución manual de recursos
     public void coordinarDistribucionRecursos(MapaRecursos mapa, ArbolDistribuido arbol,
                                               Ubicacion origen, Ubicacion destino,
                                               String idRecurso, int cantidad) {
@@ -106,7 +106,7 @@ public class OperadorEmergencia extends Usuario {
     }
 
 
-    // 5) Distribuir recurso según urgencia y proximidad
+    // Distribuir recurso según urgencia y proximidad
     public void distribuirRecursoUrgente(GrafoTransporte grafo, MapaRecursos mapa,
                                          Ubicacion origen, List<Ubicacion> zonas, Recurso recurso) {
         if (grafo == null || mapa == null || origen == null || zonas == null || zonas.isEmpty() || recurso == null) {
@@ -114,7 +114,6 @@ public class OperadorEmergencia extends Usuario {
             return;
         }
 
-        // 1. Filtrar zonas urgentes (GRAVE > MODERADO)
         List<Ubicacion> urgentes = zonas.stream()
                 .filter(z -> z.getNivelAfectacion() == NivelDeAfectacion.GRAVE)
                 .toList();
@@ -130,7 +129,6 @@ public class OperadorEmergencia extends Usuario {
             return;
         }
 
-        // 2. Escoger la más cercana
         Ubicacion destinoMasCercano = null;
         double menorDistancia = Double.MAX_VALUE;
 
@@ -150,7 +148,7 @@ public class OperadorEmergencia extends Usuario {
             return;
         }
 
-        // 3. Asignar el recurso en la zona seleccionada
+        // Asignar el recurso en la zona seleccionada
         mapa.agregarRecurso(destinoMasCercano, recurso);
         System.out.println("Recurso " + recurso.getNombre() + " distribuido a "
                 + destinoMasCercano.getNombre()
@@ -158,6 +156,7 @@ public class OperadorEmergencia extends Usuario {
                 + ", distancia " + menorDistancia + ")");
     }
 
+    // Calculo de la distancia total
     private double calcularDistanciaTotal(GrafoTransporte grafo, List<Ubicacion> camino) {
         double total = 0;
         for (int i = 0; i < camino.size() - 1; i++) {
@@ -174,7 +173,7 @@ public class OperadorEmergencia extends Usuario {
     }
 
 
-    // 6) Autenticación / sesión
+    // Autenticación / sesión
     @Override
     public boolean autenticar(String user, String pass) {
         return this.getUsuario().equals(user) && this.getContrasena().equals(pass);

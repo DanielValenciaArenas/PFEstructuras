@@ -18,21 +18,19 @@ public class ColaPrioridadEvacuacion {
     public boolean estaVacia() { return size == 0; }
     public int getSize() { return size; }
 
-    /** Inserta manteniendo ORDEN por prioridad (mayor prioridad al frente). */
+    // Insertar manteniendo ORDEN por prioridad (mayor prioridad primero)
     public void insertar(Evacuacion evac) {
         if (evac == null) return;
 
         Nodo<Evacuacion> nuevo = new Nodo<>(evac);
         int p = evac.getPrioridad();
 
-        // 1) cola vacía
         if (estaVacia()) {
             primero = ultimo = nuevo;
             size = 1;
             return;
         }
 
-        // 2) va al frente si su prioridad es estrictamente MAYOR que la del primero
         if (p > primero.getDato().getPrioridad()) {
             nuevo.setSiguiente(primero);
             primero = nuevo;
@@ -40,19 +38,15 @@ public class ColaPrioridadEvacuacion {
             return;
         }
 
-        // 3) buscar posición intermedia o final para mantener ORDEN DESCENDENTE
-        // avanzamos mientras el siguiente tenga prioridad >= p
         Nodo<Evacuacion> actual = primero;
         while (actual.getSiguiente() != null &&
                 actual.getSiguiente().getDato().getPrioridad() >= p) {
             actual = actual.getSiguiente();
         }
 
-        // insertar después de 'actual'
         nuevo.setSiguiente(actual.getSiguiente());
         actual.setSiguiente(nuevo);
 
-        // si quedó al final, actualizamos 'ultimo'
         if (nuevo.getSiguiente() == null) {
             ultimo = nuevo;
         }
@@ -60,7 +54,7 @@ public class ColaPrioridadEvacuacion {
         size++;
     }
 
-    /** Extrae el elemento de mayor prioridad (frente de la cola). */
+    // Extraer el elemento de mayor prioridad
     public Evacuacion extraerMayorPrioridad() {
         if (estaVacia()) return null;
         Evacuacion dato = primero.getDato();
@@ -70,7 +64,7 @@ public class ColaPrioridadEvacuacion {
         return dato;
     }
 
-    /** Impresión de apoyo en orden de atención. */
+    // Impresión de apoyo en orden de atención
     public void mostrarCola() {
         System.out.println("Cola de evacuaciones (mayor prioridad primero):");
         Nodo<Evacuacion> aux = primero;
@@ -80,7 +74,7 @@ public class ColaPrioridadEvacuacion {
         }
     }
 
-    /** Devuelve todas las evacuaciones en una lista (en orden de prioridad). */
+    // Devolver todas las evacuaciones en una lista (en orden de prioridad
     public List<Evacuacion> listarTodas() {
         List<Evacuacion> lista = new ArrayList<>();
         Nodo<Evacuacion> aux = primero;
@@ -91,6 +85,7 @@ public class ColaPrioridadEvacuacion {
         return lista;
     }
 
+    // Buscar evacuaciones segun ID
     public Evacuacion buscarPorId(String id) {
         if (id == null) return null;
         Nodo<Evacuacion> aux = primero;
@@ -102,6 +97,7 @@ public class ColaPrioridadEvacuacion {
         return null;
     }
 
+    // Actualizar estado de las evacuaciones
     public void actualizarEstado(String id, EstadoEvacuacion nuevoEstado) {
         if (nuevoEstado == null) return;
         Evacuacion e = buscarPorId(id);
@@ -110,14 +106,10 @@ public class ColaPrioridadEvacuacion {
         }
     }
 
-    /**
-     * Elimina una evacuación por id de la cola.
-     * Devuelve true si la encontró y la eliminó, false si no estaba.
-     */
+    // Eliminar una evacuacion por ID de la cola
     public boolean eliminarPorId(String id) {
         if (id == null || estaVacia()) return false;
 
-        // Caso: está en el primero
         if (id.equals(primero.getDato().getIdEvacuacion())) {
             primero = primero.getSiguiente();
             if (primero == null) {
@@ -127,23 +119,19 @@ public class ColaPrioridadEvacuacion {
             return true;
         }
 
-        // Buscar en el resto de la lista
         Nodo<Evacuacion> actual = primero;
         while (actual.getSiguiente() != null &&
                 !id.equals(actual.getSiguiente().getDato().getIdEvacuacion())) {
             actual = actual.getSiguiente();
         }
 
-        // No lo encontró
         if (actual.getSiguiente() == null) {
             return false;
         }
 
-        // Quitar el nodo siguiente
         Nodo<Evacuacion> nodoAEliminar = actual.getSiguiente();
         actual.setSiguiente(nodoAEliminar.getSiguiente());
 
-        // Si el que borramos era el último, actualizar 'ultimo'
         if (nodoAEliminar == ultimo) {
             ultimo = actual;
         }
