@@ -12,13 +12,11 @@ import java.util.*;
  * en un archivo JSON (datos_sistema.json).
  *
  * Guarda:
- *  - Ubicaciones (incluye latitud y longitud)
+ *  - Ubicaciones (incluye latitud, longitud y personas)
  *  - Rutas
  *  - Recursos (alimento y medicina con sus campos específicos)
  *  - Equipos de rescate
  *  - Evacuaciones
- *
- * NOTA: Más adelante, si quieres, se puede extender para personas, etc.
  */
 public class PersistenciaJson {
 
@@ -46,6 +44,14 @@ public class PersistenciaJson {
         String nivelAfectacion;
         double latitud;
         double longitud;
+        // 🔵 NUEVO: personas asociadas a esta ubicación
+        List<PersonaJ> personas;
+    }
+
+    private static class PersonaJ {
+        String id;
+        String nombre;
+        String estado; // EN_PELIGRO, A_SALVO, etc.
     }
 
     private static class RutaJ {
@@ -93,7 +99,7 @@ public class PersistenciaJson {
 
             EstadoSistema estado = new EstadoSistema();
 
-            // ----- UBICACIONES -----
+            // ----- UBICACIONES (+ PERSONAS) -----
             for (Ubicacion u : sistema.getGrafo().obtenerTodasLasUbicaciones()) {
                 UbicacionJ uj = new UbicacionJ();
                 uj.id = u.getIdUbicacion();
@@ -102,6 +108,20 @@ public class PersistenciaJson {
                 uj.nivelAfectacion = u.getNivelAfectacion().name();
                 uj.latitud = u.getLatitud();
                 uj.longitud = u.getLongitud();
+
+                // 🔵 NUEVO: serializar personas asociadas a la ubicación
+                if (u.getPersonas() != null && !u.getPersonas().isEmpty()) {
+                    uj.personas = new ArrayList<>();
+                    for (Persona p : u.getPersonas()) {
+                        PersonaJ pj = new PersonaJ();
+                        // Ajusta estos getters si tienen otro nombre en tu clase Persona
+                        pj.id = p.getIdPersona();
+                        pj.nombre = p.getNombre();
+                        pj.estado = (p.getEstado() != null) ? p.getEstado().name() : "EN_PELIGRO";
+                        uj.personas.add(pj);
+                    }
+                }
+
                 estado.ubicaciones.add(uj);
             }
 
@@ -203,7 +223,7 @@ public class PersistenciaJson {
             // Mapa para ubicar ubicaciones por nombre
             Map<String, Ubicacion> ubicPorNombre = new HashMap<>();
 
-            // ----- UBICACIONES -----
+            // ----- UBICACIONES (+ PERSONAS) -----
             for (UbicacionJ uj : estado.ubicaciones) {
                 // Evacuación neutra dummy, luego se usan las reales en cola
                 Evacuacion evacDummy = new Evacuacion(
@@ -216,12 +236,37 @@ public class PersistenciaJson {
                         TipoZona.valueOf(uj.tipoZona),
                         NivelDeAfectacion.valueOf(uj.nivelAfectacion),
                         evacDummy,
-                        new ArrayList<>(),
-                        new ArrayList<>(),
-                        new ArrayList<>(),
+                        new ArrayList<>(),   // personas
+                        new ArrayList<>(),   // recursos
+                        new ArrayList<>(),   // equipos
                         uj.latitud,
                         uj.longitud
                 );
+
+                // 🔵 NUEVO: reconstruir personas si vienen en el JSON
+                if (uj.personas != null) {
+                    for (PersonaJ pj : uj.personas) {
+                        String idP = (pj.id != null && !pj.id.isBlank())
+                                ? pj.id
+                                : ("P" + System.nanoTime());
+                        String nombreP = (pj.nombre != null && !pj.nombre.isBlank())
+                                ? pj.nombre
+                                : ("Persona de " + u.getNombre());
+                        String estStr = (pj.estado != null && !pj.estado.isBlank())
+                                ? pj.estado
+                                : "EN_PELIGRO";
+
+                        EstadoPersona estadoPersona = EstadoPersona.valueOf(estStr);
+
+                        Persona p = new Persona(
+                                idP,
+                                nombreP,
+                                estadoPersona,
+                                u
+                        );
+                        u.getPersonas().add(p);
+                    }
+                }
 
                 sistema.agregarUbicacion(u);
                 ubicPorNombre.put(u.getNombre(), u);
