@@ -166,12 +166,6 @@
   ],
   "rutas": [
     {
-      "id": "R2",
-      "origenNombre": "Refugio B",
-      "destinoNombre": "Centro C",
-      "distancia": 3.0
-    },
-    {
       "id": "R1",
       "origenNombre": "Ciudad A",
       "destinoNombre": "Refugio B",
@@ -182,6 +176,12 @@
       "origenNombre": "Ciudad A",
       "destinoNombre": "Centro C",
       "distancia": 5.0
+    },
+    {
+      "id": "R2",
+      "origenNombre": "Refugio B",
+      "destinoNombre": "Centro C",
+      "distancia": 3.0
     }
   ],
   "recursos": [
@@ -201,7 +201,6 @@
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
-
     {
       "id": "RM105509827738900-P105534145105500",
       "nombre": "pildoras",
@@ -218,19 +217,6 @@
       "tipo": "MEDICINA",
       "extra": "General"
     },
-
-
-    {
-      "id": "RM105509827738900-P105534145105500-P18189835419700",
-      "nombre": "pildoras",
-      "cantidad": 40,
-      "nombreUbicacion": "Libertadores",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-
-
-
     {
       "id": "RM3001843855416",
       "nombre": "acetaminofen",
@@ -239,8 +225,6 @@
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
-
-
     {
       "id": "RA104203078120700-P104559684548700",
       "nombre": "Atun",
@@ -257,8 +241,6 @@
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
-
-
     {
       "id": "RM105509827738900-P105534144892500",
       "nombre": "pildoras",
@@ -267,8 +249,6 @@
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
-
-
     {
       "id": "RA16173423774900",
       "nombre": "ALIMENTO",
@@ -293,7 +273,6 @@
       "tipo": "ALIMENTO",
       "extra": "2025-11-28"
     },
-
     {
       "id": "RM105509827738900-P105534144892500",
       "nombre": "pildoras",
@@ -301,22 +280,30 @@
       "nombreUbicacion": "Refugio B",
       "tipo": "MEDICINA",
       "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189835419700",
+      "nombre": "pildoras",
+      "cantidad": 40,
+      "nombreUbicacion": "Libertadores",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
     }
   ],
   "equipos": [
-    {
-      "id": "EQ16470256995600",
-      "nombre": "Los capos",
-      "tipo": "bomberos",
-      "miembros": 8,
-      "nombreUbicacion": "San Jose"
-    },
     {
       "id": "EQ16552362510000",
       "nombre": "Yasuri",
       "tipo": "Policias",
       "miembros": 4,
       "nombreUbicacion": "El bosque"
+    },
+    {
+      "id": "EQ16470256995600",
+      "nombre": "Los capos",
+      "tipo": "bomberos",
+      "miembros": 8,
+      "nombreUbicacion": "San Jose"
     }
   ],
   "evacuaciones": [
