@@ -1,12 +1,151 @@
 {
   "ubicaciones": [
     {
+      "id": "U17956356148600",
+      "nombre": "Libertadores",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "MODERADO",
+      "latitud": 4.546507342604505,
+      "longitud": -75.68360043922387,
+      "personas": [
+        {
+          "id": "P17956356515500_1",
+          "nombre": "Persona 1 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371127100_2",
+          "nombre": "Persona 2 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371177700_3",
+          "nombre": "Persona 3 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371201000_4",
+          "nombre": "Persona 4 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371214100_5",
+          "nombre": "Persona 5 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371226500_6",
+          "nombre": "Persona 6 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371268800_7",
+          "nombre": "Persona 7 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371286000_8",
+          "nombre": "Persona 8 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371307500_9",
+          "nombre": "Persona 9 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371324100_10",
+          "nombre": "Persona 10 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371341900_11",
+          "nombre": "Persona 11 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371393600_12",
+          "nombre": "Persona 12 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371413800_13",
+          "nombre": "Persona 13 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371447100_14",
+          "nombre": "Persona 14 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371467100_15",
+          "nombre": "Persona 15 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371483300_16",
+          "nombre": "Persona 16 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371501300_17",
+          "nombre": "Persona 17 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371538100_18",
+          "nombre": "Persona 18 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371555200_19",
+          "nombre": "Persona 19 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371577900_20",
+          "nombre": "Persona 20 de Libertadores",
+          "estado": "EN_PELIGRO"
+        },
+        {
+          "id": "P17956371594100_21",
+          "nombre": "Persona 21 de Libertadores",
+          "estado": "EN_PELIGRO"
+        }
+      ]
+    },
+    {
+      "id": "U15813516358600",
+      "nombre": "El Cafetero",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "LEVE",
+      "latitud": 4.530430483575548,
+      "longitud": -75.67879304501425
+    },
+    {
+      "id": "U11988680639200",
+      "nombre": "El bosque",
+      "tipoZona": "CIUDAD",
+      "nivelAfectacion": "LEVE",
+      "latitud": 4.539470543182852,
+      "longitud": -75.67751995090067
+    },
+    {
       "id": "U2",
       "nombre": "Refugio B",
       "tipoZona": "REFUGIO",
       "nivelAfectacion": "LEVE",
       "latitud": 1.0,
       "longitud": 1.0
+    },
+    {
+      "id": "U3",
+      "nombre": "Centro C",
+      "tipoZona": "CENTRO_AYUDA",
+      "nivelAfectacion": "GRAVE",
+      "latitud": 2.0,
+      "longitud": 2.0
     },
     {
       "id": "U1",
@@ -17,16 +156,6 @@
       "longitud": 0.0
     },
     {
-      "id": "U3",
-      "nombre": "Centro C",
-      "tipoZona": "CENTRO_AYUDA",
-      "nivelAfectacion": "GRAVE",
-      "latitud": 2.0,
-      "longitud": 2.0
-    },
-
-
-    {
       "id": "U2",
       "nombre": "Refugio B",
       "tipoZona": "REFUGIO",
@@ -35,39 +164,15 @@
       "longitud": 1.0
     },
     {
-      "id": "U11988680639200",
-      "nombre": "El bosque",
+      "id": "U14827629483800",
+      "nombre": "San Jose",
       "tipoZona": "CIUDAD",
-      "nivelAfectacion": "LEVE",
-      "latitud": 4.539470543182852,
-      "longitud": -75.67751995090067
+      "nivelAfectacion": "GRAVE",
+      "latitud": 4.54047056534199,
+      "longitud": -75.69103649588874
     }
   ],
   "rutas": [
-    {
-      "id": "R104175488034200",
-      "origenNombre": "Granada",
-      "destinoNombre": "El bosque",
-      "distancia": 18.0
-    },
-    {
-      "id": "R104136594194900",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "Granada",
-      "distancia": 25.0
-    },
-    {
-      "id": "R104105974959000",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "Alamos",
-      "distancia": 8.0
-    },
-    {
-      "id": "R104092939371200",
-      "origenNombre": "Bodega Opalo",
-      "destinoNombre": "El bosque",
-      "distancia": 20.0
-    },
     {
       "id": "R2",
       "origenNombre": "Refugio B",
@@ -75,23 +180,16 @@
       "distancia": 3.0
     },
     {
-      "id": "R3",
-      "origenNombre": "Ciudad A",
-      "destinoNombre": "Centro C",
-      "distancia": 5.0
-    },
-    {
       "id": "R1",
       "origenNombre": "Ciudad A",
       "destinoNombre": "Refugio B",
       "distancia": 2.5
     },
-
     {
-      "id": "R12041261827500",
-      "origenNombre": "El bosque",
-      "destinoNombre": "Alamos",
-      "distancia": 12.0
+      "id": "R3",
+      "origenNombre": "Ciudad A",
+      "destinoNombre": "Centro C",
+      "distancia": 5.0
     }
   ],
   "recursos": [
@@ -184,20 +282,12 @@
       "extra": "calmante"
     },
     {
-      "id": "RA16173423774900",
-      "nombre": "ALIMENTO",
-      "cantidad": 10,
-      "nombreUbicacion": "Refugio B",
-      "tipo": "ALIMENTO",
-      "extra": "2025-12-16"
-    },
-    {
-      "id": "RM16138741810600",
-      "nombre": "MEDICINA",
-      "cantidad": 15,
-      "nombreUbicacion": "Alamos",
+      "id": "RM105509827738900-P105534145105500-P18189835419700",
+      "nombre": "pildoras",
+      "cantidad": 40,
+      "nombreUbicacion": "Libertadores",
       "tipo": "MEDICINA",
-      "extra": "General"
+      "extra": "calmante"
     },
     {
       "id": "RM16138741810600",
@@ -208,116 +298,36 @@
       "extra": "General"
     },
     {
-      "id": "RA104203078120700-P104559683778100",
-      "nombre": "Atun",
-      "cantidad": 48,
-      "nombreUbicacion": "Alamos",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375342896100",
-      "nombre": "Atun",
-      "cantidad": 50,
-      "nombreUbicacion": "Alamos",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534145030800",
-      "nombre": "pildoras",
-      "cantidad": 200,
-      "nombreUbicacion": "Alamos",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559681862100",
-      "nombre": "Atun",
-      "cantidad": 32,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559682153700",
-      "nombre": "Atun",
-      "cantidad": 32,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684912900",
-      "nombre": "Atun",
-      "cantidad": 32,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684640500",
-      "nombre": "Atun",
-      "cantidad": 32,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P104559684548700",
-      "nombre": "Atun",
-      "cantidad": 32,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375342749700",
-      "nombre": "Atun",
-      "cantidad": 33,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534144937400",
-      "nombre": "pildoras",
-      "cantidad": 133,
-      "nombreUbicacion": "Ciudad A",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559685639000",
-      "nombre": "Atun",
-      "cantidad": 40,
-      "nombreUbicacion": "Granada",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RA104203078120700-P105375319172300",
-      "nombre": "Atun",
-      "cantidad": 33,
-      "nombreUbicacion": "Granada",
-      "tipo": "ALIMENTO",
-      "extra": "2025-11-19"
-    },
-    {
-      "id": "RM105509827738900-P105534144587700",
-      "nombre": "pildoras",
-      "cantidad": 133,
-      "nombreUbicacion": "Granada",
-      "tipo": "MEDICINA",
-      "extra": "calmante"
-    },
-    {
-      "id": "RA104203078120700-P104559685475500",
+      "id": "RA104203078120700-P104559683273600",
       "nombre": "Atun",
       "cantidad": 16,
-      "nombreUbicacion": "__SIN_UBICACION__",
+      "nombreUbicacion": "El bosque",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700",
+      "nombre": "Atun",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500",
+      "nombre": "pildoras",
+      "cantidad": 18,
+      "nombreUbicacion": "El bosque",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189866680000",
+      "nombre": "pildoras",
+      "cantidad": 7,
+      "nombreUbicacion": "San Jose",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
     },
     {
       "id": "RA104203078120700-P104559682041700",
@@ -416,34 +426,74 @@
       "extra": "calmante"
     },
     {
-      "id": "RM105509827738900",
+      "id": "RM105509827738900-P105534145105500-P18189866253500",
       "nombre": "pildoras",
-      "cantidad": 200,
-      "nombreUbicacion": "Bodega Opalo",
+      "cantidad": 2,
+      "nombreUbicacion": "Centro C",
       "tipo": "MEDICINA",
       "extra": "calmante"
     },
     {
-      "id": "RA104203078120700-P104559683273600",
+      "id": "RA104203078120700-P104559681862100",
       "nombre": "Atun",
-      "cantidad": 16,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RA104203078120700",
+      "id": "RA104203078120700-P104559682153700",
       "nombre": "Atun",
-      "cantidad": 18,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
       "tipo": "ALIMENTO",
       "extra": "2025-11-19"
     },
     {
-      "id": "RM105509827738900-P105534145105500",
+      "id": "RA104203078120700-P104559684912900",
+      "nombre": "Atun",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P104559684640500",
+      "nombre": "Atun",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P104559684548700",
+      "nombre": "Atun",
+      "cantidad": 32,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RA104203078120700-P105375342749700",
+      "nombre": "Atun",
+      "cantidad": 33,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "ALIMENTO",
+      "extra": "2025-11-19"
+    },
+    {
+      "id": "RM105509827738900-P105534144937400",
       "nombre": "pildoras",
-      "cantidad": 68,
-      "nombreUbicacion": "El bosque",
+      "cantidad": 133,
+      "nombreUbicacion": "Ciudad A",
+      "tipo": "MEDICINA",
+      "extra": "calmante"
+    },
+    {
+      "id": "RM105509827738900-P105534145105500-P18189866530700",
+      "nombre": "pildoras",
+      "cantidad": 1,
+      "nombreUbicacion": "Ciudad A",
       "tipo": "MEDICINA",
       "extra": "calmante"
     }
@@ -454,7 +504,7 @@
       "nombre": "Los capos",
       "tipo": "bomberos",
       "miembros": 8,
-      "nombreUbicacion": "El bosque"
+      "nombreUbicacion": "San Jose"
     },
     {
       "id": "EQ16552362510000",
@@ -469,8 +519,7 @@
       "id": "EV145889971342300",
       "prioridad": 5,
       "cantidadPersonas": 10,
-      "estado": "EN_PROCESO",
-      "nombreUbicacion": "Alamos"
+      "estado": "EN_PROCESO"
     },
     {
       "id": "EV145793395285900",
@@ -480,7 +529,13 @@
       "nombreUbicacion": "Refugio B"
     },
     {
-      "id": "EV89026644898200",
+      "id": "EV17768977227791",
+      "prioridad": 3,
+      "cantidadPersonas": 4,
+      "estado": "PENDIENTE"
+    },
+    {
+      "id": "EV15730057916500",
       "prioridad": 2,
       "cantidadPersonas": 12,
       "estado": "COMPLETADA",
@@ -490,15 +545,7 @@
       "id": "EV87881788892200",
       "prioridad": 1,
       "cantidadPersonas": 13,
-      "estado": "COMPLETADA",
-      "nombreUbicacion": "El bosque"
-    },
-    {
-      "id": "EV145850192575600",
-      "prioridad": 1,
-      "cantidadPersonas": 10,
-      "estado": "EN_PROCESO",
-      "nombreUbicacion": "Ciudad A"
+      "estado": "COMPLETADA"
     }
   ]
 }
