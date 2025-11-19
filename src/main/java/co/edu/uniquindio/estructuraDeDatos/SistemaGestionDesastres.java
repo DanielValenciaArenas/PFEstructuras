@@ -63,6 +63,10 @@ public class SistemaGestionDesastres {
         if (r != null) grafo.agregarRuta(r);
     }
 
+    public List<Ubicacion> getUbicaciones() {
+        return grafo.obtenerTodasLasUbicaciones();
+    }
+
     // =============================
     // EVACUACIONES
     // =============================
@@ -81,11 +85,11 @@ public class SistemaGestionDesastres {
                 .count();
     }
 
+    /** Elimina una evacuación por id de la cola de prioridad. */
     public boolean eliminarEvacuacionPorId(String id) {
         if (id == null) return false;
         return colaEvacuaciones.eliminarPorId(id);
     }
-
 
     // =============================
     // RUTAS / SIMULACIONES
@@ -111,16 +115,12 @@ public class SistemaGestionDesastres {
         return mapaRecursos;
     }
 
-    public List<Usuario> getUsuarios() {
-        return usuarios;
-    }
-
-    public List<Ubicacion> getUbicaciones() {
-        return grafo.obtenerTodasLasUbicaciones();
-    }
-
     public ArbolDistribuido getArbolDistribucion() {
         return arbolDistribucion;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
     }
 
     // =============================
@@ -288,223 +288,6 @@ public class SistemaGestionDesastres {
             int peso;
         }
 
-        Map<String, DestinoPeso> destinosMap = new LinkedHashMap<>();
-        int sumaPesos = 0;
-
-        for (Ubicacion u : grafo.obtenerTodasLasUbicaciones()) {
-            // No repartimos al origen ni a la bodega oculta de equipos
-            if (u == origen) continue;
-            if (NOMBRE_BODEGA_EQUIPOS.equals(u.getNombre())) continue;
-
-            // Evitar duplicados
-            if (destinosMap.containsKey(u.getIdUbicacion())) continue;
-
-            int prio = prioridadPorNivel(u.getNivelAfectacion());
-            if (prio <= 0) continue;
-
-            int numPersonas = (u.getPersonas() != null) ? u.getPersonas().size() : 0;
-            int peso = prio * (numPersonas > 0 ? numPersonas : 1);
-
-            DestinoPeso d = new DestinoPeso();
-            d.u = u;
-            d.prioridad = prio;
-            d.personas = numPersonas;
-            d.peso = peso;
-
-            destinosMap.put(u.getIdUbicacion(), d);
-            sumaPesos += peso;
-        }
-
-        List<DestinoPeso> destinos = new ArrayList<>(destinosMap.values());
-
-        if (destinos.isEmpty() || sumaPesos == 0) {
-            log.add("No hay zonas registradas con nivel de afectación para recibir recursos.");
-            return log;
-        }
-
-        // 4. Reparto proporcional al peso de cada destino (una sola vez por zona)
-        int restante = totalARepartir;
-
-        for (int i = 0; i < destinos.size(); i++) {
-            DestinoPeso d = destinos.get(i);
-
-            int asignado;
-            if (i == destinos.size() - 1) {
-                // último destino: todo lo que queda (evita perder por redondeos)
-                asignado = restante;
-            } else {
-                asignado = (int) Math.floor((double) totalARepartir * d.peso / sumaPesos);
-                if (asignado > restante) asignado = restante;
-            }
-
-            if (asignado <= 0) continue;
-
-            // Transferencia real desde la bodega hacia la zona
-            Recurso movido = mapaRecursos.transferirRecurso(origen, d.u, idRecurso, asignado);
-            if (movido != null) {
-                // Reflejar en el árbol de distribución
-                if (arbolDistribucion != null) {
-                    arbolDistribucion.insertar(d.u, movido);
-                }
-
-                log.add("Se enviaron " + asignado +
-                        " unidades de '" + movido.getNombre() +
-                        "' hacia " + d.u.getNombre() +
-                        " (nivel " + d.u.getNivelAfectacion() +
-                        ", personas=" + d.personas + ").");
-
-                restante -= asignado;
-                if (restante <= 0) break;
-            }
-        }
-
-        if (restante > 0) {
-            log.add("Quedaron sin repartir " + restante +
-                    " unidades en " + origen.getNombre() + ".");
-        } else {
-            log.add("No quedaron unidades sin repartir en " + origen.getNombre() + ".");
-        }
-
-        return log;
-    }
-
-    // =========================================================
-    //  NUEVA LÓGICA PARA RECURSOS + ÁRBOL DE DISTRIBUCIÓN
-    // =========================================================
-
-    /**
-     * Registra un recurso en el sistema:
-     *  - Lo agrega al MapaRecursos (para consultas por ubicación)
-     *  - Lo inserta en el ArbolDistribuido (para representar la distribución)
-     */
-    public void registrarRecurso(Ubicacion ubicacion, Recurso recurso) {
-        if (ubicacion == null || recurso == null) return;
-
-        // Mantener el mapa de recursos
-        mapaRecursos.agregarRecurso(ubicacion, recurso);
-
-        // Mantener el árbol de distribución
-        if (arbolDistribucion != null) {
-            arbolDistribucion.insertar(ubicacion, recurso);
-        }
-    }
-
-    /**
-     * Asigna una prioridad numérica según el nivel de afectación.
-     * GRAVE > MODERADO > LEVE
-     */
-    private int prioridadPorNivel(NivelDeAfectacion nivel) {
-        if (nivel == null) return 0;
-        switch (nivel) {
-            case GRAVE:     return 3;
-            case MODERADO:  return 2;
-            case LEVE:      return 1;
-            default:        return 0;
-        }
-    }
-
-    /**
-     * Distancia "geográfica" aproximada usando latitud y longitud.
-     */
-    private double distanciaGeografica(Ubicacion a, Ubicacion b) {
-        if (a == null || b == null) return Double.MAX_VALUE;
-        double dx = a.getLatitud() - b.getLatitud();
-        double dy = a.getLongitud() - b.getLongitud();
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    /**
-     * Devuelve las zonas ordenadas:
-     *  1) Primero por nivel de afectación (GRAVE > MODERADO > LEVE)
-     *  2) Después por proximidad a una ubicación origen (más cerca primero)
-     */
-    private List<Ubicacion> ordenarZonasPorPrioridadYProximidad(Ubicacion origen) {
-        List<Ubicacion> zonas = new ArrayList<>(grafo.obtenerTodasLasUbicaciones());
-        zonas.remove(origen); // no queremos distribuir a la misma zona origen
-
-        zonas.sort((u1, u2) -> {
-            int p1 = prioridadPorNivel(u1.getNivelAfectacion());
-            int p2 = prioridadPorNivel(u2.getNivelAfectacion());
-
-            // Primero, comparar por prioridad (mayor primero)
-            if (p1 != p2) {
-                return Integer.compare(p2, p1); // GRAVE antes que LEVE
-            }
-
-            // Si tienen el mismo nivel, usar distancia (más cerca primero)
-            double d1 = distanciaGeografica(origen, u1);
-            double d2 = distanciaGeografica(origen, u2);
-            return Double.compare(d1, d2);
-        });
-
-        return zonas;
-    }
-
-    /**
-     * Busca un recurso por ID dentro de una ubicación específica usando el MapaRecursos.
-     */
-    private Recurso buscarRecursoEnUbicacion(Ubicacion ubicacion, String idRecurso) {
-        if (ubicacion == null || idRecurso == null) return null;
-        for (Recurso r : mapaRecursos.obtenerRecursos(ubicacion)) {
-            if (idRecurso.equals(r.getIdRecurso())) {
-                return r;
-            }
-        }
-        return null;
-    }
-
-    public List<String> distribuirRecursoPrioritario(String nombreUbicacionOrigen,
-                                                     String idRecurso,
-                                                     int cantidadSolicitada) {
-
-        List<String> log = new ArrayList<>();
-        final String NOMBRE_BODEGA_EQUIPOS = "__SIN_UBICACION__";
-
-        if (cantidadSolicitada <= 0) {
-            log.add("La cantidad a repartir debe ser mayor que 0.");
-            return log;
-        }
-
-        // 1. Buscar ubicación origen por nombre
-        Ubicacion origen = null;
-        for (Ubicacion u : grafo.obtenerTodasLasUbicaciones()) {
-            if (u.getNombre().equalsIgnoreCase(nombreUbicacionOrigen)) {
-                origen = u;
-                break;
-            }
-        }
-
-        if (origen == null) {
-            log.add("No se encontró la ubicación origen: " + nombreUbicacionOrigen);
-            return log;
-        }
-
-        // 2. Buscar el recurso en el origen (bodega / stock)
-        Recurso recursoStock = buscarRecursoEnUbicacion(origen, idRecurso);
-        if (recursoStock == null) {
-            log.add("No se encontró el recurso con ID " + idRecurso
-                    + " en la ubicación " + origen.getNombre());
-            return log;
-        }
-
-        int stockDisponible = recursoStock.getCantidad();
-        if (stockDisponible <= 0) {
-            log.add("No hay stock disponible del recurso en " + origen.getNombre() + ".");
-            return log;
-        }
-
-        int totalARepartir = Math.min(stockDisponible, cantidadSolicitada);
-        log.add("Stock disponible en " + origen.getNombre() + ": " + stockDisponible
-                + ". Se intentará distribuir: " + totalARepartir + " unidades.");
-
-        // 3. Construir la lista de destinos ÚNICOS (sin repetir ubicaciones)
-        class DestinoPeso {
-            Ubicacion u;
-            int prioridad;
-            int personas;
-            int peso;
-        }
-
         // Usamos un mapa por ID de ubicación para evitar duplicados
         Map<String, DestinoPeso> destinosMap = new LinkedHashMap<>();
         int sumaPesos = 0;
@@ -586,7 +369,4 @@ public class SistemaGestionDesastres {
 
         return log;
     }
-
-
-
 }
